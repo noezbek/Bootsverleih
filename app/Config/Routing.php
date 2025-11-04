@@ -48,7 +48,7 @@ class Routing extends BaseRouting
      *
      * Default: 'Home'
      */
-    public string $defaultController = 'Home';
+    // public string $defaultController = 'FormularController';
 
     /**
      * For Defined Routes and Auto Routing.
@@ -136,5 +136,5 @@ class Routing extends BaseRouting
      *
      * Default: false
      */
-    public bool $translateUriToCamelCase = true;
+    public bool $translateUriToCamelCase = false;
 }

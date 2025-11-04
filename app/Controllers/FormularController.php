@@ -3,16 +3,22 @@
 namespace App\Controllers;
 
 class FormularController extends BaseController
-{ 
-    public function __construct() {
+{
+
+    public function index()
+    {
+        echo "<h1>Formularcontroller funktioniert!</h1>";
+    }
+
+
+    public function getformularzeigen(): string{
+        // die();
+       return view('auswertungsFormular');
 
     }
 
-    public function getFormularZeigen($nummer=NULL): string{
-        return view["registrierungsFormular"];
-    }
-
-    public function postAuswertung() {
-        echo "<p style='color:red;font-size:50px'>". $_POST['lastName'] . "</P>";
-    }
+    // publ
+    // }ic function postAuswertung() {
+    //     echo "<p style='color:red;font-size:50px'>". $_POST['lastName'] . "</P>";
+    // }
 }
