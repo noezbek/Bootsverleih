@@ -1,4 +1,14 @@
+
+
+
 # CodeIgniter 4 Application Starter
+
+in der php.ini unter dem php ordner extension=intl einkommentieren
+und bei httpd.conf unter apache/conf einmal 
+#DocumentRoot "C:/xampp/htdocs"
+#<Directory "C:/xampp/htdocs">
+DocumentRoot "C:/xampp/htdocs/Bootsverleih/public"
+<Directory "C:/xampp/htdocs/Bootsverleih/public">
 
 ## What is CodeIgniter?
 
