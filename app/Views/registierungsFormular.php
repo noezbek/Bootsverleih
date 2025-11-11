@@ -133,10 +133,35 @@
 </head>
 
 <body>
-    Auswertung<br>
-    <?php
-    echo $vorname . " " . $nachname;
-    ?>
+    <form action="auswertung" method="POST">
+        <h2>Registrieren</h2>
+        <fieldset>
+            <legend>Personendaten:</legend>
+            <label>Vorname <input type="text" name="firstName" placeholder="Max" required> </label>
+            <label>Nachname <input type="text" name="lastName" placeholder="Mustermann" required> </label>
+            <label>Geburtstag <input type="date" name="birthday" required> </label>
+            <label>Telefonnummer <input type="tel" name="phone" placeholder="+49 176 12345678" required> </label>
+            <label>E-Mail <input type="email" name="email" placeholder="max@example.de" required> </label>
+            <label>Straße <input type="text" name="street" placeholder="Musterstraße" required> </label>
+            <label>Hausnummer <input type="text" name="housenumber" placeholder="12a" required> </label>
+            <label>PLZ <input type="text" name="plz" placeholder="12345" required> </label>
+            <label>Ort <input type="text" name="city" placeholder="Musterstadt" required> </label>
+        </fieldset>
+        <fieldset>
+            <legend>Geschlecht:</legend>
+            <div class="gender-options">
+                <label><input type="radio" name="gender" value="männlich" required> Männlich</label>
+                <label><input type="radio" name="gender" value="weiblich"> Weiblich</label>
+                <label><input type="radio" name="gender" value="divers"> Divers</label>
+            </div>
+        </fieldset>
+        <label class="fullwidth">Passwort <input type="password" name="password" placeholder="Passwort" required>
+        </label>
+        <label class="fullwidth">Passwort wiederholen <input type="password" name="passwordRepeat"
+                placeholder="Passwort wiederholen" required> </label>
+        <label class="agb fullwidth"> <input type="checkbox" name="agb" required> Ich akzeptiere die AGB </label>
+        <button type="submit">Registrieren</button>
+    </form>
 </body>
 
 </html>

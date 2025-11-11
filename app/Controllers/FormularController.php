@@ -11,14 +11,18 @@ class FormularController extends BaseController
     }
 
 
-    public function getformularzeigen(): string{
-        // die();
-       return view('auswertungsFormular');
+    public function getformularzeigen(): string
+    {
+        return view('registierungsFormular');
 
     }
 
-    // publ
-    // }ic function postAuswertung() {
-    //     echo "<p style='color:red;font-size:50px'>". $_POST['lastName'] . "</P>";
-    // }
+    public function postauswertung(): string
+    {
+        $data = [
+            "nachname" => $_POST["lastName"],
+            "vorname" => $_POST["firstName"],
+        ];
+        return view('auswertungsFormular', $data);
+    }
 }
