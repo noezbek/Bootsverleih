@@ -2,8 +2,17 @@
 
 namespace App\Controllers;
 
+use App\Models\Kundendaten;
+
 class FormularController extends BaseController
 {
+
+    private $kundendaten;
+
+    public function __construct()
+    {
+        $this->kundendaten = new Kundendaten();
+    }
 
     public function index()
     {
@@ -19,6 +28,8 @@ class FormularController extends BaseController
 
     public function postauswertung(): string
     {
+        $this->kundendaten->speichern($_POST["firstName"], $_POST["lastName"]);
+
         $data = [
             "nachname" => $_POST["lastName"],
             "vorname" => $_POST["firstName"],
