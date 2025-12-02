@@ -1,6 +1,5 @@
 
 
-
 # CodeIgniter 4 Application Starter
 
 in der php.ini unter dem php ordner extension=intl einkommentieren
@@ -9,6 +8,10 @@ und bei httpd.conf unter apache/conf einmal
 #<Directory "C:/xampp/htdocs">
 DocumentRoot "C:/xampp/htdocs/Bootsverleih/public"
 <Directory "C:/xampp/htdocs/Bootsverleih/public">
+
+um projekt zu starten entweder ./open in gitbash oder http://localhost/Bootsverleih/public/FormularController/formularzeigen im browser ( beides dasselbe )
+
+
 
 ## What is CodeIgniter?
 
