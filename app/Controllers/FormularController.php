@@ -22,7 +22,9 @@ class FormularController extends BaseController
 
     public function getformularzeigen(): string
     {
-        return view('registierungsFormular');
+                return view('homepage');
+        
+        // return view('registierungsFormular');
 
     }
 
@@ -36,4 +38,6 @@ class FormularController extends BaseController
         ];
         return view('auswertungsFormular', $data);
     }
+
+
 }
