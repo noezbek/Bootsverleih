@@ -24,9 +24,10 @@ abstract class Person extends DatabaseEntry
         string $strasse,
         int $plz,
         string $stadt,
+        ?bool $active = true,
         ?int $id = null
     ) {
-        parent::__construct($id);
+        parent::__construct($id, $active);
         $this->vorname = $vorname;
         $this->nachname = $nachname;
         $this->email = $email;

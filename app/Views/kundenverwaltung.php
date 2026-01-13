@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -481,403 +482,419 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <a href="<?= base_url('/') ?>" class="back-link">← Zurück zum Dashboard</a>
+    <div class="container">
 
-    <header>
-        <div class="header-left">
-            <h1>Kundenverwaltung</h1>
-            <p class="subtitle">Verwaltung aller Kundenkonten und Stammdaten</p>
-        </div>
-        <button class="btn btn-primary" onclick="addNewCustomer()">+ Neuer Kunde</button>
-    </header>
+        <?php foreach ($kunden as $id => $kunde): ?>
+            <?= esc($id) ?> -
+            <?= esc($kunde['vorname']) ?>
+            <?= esc($kunde['nachname']) ?><br>
+            <?= esc($kunde['active']) ?><br>
+        <?php endforeach; ?>
 
-    <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Suche nach Name, E-Mail, Kundennummer..." onkeyup="searchCustomers()">
-        <button class="btn btn-primary" onclick="searchCustomers()">Suchen</button>
-    </div>
 
-    <div class="customers-table">
-        <table id="customersTable">
-            <thead>
-                <tr>
-                    <th>Kunden-Nr.</th>
-                    <th>Name</th>
-                    <th>E-Mail</th>
-                    <th>Telefon</th>
-                    <th>Status</th>
-                    <th>Registriert</th>
-                    <th>Aktionen</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr data-customer-id="K001">
-                    <td>K-2024-001</td>
-                    <td class="customer-name">Max Müller</td>
-                    <td>max.mueller@email.de</td>
-                    <td>+49 170 1234567</td>
-                    <td><span class="status-badge status-active">Aktiv</span></td>
-                    <td>15.03.2024</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn-small btn-view" onclick="viewCustomer('K001')">Details</button>
-                            <button class="btn-small btn-edit" onclick="editCustomer('K001')">Bearbeiten</button>
-                            <button class="btn-small btn-delete" onclick="deleteCustomer('K001', 'Max Müller')">Löschen</button>
-                        </div>
-                    </td>
-                </tr>
-                <tr data-customer-id="K002">
-                    <td>K-2024-002</td>
-                    <td class="customer-name">Anna Schmidt</td>
-                    <td>anna.schmidt@email.de</td>
-                    <td>+49 172 9876543</td>
-                    <td><span class="status-badge status-active">Aktiv</span></td>
-                    <td>22.04.2024</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn-small btn-view" onclick="viewCustomer('K002')">Details</button>
-                            <button class="btn-small btn-edit" onclick="editCustomer('K002')">Bearbeiten</button>
-                            <button class="btn-small btn-delete" onclick="deleteCustomer('K002', 'Anna Schmidt')">Löschen</button>
-                        </div>
-                    </td>
-                </tr>
-                <tr data-customer-id="K003">
-                    <td>K-2023-087</td>
-                    <td class="customer-name">Thomas Weber</td>
-                    <td>thomas.weber@email.de</td>
-                    <td>+49 151 5551234</td>
-                    <td><span class="status-badge status-active">Aktiv</span></td>
-                    <td>10.08.2023</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn-small btn-view" onclick="viewCustomer('K003')">Details</button>
-                            <button class="btn-small btn-edit" onclick="editCustomer('K003')">Bearbeiten</button>
-                            <button class="btn-small btn-delete" onclick="deleteCustomer('K003', 'Thomas Weber')">Löschen</button>
-                        </div>
-                    </td>
-                </tr>
-                <tr data-customer-id="K004">
-                    <td>K-2025-034</td>
-                    <td class="customer-name">Julia Fischer</td>
-                    <td>julia.fischer@email.de</td>
-                    <td>+49 160 7778888</td>
-                    <td><span class="status-badge status-active">Aktiv</span></td>
-                    <td>05.01.2025</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn-small btn-view" onclick="viewCustomer('K004')">Details</button>
-                            <button class="btn-small btn-edit" onclick="editCustomer('K004')">Bearbeiten</button>
-                            <button class="btn-small btn-delete" onclick="deleteCustomer('K004', 'Julia Fischer')">Löschen</button>
-                        </div>
-                    </td>
-                </tr>
-                <tr data-customer-id="K005">
-                    <td>K-2023-012</td>
-                    <td class="customer-name">Peter Schneider</td>
-                    <td>peter.schneider@email.de</td>
-                    <td>+49 175 4443332</td>
-                    <td><span class="status-badge status-inactive">Inaktiv</span></td>
-                    <td>18.02.2023</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn-small btn-view" onclick="viewCustomer('K005')">Details</button>
-                            <button class="btn-small btn-edit" onclick="editCustomer('K005')">Bearbeiten</button>
-                            <button class="btn-small btn-delete" onclick="deleteCustomer('K005', 'Peter Schneider')">Löschen</button>
-                        </div>
-                    </td>
-                </tr>
-                <tr data-customer-id="K006">
-                    <td>K-2024-089</td>
-                    <td class="customer-name">Sarah Bauer</td>
-                    <td>sarah.bauer@email.de</td>
-                    <td>+49 162 1112223</td>
-                    <td><span class="status-badge status-active">Aktiv</span></td>
-                    <td>12.11.2024</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn-small btn-view" onclick="viewCustomer('K006')">Details</button>
-                            <button class="btn-small btn-edit" onclick="editCustomer('K006')">Bearbeiten</button>
-                            <button class="btn-small btn-delete" onclick="deleteCustomer('K006', 'Sarah Bauer')">Löschen</button>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- View Customer Modal -->
-<div id="viewModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Kundendetails</h2>
-            <span class="close" onclick="closeModal('viewModal')">&times;</span>
-        </div>
-
-        <div class="info-section">
-            <h3>Persönliche Informationen</h3>
-            <div class="info-grid">
-                <div class="info-item">
-                    <span class="info-label">Kundennummer</span>
-                    <span class="info-value" id="view-customerId"></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Name</span>
-                    <span class="info-value" id="view-name"></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">E-Mail</span>
-                    <span class="info-value" id="view-email"></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Telefon</span>
-                    <span class="info-value" id="view-phone"></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Adresse</span>
-                    <span class="info-value" id="view-address"></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Registriert seit</span>
-                    <span class="info-value" id="view-registered"></span>
-                </div>
+        <a href="<?= base_url('/') ?>" class="back-link">← Zurück zum Dashboard</a>
+        <header>
+            <div class="header-left">
+                <h1>Kundenverwaltung</h1>
+                <p class="subtitle">Verwaltung aller Kundenkonten und Stammdaten</p>
             </div>
+            <button class="btn btn-primary" onclick="addNewCustomer()">+ Neuer Kunde</button>
+        </header>
+
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Suche nach Name, E-Mail, Kundennummer..."
+                onkeyup="searchCustomers()">
+            <button class="btn btn-primary" onclick="searchCustomers()">Suchen</button>
         </div>
 
-        <div class="info-section">
-            <h3>Zahlungsinformationen</h3>
-            <div id="view-payments"></div>
-        </div>
-
-        <div class="info-section">
-            <h3>Bestellhistorie</h3>
-            <div id="view-orders"></div>
+        <div class="customers-table">
+            <table id="customersTable">
+                <thead>
+                    <tr>
+                        <th>Kunden-Nr.</th>
+                        <th>Name</th>
+                        <th>E-Mail</th>
+                        <th>Telefon</th>
+                        <th>Status</th>
+                        <th>Registriert</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-customer-id="K001">
+                        <td>K-2024-001</td>
+                        <td class="customer-name">Max Müller</td>
+                        <td>max.mueller@email.de</td>
+                        <td>+49 170 1234567</td>
+                        <td><span class="status-badge status-active">Aktiv</span></td>
+                        <td>15.03.2024</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-small btn-view" onclick="viewCustomer('K001')">Details</button>
+                                <button class="btn-small btn-edit" onclick="editCustomer('K001')">Bearbeiten</button>
+                                <button class="btn-small btn-delete"
+                                    onclick="deleteCustomer('K001', 'Max Müller')">Löschen</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-customer-id="K002">
+                        <td>K-2024-002</td>
+                        <td class="customer-name">Anna Schmidt</td>
+                        <td>anna.schmidt@email.de</td>
+                        <td>+49 172 9876543</td>
+                        <td><span class="status-badge status-active">Aktiv</span></td>
+                        <td>22.04.2024</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-small btn-view" onclick="viewCustomer('K002')">Details</button>
+                                <button class="btn-small btn-edit" onclick="editCustomer('K002')">Bearbeiten</button>
+                                <button class="btn-small btn-delete"
+                                    onclick="deleteCustomer('K002', 'Anna Schmidt')">Löschen</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-customer-id="K003">
+                        <td>K-2023-087</td>
+                        <td class="customer-name">Thomas Weber</td>
+                        <td>thomas.weber@email.de</td>
+                        <td>+49 151 5551234</td>
+                        <td><span class="status-badge status-active">Aktiv</span></td>
+                        <td>10.08.2023</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-small btn-view" onclick="viewCustomer('K003')">Details</button>
+                                <button class="btn-small btn-edit" onclick="editCustomer('K003')">Bearbeiten</button>
+                                <button class="btn-small btn-delete"
+                                    onclick="deleteCustomer('K003', 'Thomas Weber')">Löschen</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-customer-id="K004">
+                        <td>K-2025-034</td>
+                        <td class="customer-name">Julia Fischer</td>
+                        <td>julia.fischer@email.de</td>
+                        <td>+49 160 7778888</td>
+                        <td><span class="status-badge status-active">Aktiv</span></td>
+                        <td>05.01.2025</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-small btn-view" onclick="viewCustomer('K004')">Details</button>
+                                <button class="btn-small btn-edit" onclick="editCustomer('K004')">Bearbeiten</button>
+                                <button class="btn-small btn-delete"
+                                    onclick="deleteCustomer('K004', 'Julia Fischer')">Löschen</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-customer-id="K005">
+                        <td>K-2023-012</td>
+                        <td class="customer-name">Peter Schneider</td>
+                        <td>peter.schneider@email.de</td>
+                        <td>+49 175 4443332</td>
+                        <td><span class="status-badge status-inactive">Inaktiv</span></td>
+                        <td>18.02.2023</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-small btn-view" onclick="viewCustomer('K005')">Details</button>
+                                <button class="btn-small btn-edit" onclick="editCustomer('K005')">Bearbeiten</button>
+                                <button class="btn-small btn-delete"
+                                    onclick="deleteCustomer('K005', 'Peter Schneider')">Löschen</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-customer-id="K006">
+                        <td>K-2024-089</td>
+                        <td class="customer-name">Sarah Bauer</td>
+                        <td>sarah.bauer@email.de</td>
+                        <td>+49 162 1112223</td>
+                        <td><span class="status-badge status-active">Aktiv</span></td>
+                        <td>12.11.2024</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-small btn-view" onclick="viewCustomer('K006')">Details</button>
+                                <button class="btn-small btn-edit" onclick="editCustomer('K006')">Bearbeiten</button>
+                                <button class="btn-small btn-delete"
+                                    onclick="deleteCustomer('K006', 'Sarah Bauer')">Löschen</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
-</div>
 
-<!-- Edit Customer Modal -->
-<div id="editModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Kunde bearbeiten</h2>
-            <span class="close" onclick="closeModal('editModal')">&times;</span>
+    <!-- View Customer Modal -->
+    <div id="viewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Kundendetails</h2>
+                <span class="close" onclick="closeModal('viewModal')">&times;</span>
+            </div>
+
+            <div class="info-section">
+                <h3>Persönliche Informationen</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Kundennummer</span>
+                        <span class="info-value" id="view-customerId"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Name</span>
+                        <span class="info-value" id="view-name"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">E-Mail</span>
+                        <span class="info-value" id="view-email"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Telefon</span>
+                        <span class="info-value" id="view-phone"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Adresse</span>
+                        <span class="info-value" id="view-address"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Registriert seit</span>
+                        <span class="info-value" id="view-registered"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>Zahlungsinformationen</h3>
+                <div id="view-payments"></div>
+            </div>
+
+            <div class="info-section">
+                <h3>Bestellhistorie</h3>
+                <div id="view-orders"></div>
+            </div>
         </div>
-
-        <form id="editForm" onsubmit="saveCustomer(event)">
-            <input type="hidden" id="edit-customerId">
-
-            <div class="info-grid">
-                <div class="form-group">
-                    <label for="edit-firstName">Vorname</label>
-                    <input type="text" id="edit-firstName" required>
-                </div>
-                <div class="form-group">
-                    <label for="edit-lastName">Nachname</label>
-                    <input type="text" id="edit-lastName" required>
-                </div>
-            </div>
-
-            <div class="info-grid">
-                <div class="form-group">
-                    <label for="edit-email">E-Mail</label>
-                    <input type="email" id="edit-email" required>
-                </div>
-                <div class="form-group">
-                    <label for="edit-phone">Telefon</label>
-                    <input type="tel" id="edit-phone" required>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="edit-address">Adresse</label>
-                <input type="text" id="edit-address" required>
-            </div>
-
-            <div class="info-grid">
-                <div class="form-group">
-                    <label for="edit-city">Stadt</label>
-                    <input type="text" id="edit-city" required>
-                </div>
-                <div class="form-group">
-                    <label for="edit-zip">PLZ</label>
-                    <input type="text" id="edit-zip" required>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="edit-status">Status</label>
-                <select id="edit-status">
-                    <option value="active">Aktiv</option>
-                    <option value="inactive">Inaktiv</option>
-                </select>
-            </div>
-
-            <div class="modal-actions">
-                <button type="submit" class="btn btn-primary">Speichern</button>
-                <button type="button" class="btn btn-cancel" onclick="closeModal('editModal')">Abbrechen</button>
-            </div>
-        </form>
     </div>
-</div>
 
-<script>
-    // Apply dark mode if enabled
-    if (localStorage.getItem('darkMode') === 'true') {
-        document.body.classList.add('dark-mode');
-    }
+    <!-- Edit Customer Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Kunde bearbeiten</h2>
+                <span class="close" onclick="closeModal('editModal')">&times;</span>
+            </div>
 
-    // Dummy customer data
-    const customers = {
-        'K001': {
-            id: 'K-2024-001',
-            firstName: 'Max',
-            lastName: 'Müller',
-            email: 'max.mueller@email.de',
-            phone: '+49 170 1234567',
-            address: 'Hauptstraße 15',
-            city: 'Plau am See',
-            zip: '19395',
-            registered: '15.03.2024',
-            status: 'active',
-            payments: [
-                { date: '21.12.2025', description: 'Liegeplatz B-12', amount: '1.250,00 €', status: 'Bezahlt' },
-                { date: '15.03.2024', description: 'Bootsverleih Kaution', amount: '500,00 €', status: 'Bezahlt' }
-            ],
-            orders: [
-                { date: '15.03.2024', type: 'Liegeplatz-Buchung', item: 'Liegeplatz B-12', duration: 'Jahresvertrag' },
-                { date: '22.05.2024', type: 'Bootsverleih', item: 'Segelboot "Windspiel"', duration: '3 Tage' }
-            ]
-        },
-        'K002': {
-            id: 'K-2024-002',
-            firstName: 'Anna',
-            lastName: 'Schmidt',
-            email: 'anna.schmidt@email.de',
-            phone: '+49 172 9876543',
-            address: 'Seestraße 42',
-            city: 'Plau am See',
-            zip: '19395',
-            registered: '22.04.2024',
-            status: 'active',
-            payments: [
-                { date: '10.12.2025', description: 'Bootsverleih Monatlich', amount: '350,00 €', status: 'Bezahlt' },
-                { date: '22.04.2024', description: 'Anmeldegebühr', amount: '50,00 €', status: 'Bezahlt' }
-            ],
-            orders: [
-                { date: '22.04.2024', type: 'Bootsverleih', item: 'Motorboot "Poseidon"', duration: 'Monatlich' },
-                { date: '15.07.2024', type: 'Zubehör', item: 'Schwimmwesten (4x)', duration: 'Einmalig' }
-            ]
-        },
-        'K003': {
-            id: 'K-2023-087',
-            firstName: 'Thomas',
-            lastName: 'Weber',
-            email: 'thomas.weber@email.de',
-            phone: '+49 151 5551234',
-            address: 'Uferweg 8',
-            city: 'Malchow',
-            zip: '17213',
-            registered: '10.08.2023',
-            status: 'active',
-            payments: [
-                { date: '05.01.2026', description: 'Liegeplatz A-05', amount: '980,00 €', status: 'Bezahlt' },
-                { date: '05.01.2025', description: 'Liegeplatz A-05', amount: '950,00 €', status: 'Bezahlt' }
-            ],
-            orders: [
-                { date: '10.08.2023', type: 'Liegeplatz-Buchung', item: 'Liegeplatz A-05', duration: 'Jahresvertrag' },
-                { date: '20.06.2024', type: 'Winterlager', item: 'Stellplatz 12', duration: 'Oktober-März' }
-            ]
-        },
-        'K004': {
-            id: 'K-2025-034',
-            firstName: 'Julia',
-            lastName: 'Fischer',
-            email: 'julia.fischer@email.de',
-            phone: '+49 160 7778888',
-            address: 'Fischerweg 23',
-            city: 'Waren',
-            zip: '17192',
-            registered: '05.01.2025',
-            status: 'active',
-            payments: [
-                { date: '05.01.2025', description: 'Bootsverleih Wochenende', amount: '280,00 €', status: 'Bezahlt' }
-            ],
-            orders: [
-                { date: '05.01.2025', type: 'Bootsverleih', item: 'Kajak "Forelle"', duration: 'Wochenende' }
-            ]
-        },
-        'K005': {
-            id: 'K-2023-012',
-            firstName: 'Peter',
-            lastName: 'Schneider',
-            email: 'peter.schneider@email.de',
-            phone: '+49 175 4443332',
-            address: 'Bergstraße 67',
-            city: 'Röbel',
-            zip: '17207',
-            registered: '18.02.2023',
-            status: 'inactive',
-            payments: [
-                { date: '20.02.2024', description: 'Liegeplatz C-22', amount: '1.100,00 €', status: 'Bezahlt' }
-            ],
-            orders: [
-                { date: '18.02.2023', type: 'Liegeplatz-Buchung', item: 'Liegeplatz C-22', duration: 'Jahresvertrag (beendet)' }
-            ]
-        },
-        'K006': {
-            id: 'K-2024-089',
-            firstName: 'Sarah',
-            lastName: 'Bauer',
-            email: 'sarah.bauer@email.de',
-            phone: '+49 162 1112223',
-            address: 'Gartenweg 5',
-            city: 'Plau am See',
-            zip: '19395',
-            registered: '12.11.2024',
-            status: 'active',
-            payments: [
-                { date: '28.12.2025', description: 'Winterlager', amount: '580,00 €', status: 'Ausstehend' }
-            ],
-            orders: [
-                { date: '12.11.2024', type: 'Winterlager', item: 'Stellplatz 45', duration: 'November-März' }
-            ]
+            <form id="editForm" onsubmit="saveCustomer(event)">
+                <input type="hidden" id="edit-customerId">
+
+                <div class="info-grid">
+                    <div class="form-group">
+                        <label for="edit-firstName">Vorname</label>
+                        <input type="text" id="edit-firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-lastName">Nachname</label>
+                        <input type="text" id="edit-lastName" required>
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="form-group">
+                        <label for="edit-email">E-Mail</label>
+                        <input type="email" id="edit-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-phone">Telefon</label>
+                        <input type="tel" id="edit-phone" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-address">Adresse</label>
+                    <input type="text" id="edit-address" required>
+                </div>
+
+                <div class="info-grid">
+                    <div class="form-group">
+                        <label for="edit-city">Stadt</label>
+                        <input type="text" id="edit-city" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-zip">PLZ</label>
+                        <input type="text" id="edit-zip" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-status">Status</label>
+                    <select id="edit-status">
+                        <option value="active">Aktiv</option>
+                        <option value="inactive">Inaktiv</option>
+                    </select>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">Speichern</button>
+                    <button type="button" class="btn btn-cancel" onclick="closeModal('editModal')">Abbrechen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Apply dark mode if enabled
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
         }
-    };
 
-    function searchCustomers() {
-        const input = document.getElementById('searchInput').value.toLowerCase();
-        const table = document.getElementById('customersTable');
-        const rows = table.getElementsByTagName('tr');
+        // Dummy customer data
+        const customers = {
+            'K001': {
+                id: 'K-2024-001',
+                firstName: 'Max',
+                lastName: 'Müller',
+                email: 'max.mueller@email.de',
+                phone: '+49 170 1234567',
+                address: 'Hauptstraße 15',
+                city: 'Plau am See',
+                zip: '19395',
+                registered: '15.03.2024',
+                status: 'active',
+                payments: [
+                    { date: '21.12.2025', description: 'Liegeplatz B-12', amount: '1.250,00 €', status: 'Bezahlt' },
+                    { date: '15.03.2024', description: 'Bootsverleih Kaution', amount: '500,00 €', status: 'Bezahlt' }
+                ],
+                orders: [
+                    { date: '15.03.2024', type: 'Liegeplatz-Buchung', item: 'Liegeplatz B-12', duration: 'Jahresvertrag' },
+                    { date: '22.05.2024', type: 'Bootsverleih', item: 'Segelboot "Windspiel"', duration: '3 Tage' }
+                ]
+            },
+            'K002': {
+                id: 'K-2024-002',
+                firstName: 'Anna',
+                lastName: 'Schmidt',
+                email: 'anna.schmidt@email.de',
+                phone: '+49 172 9876543',
+                address: 'Seestraße 42',
+                city: 'Plau am See',
+                zip: '19395',
+                registered: '22.04.2024',
+                status: 'active',
+                payments: [
+                    { date: '10.12.2025', description: 'Bootsverleih Monatlich', amount: '350,00 €', status: 'Bezahlt' },
+                    { date: '22.04.2024', description: 'Anmeldegebühr', amount: '50,00 €', status: 'Bezahlt' }
+                ],
+                orders: [
+                    { date: '22.04.2024', type: 'Bootsverleih', item: 'Motorboot "Poseidon"', duration: 'Monatlich' },
+                    { date: '15.07.2024', type: 'Zubehör', item: 'Schwimmwesten (4x)', duration: 'Einmalig' }
+                ]
+            },
+            'K003': {
+                id: 'K-2023-087',
+                firstName: 'Thomas',
+                lastName: 'Weber',
+                email: 'thomas.weber@email.de',
+                phone: '+49 151 5551234',
+                address: 'Uferweg 8',
+                city: 'Malchow',
+                zip: '17213',
+                registered: '10.08.2023',
+                status: 'active',
+                payments: [
+                    { date: '05.01.2026', description: 'Liegeplatz A-05', amount: '980,00 €', status: 'Bezahlt' },
+                    { date: '05.01.2025', description: 'Liegeplatz A-05', amount: '950,00 €', status: 'Bezahlt' }
+                ],
+                orders: [
+                    { date: '10.08.2023', type: 'Liegeplatz-Buchung', item: 'Liegeplatz A-05', duration: 'Jahresvertrag' },
+                    { date: '20.06.2024', type: 'Winterlager', item: 'Stellplatz 12', duration: 'Oktober-März' }
+                ]
+            },
+            'K004': {
+                id: 'K-2025-034',
+                firstName: 'Julia',
+                lastName: 'Fischer',
+                email: 'julia.fischer@email.de',
+                phone: '+49 160 7778888',
+                address: 'Fischerweg 23',
+                city: 'Waren',
+                zip: '17192',
+                registered: '05.01.2025',
+                status: 'active',
+                payments: [
+                    { date: '05.01.2025', description: 'Bootsverleih Wochenende', amount: '280,00 €', status: 'Bezahlt' }
+                ],
+                orders: [
+                    { date: '05.01.2025', type: 'Bootsverleih', item: 'Kajak "Forelle"', duration: 'Wochenende' }
+                ]
+            },
+            'K005': {
+                id: 'K-2023-012',
+                firstName: 'Peter',
+                lastName: 'Schneider',
+                email: 'peter.schneider@email.de',
+                phone: '+49 175 4443332',
+                address: 'Bergstraße 67',
+                city: 'Röbel',
+                zip: '17207',
+                registered: '18.02.2023',
+                status: 'inactive',
+                payments: [
+                    { date: '20.02.2024', description: 'Liegeplatz C-22', amount: '1.100,00 €', status: 'Bezahlt' }
+                ],
+                orders: [
+                    { date: '18.02.2023', type: 'Liegeplatz-Buchung', item: 'Liegeplatz C-22', duration: 'Jahresvertrag (beendet)' }
+                ]
+            },
+            'K006': {
+                id: 'K-2024-089',
+                firstName: 'Sarah',
+                lastName: 'Bauer',
+                email: 'sarah.bauer@email.de',
+                phone: '+49 162 1112223',
+                address: 'Gartenweg 5',
+                city: 'Plau am See',
+                zip: '19395',
+                registered: '12.11.2024',
+                status: 'active',
+                payments: [
+                    { date: '28.12.2025', description: 'Winterlager', amount: '580,00 €', status: 'Ausstehend' }
+                ],
+                orders: [
+                    { date: '12.11.2024', type: 'Winterlager', item: 'Stellplatz 45', duration: 'November-März' }
+                ]
+            }
+        };
 
-        for (let i = 1; i < rows.length; i++) {
-            const row = rows[i];
-            const text = row.textContent.toLowerCase();
+        function searchCustomers() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const table = document.getElementById('customersTable');
+            const rows = table.getElementsByTagName('tr');
 
-            if (text.includes(input)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                const text = row.textContent.toLowerCase();
+
+                if (text.includes(input)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
             }
         }
-    }
 
-    function viewCustomer(customerId) {
-        const customer = customers[customerId];
+        function viewCustomer(customerId) {
+            const customer = customers[customerId];
 
-        document.getElementById('view-customerId').textContent = customer.id;
-        document.getElementById('view-name').textContent = customer.firstName + ' ' + customer.lastName;
-        document.getElementById('view-email').textContent = customer.email;
-        document.getElementById('view-phone').textContent = customer.phone;
-        document.getElementById('view-address').textContent = customer.address + ', ' + customer.zip + ' ' + customer.city;
-        document.getElementById('view-registered').textContent = customer.registered;
+            document.getElementById('view-customerId').textContent = customer.id;
+            document.getElementById('view-name').textContent = customer.firstName + ' ' + customer.lastName;
+            document.getElementById('view-email').textContent = customer.email;
+            document.getElementById('view-phone').textContent = customer.phone;
+            document.getElementById('view-address').textContent = customer.address + ', ' + customer.zip + ' ' + customer.city;
+            document.getElementById('view-registered').textContent = customer.registered;
 
-        // Payments
-        let paymentsHtml = '';
-        customer.payments.forEach(payment => {
-            paymentsHtml += `
+            // Payments
+            let paymentsHtml = '';
+            customer.payments.forEach(payment => {
+                paymentsHtml += `
                 <div class="history-item">
                     <div class="history-date">${payment.date}</div>
                     <div class="history-description">
@@ -885,13 +902,13 @@
                     </div>
                 </div>
             `;
-        });
-        document.getElementById('view-payments').innerHTML = paymentsHtml;
+            });
+            document.getElementById('view-payments').innerHTML = paymentsHtml;
 
-        // Orders
-        let ordersHtml = '';
-        customer.orders.forEach(order => {
-            ordersHtml += `
+            // Orders
+            let ordersHtml = '';
+            customer.orders.forEach(order => {
+                ordersHtml += `
                 <div class="history-item">
                     <div class="history-date">${order.date}</div>
                     <div class="history-description">
@@ -899,69 +916,70 @@
                     </div>
                 </div>
             `;
-        });
-        document.getElementById('view-orders').innerHTML = ordersHtml;
+            });
+            document.getElementById('view-orders').innerHTML = ordersHtml;
 
-        document.getElementById('viewModal').style.display = 'block';
-    }
+            document.getElementById('viewModal').style.display = 'block';
+        }
 
-    function editCustomer(customerId) {
-        const customer = customers[customerId];
+        function editCustomer(customerId) {
+            const customer = customers[customerId];
 
-        document.getElementById('edit-customerId').value = customerId;
-        document.getElementById('edit-firstName').value = customer.firstName;
-        document.getElementById('edit-lastName').value = customer.lastName;
-        document.getElementById('edit-email').value = customer.email;
-        document.getElementById('edit-phone').value = customer.phone;
-        document.getElementById('edit-address').value = customer.address;
-        document.getElementById('edit-city').value = customer.city;
-        document.getElementById('edit-zip').value = customer.zip;
-        document.getElementById('edit-status').value = customer.status;
+            document.getElementById('edit-customerId').value = customerId;
+            document.getElementById('edit-firstName').value = customer.firstName;
+            document.getElementById('edit-lastName').value = customer.lastName;
+            document.getElementById('edit-email').value = customer.email;
+            document.getElementById('edit-phone').value = customer.phone;
+            document.getElementById('edit-address').value = customer.address;
+            document.getElementById('edit-city').value = customer.city;
+            document.getElementById('edit-zip').value = customer.zip;
+            document.getElementById('edit-status').value = customer.status;
 
-        document.getElementById('editModal').style.display = 'block';
-    }
+            document.getElementById('editModal').style.display = 'block';
+        }
 
-    function saveCustomer(event) {
-        event.preventDefault();
+        function saveCustomer(event) {
+            event.preventDefault();
 
-        const customerId = document.getElementById('edit-customerId').value;
-        const firstName = document.getElementById('edit-firstName').value;
-        const lastName = document.getElementById('edit-lastName').value;
+            const customerId = document.getElementById('edit-customerId').value;
+            const firstName = document.getElementById('edit-firstName').value;
+            const lastName = document.getElementById('edit-lastName').value;
 
-        alert('Kundendaten für ' + firstName + ' ' + lastName + ' wurden erfolgreich aktualisiert!');
+            alert('Kundendaten für ' + firstName + ' ' + lastName + ' wurden erfolgreich aktualisiert!');
 
-        closeModal('editModal');
+            closeModal('editModal');
 
-        // Here you would normally send the data to your backend
-    }
+            // Here you would normally send the data to your backend
+        }
 
-    function deleteCustomer(customerId, customerName) {
-        if (confirm('Möchten Sie den Kunden "' + customerName + '" wirklich löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden!')) {
-            alert('Kunde "' + customerName + '" wurde erfolgreich gelöscht.');
+        function deleteCustomer(customerId, customerName) {
+            if (confirm('Möchten Sie den Kunden "' + customerName + '" wirklich löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden!')) {
+                alert('Kunde "' + customerName + '" wurde erfolgreich gelöscht.');
 
-            // Remove the row from the table
-            const row = document.querySelector(`tr[data-customer-id="${customerId}"]`);
-            if (row) {
-                row.remove();
+                // Remove the row from the table
+                const row = document.querySelector(`tr[data-customer-id="${customerId}"]`);
+                if (row) {
+                    row.remove();
+                }
             }
         }
-    }
 
-    function addNewCustomer() {
-        alert('Neuen Kunden hinzufügen\n\nDiese Funktion wird in Kürze verfügbar sein.');
-    }
-
-    function closeModal(modalId) {
-        document.getElementById(modalId).style.display = 'none';
-    }
-
-    // Close modal when clicking outside
-    window.onclick = function(event) {
-        if (event.target.classList.contains('modal')) {
-            event.target.style.display = 'none';
+        function addNewCustomer() {
+            alert('Neuen Kunden hinzufügen\n\nDiese Funktion wird in Kürze verfügbar sein.');
         }
-    }
-</script>
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function (event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+    </script>
 
 </body>
+
 </html>

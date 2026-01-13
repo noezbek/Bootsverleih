@@ -15,9 +15,10 @@ class Kunde extends Person
         string $strasse,
         int $plz,
         string $stadt,
+        ?bool $kunde = true,
         ?int $id = null
     ) {
-        parent::__construct($vorname, $nachname, $email, $geburtsdatum, $telefon, $strasse, $plz, $stadt, $id);
+        parent::__construct($vorname, $nachname, $email, $geburtsdatum, $telefon, $strasse, $plz, $stadt, $kunde, $id);
     }
 
     public static function getTable(): string
@@ -32,18 +33,21 @@ class Kunde extends Person
 
         if ($this->id === null) {
             $stmt = $db->prepare(
-                "INSERT INTO $table (vorname, nachname, email, geburtsdatum, telefon, strasse, plz, stadt)
-                 VALUES (:v, :n, :e, :g, :t, :s, :p, :st)"
+                "INSERT INTO $table (vorname, nachname, email, geburtsdatum, telefon, strasse, plz, stadt, active)
+                 VALUES (:v, :n, :e, :g, :t, :s, :p, :st, 1)"
             );
             $stmt->execute($this->getPersonBindArray());
-            $this->id = (int)$db->lastInsertId();
+            $this->id = (int) $db->lastInsertId();
         } else {
             $stmt = $db->prepare(
                 "UPDATE $table
-                 SET vorname=:v, nachname=:n, email=:e, geburtsdatum=:g, telefon=:t, strasse=:s, plz=:p, stadt=:st
+                 SET vorname=:v, nachname=:n, email=:e, geburtsdatum=:g, telefon=:t, strasse=:s, plz=:p, stadt=:st, active=:active
                  WHERE ID = :id"
             );
-            $data = $this->getPersonBindArray();
+            $data = [
+                ...$this->getPersonBindArray(),
+                'active' => $this->getActive()
+            ];
             $data[':id'] = $this->id;
             $stmt->execute($data);
         }
@@ -51,7 +55,8 @@ class Kunde extends Person
 
     public function deleteEntry(): void
     {
-        if ($this->id === null) return;
+        if ($this->id === null)
+            return;
 
         $db = DBConnection::getConnection();
         $table = self::getTable();
@@ -73,11 +78,12 @@ class Kunde extends Person
             $row['nachname'],
             $row['email'],
             $row['geburtsdatum'],
-            (int)$row['telefon'],
+            (int) $row['telefon'],
             $row['strasse'],
-            (int)$row['plz'],
+            (int) $row['plz'],
             $row['stadt'],
-            (int)$row['ID']
+            (bool) $row['active'] ?? true,
+            (int) $row['ID']
         ) : null;
     }
 
@@ -89,19 +95,27 @@ class Kunde extends Person
         $stmt = $db->query("SELECT * FROM $table");
 
         $list = [];
-        while ($row = $stmt->fetch()) {
-            $list[] = new Kunde(
-                $row['vorname'],
-                $row['nachname'],
-                $row['email'],
-                $row['geburtsdatum'],
-                (int)$row['telefon'],
-                $row['strasse'],
-                (int)$row['plz'],
-                $row['stadt'],
-                (int)$row['ID']
-            );
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+
+            // ID als Key verwenden
+            $id = (int) $row['ID'];
+
+            // Optional: Feldnamen vereinheitlichen
+            $list[$id] = [
+                'ID' => $id,
+                'active' => (bool)$row['active'],
+                'vorname' => $row['vorname'],
+                'nachname' => $row['nachname'],
+                'email' => $row['email'],
+                'geburtsdatum' => $row['geburtsdatum'],
+                'telefon' => $row['telefon'],
+                'strasse' => $row['strasse'],
+                'plz' => $row['plz'],
+                'stadt' => $row['stadt']
+            ];
         }
+
         return $list;
     }
 }
