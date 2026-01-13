@@ -28,4 +28,9 @@ class Home extends BaseController
     {
         return view('kundenverwaltung');
     }
+
+    public function bootsverleih(): string
+    {
+        return view('bootsverleih');
+    }
 }

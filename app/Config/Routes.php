@@ -10,4 +10,5 @@ $routes->get('/einstellungen', 'Home::settings');   // ← Einstellungen
 $routes->get('/support', 'Home::support');   // ← Support
 $routes->get('/zahlungen', 'Home::zahlungen');   // ← Zahlungen
 $routes->get('/kundenverwaltung', 'Home::kundenverwaltung');   // ← Kundenverwaltung
+$routes->get('/bootsverleih', 'Home::bootsverleih');   // ← Bootsverleih
 // $routes->setAutoRoute(true);      
