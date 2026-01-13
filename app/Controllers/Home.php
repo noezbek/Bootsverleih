@@ -6,6 +6,26 @@ class Home extends BaseController
 {
     public function index(): string
     {
-        return view('welcome_message');
+        return view('homepage');
+    }
+
+    public function settings(): string
+    {
+        return view('einstellungen');
+    }
+
+    public function support(): string
+    {
+        return view('support');
+    }
+
+    public function zahlungen(): string
+    {
+        return view('zahlungen');
+    }
+
+    public function kundenverwaltung(): string
+    {
+        return view('kundenverwaltung');
     }
 }
