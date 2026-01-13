@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use PDO;
 
 abstract class DatabaseEntry
 {
@@ -30,9 +31,9 @@ abstract class DatabaseEntry
 
     abstract static public function getTable(): string;
 
-    abstract public function saveEntry(): void;
-    abstract public function deleteEntry(): void;
+    abstract public function saveEntry(PDO $db): void;
+    abstract public function deleteEntry(PDO $db): void;
 
-    abstract public static function findByIdEntry(int $id): ?static;
-    abstract public static function findAllEntries(): array;
+    abstract public static function findByIdEntry(PDO $db, int $id): ?static;
+    abstract public static function findAllEntries(PDO $db): array;
 }

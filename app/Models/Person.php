@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\DBConnection;
 use CodeIgniter\Model;
 
 abstract class Person extends DatabaseEntry
