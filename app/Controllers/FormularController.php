@@ -2,16 +2,14 @@
 
 namespace App\Controllers;
 
-use App\Models\Kundendaten;
+use App\Models\Kunde;
 
 class FormularController extends BaseController
 {
 
-    private $kundendaten;
-
     public function __construct()
     {
-        $this->kundendaten = new Kundendaten();
+        //
     }
 
     public function index()
@@ -22,10 +20,46 @@ class FormularController extends BaseController
 
     public function getformularzeigen(): string
     {
-                return view('homepage');
-        
-        // return view('registierungsFormular');
+        return view('registierungsFormular');
+    }
 
+    public function gettestkunde(): string
+    {
+        return view('kunde_test');
+    }
+
+    public function posttestkunde(): string
+    {
+
+        try {
+            // Testkunde erzeugen
+            $kunde = new Kunde(
+                "Test",
+                "Kunde",
+                "testkunde@example.de",
+                "2000-01-01",
+                491234567,
+                "Teststraße 1",
+                12345,
+                "Teststadt"
+            );
+
+            // Speichern
+            $kunde->saveEntry();
+
+            // Erfolgs-View laden
+            return view('kunde_test_auswertung', [
+                'message' => '✅ Testkunde gespeichert! ID: ' . $kunde->getID()
+            ]);
+
+        } catch (\Throwable $e) {
+            // Fehler-View laden
+            return view('kunde_test_auswertung', [
+                'message' => '❌ Fehler: ' . $e->getMessage()
+            ]);
+        }
+
+        return view('kunde_test_auswertung');
     }
 
     public function postauswertung(): string
