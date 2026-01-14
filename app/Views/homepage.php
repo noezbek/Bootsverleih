@@ -162,6 +162,8 @@
 
 <header>
     <h1>Yachthafen Plau am See</h1>
+    <?= base_url() ?>
+
     <p class="subtitle">Verwaltungssystem</p>
 </header>
 

@@ -420,7 +420,8 @@
             <span class="close" onclick="closeModal('editModal')">&times;</span>
         </div>
 
-        <form id="editForm" action="savekundenverwaltung" method="POST">
+        <form id="editForm" action="<?= base_url('kundenverwaltung/speichern') ?>" method="post">
+            <?= csrf_field() ?>
             <input type="hidden" id="edit-customerId" name="id">
 
             <!-- NEU: Geburtsdatum als DATE (nur bei neuen Kunden sichtbar & aktiv) -->

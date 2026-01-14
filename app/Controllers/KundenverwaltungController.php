@@ -13,7 +13,7 @@ class KundenverwaltungController extends BaseController
         echo "<h1>KundenverwaltungController funktioniert!</h1>";
     }
 
-    public function getopenkundenverwaltung(): string
+    public function loadKundenverwaltung(): string
     {
         $db = DBConnection::getConnection();
         // Alle Kunden aus der DB holen
@@ -25,7 +25,7 @@ class KundenverwaltungController extends BaseController
         ]);
     }
 
-    public function postsavekundenverwaltung(): \CodeIgniter\HTTP\RedirectResponse
+    public function saveKundenverwaltung(): \CodeIgniter\HTTP\RedirectResponse
     {
         $db = DBConnection::getConnection();
 
@@ -49,7 +49,7 @@ class KundenverwaltungController extends BaseController
         return redirect()->back()->with('saved', 1);
     }
 
-    public function postdeletekundenverwaltung(): \CodeIgniter\HTTP\RedirectResponse
+    public function deleteKundenverwaltung(): \CodeIgniter\HTTP\RedirectResponse
     {
         $db = DBConnection::getConnection();
         $id = ($_POST['id'] === '' ? null : (int) $_POST['id']);
