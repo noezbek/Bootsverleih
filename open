@@ -1,2 +1,2 @@
 #!/bin/bash
-start "" "http://localhost/Bootsverleih/public/FormularController/formularzeigen"
+start "" "http://localhost/Bootsverleih/public"
