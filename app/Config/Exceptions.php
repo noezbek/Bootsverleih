@@ -24,6 +24,13 @@ class Exceptions extends BaseConfig
      */
     public bool $log = true;
 
+
+    public array $errorViews = [
+        'error' => 'errors/html/error_exception',
+    ];
+
+    public bool $showDebugBacktrace = false;
+
     /**
      * --------------------------------------------------------------------------
      * DO NOT LOG STATUS CODES

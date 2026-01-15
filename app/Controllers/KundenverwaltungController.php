@@ -13,40 +13,41 @@ class KundenverwaltungController extends BaseController
         echo "<h1>KundenverwaltungController funktioniert!</h1>";
     }
 
-    public function loadKundenverwaltung(): string
+    public function loadKundenverwaltung(): \CodeIgniter\HTTP\ResponseInterface
     {
         $db = DBConnection::getConnection();
         // Alle Kunden aus der DB holen
         $kunden = Kunde::findAllEntries($db);
 
-        // Daten an View übergeben
-        return view('kundenverwaltung', [
+        return $this->response->setJSON([
             'kunden' => $kunden
         ]);
     }
 
-    public function saveKundenverwaltung(): \CodeIgniter\HTTP\RedirectResponse
+    public function saveKundenverwaltung(): array
     {
         $db = DBConnection::getConnection();
 
-        $id = ($_POST['id'] === '' ? null : (int) $_POST['id']);
-        $geburtsdatum = ($_POST['geburtsdatum'] === '' ? null : $_POST['geburtsdatum']);
+        $data = json_decode($_POST['data'], 1);
+
+        $id = ($data['id'] === '' ? null : (int) $data['id']);
+        $geburtsdatum = ($data['geburtsdatum'] === '' ? null : $data['geburtsdatum']);
 
         $kunde = new Kunde(
-            $_POST['vorname'],
-            $_POST['nachname'],
-            $_POST['email'],
+            $data['vorname'],
+            $data['nachname'],
+            $data['email'],
             $geburtsdatum,
-            (int) $_POST['telefon'],
-            $_POST['strasse'],
-            (int) $_POST['plz'],
-            $_POST['stadt'],
-            (bool) $_POST['active'],
+            (int) $data['telefon'],
+            $data['strasse'],
+            (int) $data['plz'],
+            $data['stadt'],
+            (bool) $data['active'],
             $id
         );
         $kunde->saveEntry($db);
 
-        return redirect()->back()->with('saved', 1);
+        return $kunde->toArray();
     }
 
     public function deleteKundenverwaltung(): \CodeIgniter\HTTP\RedirectResponse

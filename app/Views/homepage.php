@@ -158,7 +158,7 @@
         }
     </style>
 </head>
-<body>
+<body data-page="home">
 
 <header>
     <h1>Yachthafen Plau am See</h1>
@@ -221,6 +221,9 @@
         document.body.classList.add('dark-mode');
     }
 </script>
+
+<script type="module" src="<?= base_url('js/app.js') ?>"></script>
+
 
 </body>
 </html>

@@ -9,7 +9,7 @@ und bei httpd.conf unter apache/conf einmal
 DocumentRoot "C:/xampp/htdocs/Bootsverleih/public"
 <Directory "C:/xampp/htdocs/Bootsverleih/public">
 
-um projekt zu starten entweder ./open in gitbash oder http://localhost/Bootsverleih/public/FormularController/formularzeigen im browser ( beides dasselbe )
+um projekt zu starten entweder ./open in gitbash oder http://localhost/Bootsverleih/public im browser ( beides dasselbe )
 
 
 

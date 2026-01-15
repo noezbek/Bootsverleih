@@ -118,4 +118,20 @@ class Kunde extends Person
 
         return $list;
     }
+
+    public function toArray(): array
+    {
+        return [
+            'ID'       => $this->id,
+            'active' => $this->active,
+            'vorname' => $this->vorname,
+            'nachname' => $this->nachname,
+            'email' => $this->email,
+            'geburtsdatum' => $this->geburtsdatum,
+            'telefon' => $this->telefon,
+            'strasse' => $this->strasse,
+            'plz' => $this->plz,
+            'stadt' => $this->stadt
+        ];
+    }
 }

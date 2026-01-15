@@ -36,4 +36,5 @@ abstract class DatabaseEntry
 
     abstract public static function findByIdEntry(PDO $db, int $id): ?static;
     abstract public static function findAllEntries(PDO $db): array;
+    abstract public function toArray(): array;
 }
