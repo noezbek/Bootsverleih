@@ -25,10 +25,13 @@ abstract class Person extends DatabaseEntry
         string $strasse,
         int $plz,
         string $stadt,
+        ?int $id = null,
         ?bool $active = true,
-        ?int $id = null
+        string|null $updated_at = null,
+        string|null $created = null,
+        User|int|null $user = null,
     ) {
-        parent::__construct($id, $active);
+        parent::__construct($id, $updated_at, $created, $user, $active);
         $this->vorname = $vorname;
         $this->nachname = $nachname;
         $this->email = $email;
@@ -39,18 +42,17 @@ abstract class Person extends DatabaseEntry
         $this->stadt = $stadt;
     }
 
-    protected function getPersonBindArray(): array
+    protected function savePerson(\PDOStatement $stmt, \PDO $pdoHandler): void
     {
-        return [
-            ':v'  => $this->vorname,
-            ':n'  => $this->nachname,
-            ':e'  => $this->email,
-            ':g'  => $this->geburtsdatum,
-            ':t'  => $this->telefon,
-            ':s'  => $this->strasse,
-            ':p'  => $this->plz,
-            ':st' => $this->stadt,
-        ];
+        $stmt->bindValue(":vorname", $this->getVorname());
+        $stmt->bindValue(":nachname", $this->getNachname());
+        $stmt->bindValue(":email", $this->getEmail());
+        $stmt->bindValue(":geburtsdatum", $this->getGeburtsdatum());
+        $stmt->bindValue(":telefon", $this->getTelefon());
+        $stmt->bindValue(":strasse", $this->getStrasse());
+        $stmt->bindValue(":plz", $this->getPlz());
+        $stmt->bindValue(":stadt", $this->getStadt());
+        $this->saveData($stmt, $pdoHandler);
     }
 
     public function getVorname(): string { return $this->vorname; }

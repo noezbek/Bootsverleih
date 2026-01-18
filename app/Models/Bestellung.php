@@ -2,38 +2,39 @@
 
 namespace App\Models;
 
+use App\Enums\OrderStatus;
 use PDO;
 
-class Kunde extends Person
+class Bestellung extends DatabaseEntry
 {
+    private Kunde|int $kunde;
+    private OrderStatus|int $bestellstatus;
     public function __construct(
-        string $vorname,
-        string $nachname,
-        string $email,
-        string $geburtsdatum,
-        int $telefon,
-        string $strasse,
-        int $plz,
-        string $stadt,
+        Kunde|int $kunde,
+        OrderStatus|int $bestellstatus,
         ?int $id = null,
         ?bool $active = true,
         string|null $updated_at = null,
         string|null $created = null,
         User|int|null $user = null,
     ) {
-        parent::__construct($vorname, $nachname, $email, $geburtsdatum, $telefon, $strasse, $plz, $stadt, $id, $active, $updated_at, $created, $user);
+        parent::__construct($id, $updated_at, $created, $user, $active);
+        $this->kunde = $kunde;
+        $this->bestellstatus = $bestellstatus;
     }
 
     public static function getTable(): string
     {
-        return 'kunde';
+        return 'bestellungen';
     }
 
     public function saveEntry(PDO $db): void
     {
         $sqlString = empty($this->id) ? self::getInsertStmnt(): self::getUpdateStmnt();
         $stmt = $db->prepare($sqlString);
-        $this->savePerson($stmt, $db);
+        $stmt->bindValue(":kunde_ID", $this->getID(), \PDO::PARAM_INT);
+        $stmt->bindValue(":bestellstatus", $this->getID(), \PDO::PARAM_INT);
+        $this->saveData($stmt, $db);
     }
 
     protected static function getInsertStmnt() : string
@@ -59,17 +60,14 @@ class Kunde extends Person
         $stmt->execute([':id' => $id]);
         $row = $stmt->fetch();
 
-        return $row ? new Kunde(
-            $row['vorname'],
-            $row['nachname'],
-            $row['email'],
-            $row['geburtsdatum'],
-            (int) $row['telefon'],
-            $row['strasse'],
-            (int) $row['plz'],
-            $row['stadt'],
-            (bool) $row['active'] ?? true,
-            (int) $row['ID']
+        return $row ? new Bestellung(
+            $row['kunde_ID'],
+            $row['bestellstatus'],
+            $row['ID'],
+            (bool)$row['active'],
+            $row['updated_at'],
+            $row['created_at'],
+            $row['userID'],
         ) : null;
     }
 
@@ -89,15 +87,11 @@ class Kunde extends Person
             // Optional: Feldnamen vereinheitlichen
             $list[$id] = [
                 'ID' => $id,
-                'active' => (bool)$row['active'],
-                'vorname' => $row['vorname'],
-                'nachname' => $row['nachname'],
-                'email' => $row['email'],
-                'geburtsdatum' => $row['geburtsdatum'],
-                'telefon' => $row['telefon'],
-                'strasse' => $row['strasse'],
-                'plz' => $row['plz'],
-                'stadt' => $row['stadt']
+                'kunde_ID' => $row['kunde_ID'],
+                'bestellstatus' => $row['bestellstatus'],
+                'active' => $row['active'],
+                'updated_at' => $row['updated_at'],
+                'created_at' => $row['created_at']
             ];
         }
 
@@ -107,16 +101,32 @@ class Kunde extends Person
     public function toArray(): array
     {
         return [
-            'ID'       => $this->id,
+            'ID' => $this->id,
+            'kunde_ID' => $this->kunde,
+            'bestellstatus' => $this->bestellstatus,
             'active' => $this->active,
-            'vorname' => $this->vorname,
-            'nachname' => $this->nachname,
-            'email' => $this->email,
-            'geburtsdatum' => $this->geburtsdatum,
-            'telefon' => $this->telefon,
-            'strasse' => $this->strasse,
-            'plz' => $this->plz,
-            'stadt' => $this->stadt
+            'updated_at' => $this->updated_at,
+            'created_at' => $this->created_at,
         ];
+    }
+
+    public function getKunde(): Kunde|int
+    {
+        return $this->kunde;
+    }
+
+    public function setKunde(Kunde|int $kunde): void
+    {
+        $this->kunde = $kunde;
+    }
+
+    public function getBestellstatus(): OrderStatus|int
+    {
+        return $this->bestellstatus;
+    }
+
+    public function setBestellstatus(OrderStatus|int $bestellstatus): void
+    {
+        $this->bestellstatus = $bestellstatus;
     }
 }

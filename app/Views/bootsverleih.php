@@ -619,18 +619,7 @@
 
     // Boat data
     const boats = [
-        {
-            id: 1,
-            name: 'Windspiel',
-            type: 'segelboot',
-            icon: '⛵',
-            capacity: 6,
-            length: '8.5m',
-            pricePerDay: 120,
-            deposit: 500,
-            availability: 'available',
-            features: 'Kajüte, WC'
-        },
+ 
         {
             id: 2,
             name: 'Poseidon',

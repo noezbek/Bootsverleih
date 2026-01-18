@@ -1,0 +1,132 @@
+<?php
+
+namespace App\Models;
+use PDO;
+
+abstract class DatabaseEntry
+{
+    protected int $id;
+    protected bool $active;
+    protected User|int $user;
+    protected string $created_at;
+    protected string $updated_at;
+
+    public function __construct(?int $id, ?string $updated_at, ?string $created_at, User|int|null $User, bool $active)
+    {
+        $this->id = $id;
+        $this->active = $active;
+        $this->updated_at = $updated_at;
+        $this->created_at = $created_at;
+    }
+
+    public function saveData(\PDOStatement $stmt, \PDO $pdoHandler): void
+    {
+        $user_ID = null;
+        if (!empty($this->getUser()) && $this->getUser() instanceof DatabaseEntry) {
+            $user_ID = $this->getUser()->getID();
+        } else if (!empty($this->getUser())) {
+            $user_ID = $this->getUser();
+        }
+
+        $stmt->bindValue(":Benutzer", $user_ID ?? null);
+
+        try {
+            if ($this->id === null || intval($this->id) === 0) {
+                $stmt->execute();
+                $this->id = $pdoHandler->lastInsertId();
+            } else {
+                $stmt->bindValue(":ID", $this->getID(), \PDO::PARAM_INT);
+                $stmt->bindValue(":Active", $this->active ? 1 : 0);
+//                $stmt->bindValue(':Updated', $this->updated_at ? (new DateTime())->format('Y-m-d H:i:s') : null, $this->updated_at ? PDO::PARAM_STR : PDO::PARAM_NULL);
+                $stmt->execute();
+            }
+        } catch (\PDOException $e) {
+            // Dump params in a buffer
+            ob_start();
+            $stmt->debugDumpParams();
+            $paramsDump = ob_get_clean();
+
+            $msg = sprintf(
+                "SQL execution failed in %s:%d\nMessage: %s\nQuery: %s\nParams:\n%s",
+                __FILE__,
+                __LINE__,
+                $e->getMessage(),
+                $stmt->queryString,
+                $paramsDump
+            );
+
+            throw new \RuntimeException($msg, 0, $e);
+        }
+    }
+
+    public static function deleteByID(PDO $db, int $id): void
+    {
+        $table = static::getTable();
+        $stmt = $db->prepare("DELETE FROM $table WHERE ID = :id");
+        $stmt->execute([':id' => $id]);
+    }
+
+    public function deleteEntry(PDO $db): void
+    {
+        if ($this->id === null) return;
+        static::deleteByID($db, $this->id);
+    }
+
+    public function setID($id): void
+    {
+        $this->id = $id;
+    }
+
+    public function getID(): int
+    {
+        return $this->id;
+    }
+
+    public function getActive(): bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): void
+    {
+        $this->active = $active;
+    }
+
+    public function getCreated_at(): string
+    {
+        return $this->created_at;
+    }
+
+    public function setCreated_at(string $created_at): void
+    {
+        $this->created_at = $created_at;
+    }
+
+    public function getUpdated_at(): string
+    {
+        return $this->updated_at;
+    }
+
+    public function setUpdated_at(string $updated_at): void
+    {
+        $this->updated_at = $updated_at;
+    }
+
+    public function getUser(): User|int
+    {
+        return $this->user;
+    }
+
+    public function setUser(User|int $user): void
+    {
+        $this->user = $user;
+    }
+
+    abstract protected static function getInsertStmnt() : string;
+    abstract protected static function getUpdateStmnt() : string;
+    abstract static public function getTable(): string;
+    abstract public function saveEntry(PDO $db): void;
+    abstract public static function findByIdEntry(PDO $db, int $id): ?static;
+    abstract public static function findAllEntries(PDO $db): array;
+    abstract public function toArray(): array;
+}

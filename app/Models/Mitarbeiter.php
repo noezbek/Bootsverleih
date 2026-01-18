@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use DBConnection;
+use PDO;
 
 class Mitarbeiter extends Person
 {
@@ -15,9 +15,13 @@ class Mitarbeiter extends Person
         string $strasse,
         int $plz,
         string $stadt,
-        ?int $id = null
+        ?int $id = null,
+        ?bool $active = true,
+        string|null $updated_at = null,
+        string|null $created = null,
+        User|int|null $user = null,
     ) {
-        parent::__construct($vorname, $nachname, $email, $geburtsdatum, $telefon, $strasse, $plz, $stadt, $id);
+        parent::__construct($vorname, $nachname, $email, $geburtsdatum, $telefon, $strasse, $plz, $stadt, $id, $active, $updated_at, $created, $user);
     }
 
     public static function getTable(): string
@@ -25,43 +29,30 @@ class Mitarbeiter extends Person
         return 'mitarbeiter';
     }
 
-    public function saveEntry(): void
+    public function saveEntry(PDO $db): void
     {
-        $db = DBConnection::getConnection();
-        $table = self::getTable();
-
-        if ($this->id === null) {
-            $stmt = $db->prepare(
-                "INSERT INTO $table (vorname, nachname, email, geburtsdatum, telefon, strasse, plz, stadt)
-                 VALUES (:v, :n, :e, :g, :t, :s, :p, :st)"
-            );
-            $stmt->execute($this->getPersonBindArray());
-            $this->id = (int)$db->lastInsertId();
-        } else {
-            $stmt = $db->prepare(
-                "UPDATE $table
-                 SET vorname=:v, nachname=:n, email=:e, geburtsdatum=:g, telefon=:t, strasse=:s, plz=:p, stadt=:st
-                 WHERE ID = :id"
-            );
-            $data = $this->getPersonBindArray();
-            $data[':id'] = $this->id;
-            $stmt->execute($data);
-        }
+        $sqlString = empty($this->id) ? self::getInsertStmnt(): self::getUpdateStmnt();
+        $stmt = $db->prepare($sqlString);
+        $this->savePerson($stmt, $db);
     }
 
-    public function deleteEntry(): void
+    protected static function getInsertStmnt() : string
     {
-        if ($this->id === null) return;
-
-        $db = DBConnection::getConnection();
         $table = self::getTable();
-        $stmt = $db->prepare("DELETE FROM $table WHERE ID = :id");
-        $stmt->execute([':id' => $this->id]);
+        return "INSERT INTO $table (vorname, nachname, email, geburtsdatum, telefon, strasse, plz, stadt, userID)
+                 VALUES (:vorname, :nachname, :email, :geburtsdatum, :telefon, :strasse, :plz, :stadt, :Benutzer)";
     }
 
-    public static function findByIdEntry(int $id): ?static
+    protected static function getUpdateStmnt() : string
     {
-        $db = DBConnection::getConnection();
+        $table = self::getTable();
+        return "UPDATE $table
+                 SET vorname=:vorname, nachname=:nachname, email=:email, geburtsdatum=:geburtsdatum, telefon=:telefon, strasse=:strasse, plz=:plz, stadt=:stadt, userID=:Benutzer, active=:Active
+                 WHERE ID = :ID";
+    }
+
+    public static function findByIdEntry(PDO $db, int $id): ?static
+    {
         $table = self::getTable();
 
         $stmt = $db->prepare("SELECT * FROM $table WHERE ID = :id");
@@ -73,35 +64,59 @@ class Mitarbeiter extends Person
             $row['nachname'],
             $row['email'],
             $row['geburtsdatum'],
-            (int)$row['telefon'],
+            (int) $row['telefon'],
             $row['strasse'],
-            (int)$row['plz'],
+            (int) $row['plz'],
             $row['stadt'],
-            (int)$row['ID']
+            (bool) $row['active'] ?? true,
+            (int) $row['ID']
         ) : null;
     }
 
-    public static function findAllEntries(): array
+    public static function findAllEntries(PDO $db): array
     {
-        $db = DBConnection::getConnection();
         $table = self::getTable();
 
         $stmt = $db->query("SELECT * FROM $table");
 
         $list = [];
-        while ($row = $stmt->fetch()) {
-            $list[] = new Mitarbeiter(
-                $row['vorname'],
-                $row['nachname'],
-                $row['email'],
-                $row['geburtsdatum'],
-                (int)$row['telefon'],
-                $row['strasse'],
-                (int)$row['plz'],
-                $row['stadt'],
-                (int)$row['ID']
-            );
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+
+            // ID als Key verwenden
+            $id = (int) $row['ID'];
+
+            // Optional: Feldnamen vereinheitlichen
+            $list[$id] = [
+                'ID' => $id,
+                'active' => (bool)$row['active'],
+                'vorname' => $row['vorname'],
+                'nachname' => $row['nachname'],
+                'email' => $row['email'],
+                'geburtsdatum' => $row['geburtsdatum'],
+                'telefon' => $row['telefon'],
+                'strasse' => $row['strasse'],
+                'plz' => $row['plz'],
+                'stadt' => $row['stadt']
+            ];
         }
+
         return $list;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'ID'       => $this->id,
+            'active' => $this->active,
+            'vorname' => $this->vorname,
+            'nachname' => $this->nachname,
+            'email' => $this->email,
+            'geburtsdatum' => $this->geburtsdatum,
+            'telefon' => $this->telefon,
+            'strasse' => $this->strasse,
+            'plz' => $this->plz,
+            'stadt' => $this->stadt
+        ];
     }
 }

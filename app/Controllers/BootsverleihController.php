@@ -3,28 +3,25 @@
 namespace App\Controllers;
 
 use App\Models\DBConnection;
-use App\Models\Kunde;
 
-class KundenverwaltungController extends BaseController
+class BootsverleihController extends BaseController
 {
-
     public function index()
     {
-        echo "<h1>KundenverwaltungController funktioniert!</h1>";
+        echo "<h1>BootsverleihController funktioniert!</h1>";
     }
-
-    public function loadKundenverwaltung(): \CodeIgniter\HTTP\ResponseInterface
+    public function loadBoote(): \CodeIgniter\HTTP\ResponseInterface
     {
         $db = DBConnection::getConnection();
         // Alle Kunden aus der DB holen
-        $kunden = Kunde::findAllEntries($db);
+        $boote = Boot::findAllEntries($db);
 
         return $this->response->setJSON([
-            'kunden' => $kunden
+            'boote' => $boote
         ]);
     }
 
-    public function saveKundenverwaltung(): array
+    public function saveBoot(): array
     {
         $db = DBConnection::getConnection();
 
@@ -33,7 +30,7 @@ class KundenverwaltungController extends BaseController
         $id = ($data['id'] === '' ? null : (int) $data['id']);
         $geburtsdatum = ($data['geburtsdatum'] === '' ? null : $data['geburtsdatum']);
 
-        $kunde = new Kunde(
+        $kunde = new Boot(
             $data['vorname'],
             $data['nachname'],
             $data['email'],
@@ -42,16 +39,15 @@ class KundenverwaltungController extends BaseController
             $data['strasse'],
             (int) $data['plz'],
             $data['stadt'],
-            $id,
-            (bool) $data['active']
-
+            (bool) $data['active'],
+            $id
         );
         $kunde->saveEntry($db);
 
         return $kunde->toArray();
     }
 
-    public function deleteKundenverwaltung(): \CodeIgniter\HTTP\RedirectResponse
+    public function deleteBoot(): \CodeIgniter\HTTP\RedirectResponse
     {
         $db = DBConnection::getConnection();
         $id = ($_POST['id'] === '' ? null : (int) $_POST['id']);
@@ -60,4 +56,6 @@ class KundenverwaltungController extends BaseController
 
         return redirect()->back()->with('saved', 1);
     }
+
+
 }
