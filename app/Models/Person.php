@@ -2,9 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\DBConnection;
-use CodeIgniter\Model;
-
 abstract class Person extends DatabaseEntry
 {
     protected string $vorname;
@@ -28,10 +25,10 @@ abstract class Person extends DatabaseEntry
         ?int $id = null,
         ?bool $active = true,
         string|null $updated_at = null,
-        string|null $created = null,
+        string|null $created_at = null,
         User|int|null $user = null,
     ) {
-        parent::__construct($id, $updated_at, $created, $user, $active);
+        parent::__construct($id, $active, $updated_at, $created_at, $user);
         $this->vorname = $vorname;
         $this->nachname = $nachname;
         $this->email = $email;
@@ -53,6 +50,22 @@ abstract class Person extends DatabaseEntry
         $stmt->bindValue(":plz", $this->getPlz());
         $stmt->bindValue(":stadt", $this->getStadt());
         $this->saveData($stmt, $pdoHandler);
+    }
+
+    protected function toPersonArray(): array
+    {
+        return [
+            'ID'       => $this->id,
+            'active' => $this->active,
+            'vorname' => $this->vorname,
+            'nachname' => $this->nachname,
+            'email' => $this->email,
+            'geburtsdatum' => $this->geburtsdatum,
+            'telefon' => $this->telefon,
+            'strasse' => $this->strasse,
+            'plz' => $this->plz,
+            'stadt' => $this->stadt
+        ];
     }
 
     public function getVorname(): string { return $this->vorname; }

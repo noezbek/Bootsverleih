@@ -5,13 +5,17 @@ use PDO;
 
 abstract class DatabaseEntry
 {
-    protected int $id;
+    protected int|null $id;
     protected bool $active;
-    protected User|int $user;
-    protected string $created_at;
-    protected string $updated_at;
+    protected string|null $created_at;
+    protected string|null $updated_at;
+    protected User|int|null $user;
 
-    public function __construct(?int $id, ?string $updated_at, ?string $created_at, User|int|null $User, bool $active)
+    public function __construct( ?int $id = null,
+                                 ?bool $active = true,
+                                 string|null $updated_at = null,
+                                 string|null $created_at = null,
+                                 User|int|null $user = null,)
     {
         $this->id = $id;
         $this->active = $active;
@@ -126,7 +130,7 @@ abstract class DatabaseEntry
     abstract protected static function getUpdateStmnt() : string;
     abstract static public function getTable(): string;
     abstract public function saveEntry(PDO $db): void;
-    abstract public static function findByIdEntry(PDO $db, int $id): ?static;
+    abstract public static function findByIdEntry(PDO $db, int $id): array|null;
     abstract public static function findAllEntries(PDO $db): array;
     abstract public function toArray(): array;
 }

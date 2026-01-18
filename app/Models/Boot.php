@@ -35,7 +35,7 @@ class Boot extends DatabaseEntry
         string|null $created = null,
         User|int|null $user = null,
     ) {
-        parent::__construct($id, $updated_at, $created, $user, $active);
+        parent::__construct($id, $active, $updated_at, $created, $user);
         $this->laenge = $laenge;
         $this->breite = $breite;
         $this->tiefgang = $tiefgang;
@@ -89,7 +89,7 @@ class Boot extends DatabaseEntry
                  WHERE ID = :ID";
     }
 
-    public static function findByIdEntry(PDO $db, int $id): ?static
+    public static function findByIdEntry(PDO $db, int $id): array|null
     {
         $table = self::getTable();
 
@@ -97,9 +97,9 @@ class Boot extends DatabaseEntry
         $stmt->execute([':id' => $id]);
         $row = $stmt->fetch();
 
-        $features = [];
+        if (!$row) return null;
 
-        $instance = new Boot(
+        $boot = new Boot(
             $row['laenge'],
             $row['breite'],
             $row['tiefgang'],
@@ -116,10 +116,42 @@ class Boot extends DatabaseEntry
             $row['userID'],
         );
 
-        $instance->setFeatures($features);
+        $features = self::selectFeatureIDs($db, [$boot->getID()]);
 
-        return $instance;
+        $boot->setFeatures($features[$boot->getID()] ?? []);
+
+        return $boot->toArray();
     }
+
+    private static function selectFeatureIDs(PDO $db, array $bootIDs): array
+    {
+        $bootIDs = array_values(array_unique(array_map('intval', $bootIDs)));
+        if (!$bootIDs) return [];
+
+        $placeholders = implode(',', array_fill(0, count($bootIDs), '?'));
+        $stmt = $db->prepare(
+            "SELECT boot_ID, feature_ID
+         FROM boot_hat_feature
+         WHERE boot_ID IN ($placeholders)"
+        );
+        $stmt->execute($bootIDs);
+
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $map = [];
+        foreach ($rows as $r) {
+            $bid = (int)$r['boot_ID'];
+            $fid = (int)$r['feature_ID'];
+            $map[$bid][] = $fid;
+        }
+
+        foreach ($map as $bid => $fids) {
+            $map[$bid] = array_values(array_unique($fids));
+        }
+
+        return $map;
+    }
+
 
     public static function findAllEntries(PDO $db): array
     {
@@ -127,49 +159,59 @@ class Boot extends DatabaseEntry
 
         $stmt = $db->query("SELECT * FROM $table");
 
-        $list = [];
+        $bootsById = [];   // id => Boot
+        $bootIDs = [];
 
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $boot = new Boot(
+                $row['laenge'],
+                $row['breite'],
+                $row['tiefgang'],
+                $row['beschreibung'],
+                $row['kapazitaet'],
+                $row['bootstyp'],
+                $row['preis_pro_tag'],
+                $row['kaution'],
+                $row['verfuegbarkeit'],
+                (int)$row['ID'],
+                (bool)$row['active'],
+                $row['updated_at'],
+                $row['created_at'],
+                $row['userID'],
+            );
 
-            // ID als Key verwenden
-            $id = (int) $row['ID'];
-
-            $features = [];
-
-            // Optional: Feldnamen vereinheitlichen
-            $list[$id] = [
-                'ID' => $id,
-                'laenge' => $row['laenge'],
-                'breite' => $row['breite'],
-                'tiefgang' => $row['tiefgang'],
-                'beschreibung' => $row['beschreibung'],
-                'kapazitaet' => $row['kapazitaet'],
-                'bootstyp' => $row['bootstyp'],
-                'verfuegbarkeit' => $row['verfuegbarkeit'],
-                'preis_pro_tag' => $row['preis_pro_tag'],
-                'kaution' => $row['kaution'],
-                'features' => $features,
-                'active' => $row['active'],
-                'updated_at' => $row['updated_at'],
-                'created_at' => $row['created_at']
-            ];
+            $id = $boot->getID();
+            $bootsById[$id] = $boot;
+            $bootIDs[] = $id;
         }
 
-        return $list;
+        if (!$bootIDs) return [];
+
+        $featureMap = self::selectFeatureIDs($db, $bootIDs);
+
+        $res = [];
+        foreach ($bootsById as $id => $boot) {
+            $boot->setFeatures($featureMap[$id] ?? []);
+            $res[$id] = $boot->toArray();
+        }
+
+        return $res;
     }
 
     public function toArray(): array
     {
         return [
-            'ID' => $this->id,
-            'laenge' => $this->laenge,
-            'breite' => $this->breite,
-            'tiefgang' => $this->tiefgang,
-            'beschreibung' => $this->beschreibung,
-            'kapazitaet' => $this->kapazitaet,
-            'bootstyp' => $this->bootstyp,
-            'preis_pro_tag' => $this->preis_pro_tag,
-            'kaution' => $this->kaution,
+            'id' => $this->id,
+            'length' => $this->laenge,
+            'width' => $this->breite,
+            'depth' => $this->tiefgang,
+            'name' => $this->beschreibung,
+            'capacity' => $this->kapazitaet,
+            'type' => $this->bootstyp,
+            'pricePerDay' => $this->preis_pro_tag,
+            'deposit' => $this->kaution,
+            'availability' => $this->verfuegbarkeit,
+            'features' => $this->features,
             'active' => $this->active,
             'updated_at' => $this->updated_at,
             'created_at' => $this->created_at,

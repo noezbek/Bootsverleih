@@ -51,72 +51,65 @@ class Kunde extends Person
                  WHERE ID = :ID";
     }
 
-    public static function findByIdEntry(PDO $db, int $id): ?static
+    public static function findByIdEntry(PDO $db, int $id): array|null
     {
         $table = self::getTable();
 
         $stmt = $db->prepare("SELECT * FROM $table WHERE ID = :id");
-        $stmt->execute([':id' => $id]);
-        $row = $stmt->fetch();
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $row ? new Kunde(
+        if (!$row) return null;
+
+        $kunde = new Kunde(
             $row['vorname'],
             $row['nachname'],
             $row['email'],
             $row['geburtsdatum'],
-            (int) $row['telefon'],
+            $row['telefon'],
             $row['strasse'],
-            (int) $row['plz'],
+            $row['plz'],
             $row['stadt'],
-            (bool) $row['active'] ?? true,
-            (int) $row['ID']
-        ) : null;
+            $row['ID'],
+            (bool)$row['active'],
+        );
+
+        return $kunde->toArray();
     }
+
 
     public static function findAllEntries(PDO $db): array
     {
         $table = self::getTable();
 
         $stmt = $db->query("SELECT * FROM $table");
+        $res = [];
 
-        $list = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $kunde = new Kunde(
+                $row['vorname'],
+                $row['nachname'],
+                $row['email'],
+                $row['geburtsdatum'],
+                $row['telefon'],
+                $row['strasse'],
+                (int)$row['plz'],
+                $row['stadt'],
+                $row['ID'],
+                (bool)$row['active'],
+            );
 
-            // ID als Key verwenden
-            $id = (int) $row['ID'];
-
-            // Optional: Feldnamen vereinheitlichen
-            $list[$id] = [
-                'ID' => $id,
-                'active' => (bool)$row['active'],
-                'vorname' => $row['vorname'],
-                'nachname' => $row['nachname'],
-                'email' => $row['email'],
-                'geburtsdatum' => $row['geburtsdatum'],
-                'telefon' => $row['telefon'],
-                'strasse' => $row['strasse'],
-                'plz' => $row['plz'],
-                'stadt' => $row['stadt']
-            ];
+            $id = $kunde->getID(); // falls vorhanden, sonst (int)$row['ID']
+            $res[$id] = $kunde->toArray();
         }
 
-        return $list;
+        return $res;
     }
+
 
     public function toArray(): array
     {
-        return [
-            'ID'       => $this->id,
-            'active' => $this->active,
-            'vorname' => $this->vorname,
-            'nachname' => $this->nachname,
-            'email' => $this->email,
-            'geburtsdatum' => $this->geburtsdatum,
-            'telefon' => $this->telefon,
-            'strasse' => $this->strasse,
-            'plz' => $this->plz,
-            'stadt' => $this->stadt
-        ];
+        return self::toPersonArray();
     }
 }

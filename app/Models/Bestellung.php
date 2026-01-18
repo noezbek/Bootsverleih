@@ -18,7 +18,7 @@ class Bestellung extends DatabaseEntry
         string|null $created = null,
         User|int|null $user = null,
     ) {
-        parent::__construct($id, $updated_at, $created, $user, $active);
+        parent::__construct($id, $active, $updated_at, $created, $user);
         $this->kunde = $kunde;
         $this->bestellstatus = $bestellstatus;
     }
@@ -32,8 +32,8 @@ class Bestellung extends DatabaseEntry
     {
         $sqlString = empty($this->id) ? self::getInsertStmnt(): self::getUpdateStmnt();
         $stmt = $db->prepare($sqlString);
-        $stmt->bindValue(":kunde_ID", $this->getID(), \PDO::PARAM_INT);
-        $stmt->bindValue(":bestellstatus", $this->getID(), \PDO::PARAM_INT);
+        $stmt->bindValue(":kunde_ID", $this->getID(), PDO::PARAM_INT);
+        $stmt->bindValue(":bestellstatus", $this->getID(), PDO::PARAM_INT);
         $this->saveData($stmt, $db);
     }
 
@@ -52,7 +52,7 @@ class Bestellung extends DatabaseEntry
                  WHERE ID = :ID";
     }
 
-    public static function findByIdEntry(PDO $db, int $id): ?static
+    public static function findByIdEntry(PDO $db, int $id): array|null
     {
         $table = self::getTable();
 
@@ -60,7 +60,9 @@ class Bestellung extends DatabaseEntry
         $stmt->execute([':id' => $id]);
         $row = $stmt->fetch();
 
-        return $row ? new Bestellung(
+        if (!$row) return null;
+
+        $bestellung = new Bestellung(
             $row['kunde_ID'],
             $row['bestellstatus'],
             $row['ID'],
@@ -68,7 +70,9 @@ class Bestellung extends DatabaseEntry
             $row['updated_at'],
             $row['created_at'],
             $row['userID'],
-        ) : null;
+        );
+
+        return $bestellung->toArray();
     }
 
     public static function findAllEntries(PDO $db): array
@@ -77,25 +81,32 @@ class Bestellung extends DatabaseEntry
 
         $stmt = $db->query("SELECT * FROM $table");
 
-        $list = [];
+        $bestellungIDs = [];
 
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $bestellung = new Bestellung(
+                $row['kunde_ID'],
+                $row['bestellstatus'],
+                $row['ID'],
+                (bool)$row['active'],
+                $row['updated_at'],
+                $row['created_at'],
+                $row['userID'],
+            );
 
-            // ID als Key verwenden
-            $id = (int) $row['ID'];
-
-            // Optional: Feldnamen vereinheitlichen
-            $list[$id] = [
-                'ID' => $id,
-                'kunde_ID' => $row['kunde_ID'],
-                'bestellstatus' => $row['bestellstatus'],
-                'active' => $row['active'],
-                'updated_at' => $row['updated_at'],
-                'created_at' => $row['created_at']
-            ];
+            $id = $bestellung->getID();
+            $bestellungIDs[$id] = $bestellung;
         }
 
-        return $list;
+        if (!$bestellungIDs) return [];
+
+
+        $res = [];
+        foreach ($bestellungIDs as $id => $bestellung) {
+            $res[$id] = $bestellung->toArray();
+        }
+
+        return $res;
     }
 
     public function toArray(): array
