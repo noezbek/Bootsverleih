@@ -138,7 +138,7 @@ function openViewModal(id) {
         'view-address',
         `${k.strasse ?? ''}, ${k.plz ?? ''} ${k.stadt ?? ''}`.replace(/^,\s*/, '') || '-'
     );
-    setText('view-registered', k.geburtsdatum ?? '-');
+    setText('view-geburtsdatum', k.geburtsdatum ?? '-');
 
     document.getElementById('viewModal').style.display = 'block';
 }
@@ -246,7 +246,12 @@ const escape = v => String(v ?? '')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;');
 
-const setText = (id, v) => document.getElementById(id).textContent = v ?? '';
+const setText = (id, v) => {
+    const el = document.getElementById(id);
+    if (!el) return; // verhindert Crash wenn ID fehlt
+    el.textContent = v ?? '';
+};
+
 const setValue = (id, v) => {
     const el = document.getElementById(id);
     if (!el) return;

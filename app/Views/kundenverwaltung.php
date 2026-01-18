@@ -56,7 +56,7 @@
     </div>
 </div>
 
-<!-- VIEW MODAL (wieder wie früher: mit Sections) -->
+<!-- VIEW MODAL -->
 <div id="viewModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -109,6 +109,7 @@
         </div>
     </div>
 </div>
+
 
 <!-- EDIT MODAL (wir lassen erstmal die Inputs wie bei dir, Save kommt per JS) -->
 <div id="editModal" class="modal">
