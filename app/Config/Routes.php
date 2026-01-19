@@ -19,5 +19,8 @@ $routes->get('/meta/load', 'MetaController::loadEnums');
 $routes->get('/kundenverwaltung/load', 'KundenverwaltungController::loadKundenverwaltung');
 $routes->post('/kundenverwaltung/save', 'KundenverwaltungController::saveKundenverwaltung');
 $routes->post('/kundenverwaltung/delete', 'KundenverwaltungController::deleteKundenverwaltung');
+$routes->get('/bootsverleih/load', 'BootsverleihController::loadBoote');
+$routes->post('/bootsverleih/save', 'BootsverleihController::saveBoot');
+$routes->post('/bootsverleih/delete', 'BootsverleihController::deleteBoot');
 
 // $routes->setAutoRoute(true);      

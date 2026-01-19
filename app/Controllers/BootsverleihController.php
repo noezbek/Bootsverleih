@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\Boot;
 use App\Models\DBConnection;
 
 class BootsverleihController extends BaseController
@@ -28,19 +29,19 @@ class BootsverleihController extends BaseController
         $data = json_decode($_POST['data'], 1);
 
         $id = ($data['id'] === '' ? null : (int) $data['id']);
-        $geburtsdatum = ($data['geburtsdatum'] === '' ? null : $data['geburtsdatum']);
 
         $kunde = new Boot(
-            $data['vorname'],
-            $data['nachname'],
-            $data['email'],
-            $geburtsdatum,
-            (int) $data['telefon'],
-            $data['strasse'],
-            (int) $data['plz'],
-            $data['stadt'],
-            (bool) $data['active'],
-            $id
+            $data['laenge'],
+            $data['breite'],
+            $data['tiefgang'],
+            $data['beschreibung'],
+            $data['kapazitaet'],
+            $data['bootstyp'],
+            $data['preis_pro_tag'],
+            $data['kaution'],
+            $data['verfuegbarkeit'],
+            $id,
+            (bool) $data['active']
         );
         $kunde->saveEntry($db);
 
@@ -52,7 +53,7 @@ class BootsverleihController extends BaseController
         $db = DBConnection::getConnection();
         $id = ($_POST['id'] === '' ? null : (int) $_POST['id']);
 
-        Kunde::deleteByID($db, $id);
+        Boot::deleteByID($db, $id);
 
         return redirect()->back()->with('saved', 1);
     }
