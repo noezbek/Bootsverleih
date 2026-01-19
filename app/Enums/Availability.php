@@ -11,16 +11,15 @@ enum Availability: int
     case WARTUNG           = 5;
     case AUSSER_BETRIEB    = 6;
 
-    public static function label(?int $id): ?string
+    public static function list(): array
     {
-        return match ($id) {
+        return [
             1 => 'Verfügbar',
             2 => 'Reserviert',
             3 => 'Vermietet',
             4 => 'Nicht verfügbar',
             5 => 'In Wartung',
-            6 => 'Außer Betrieb',
-            default => null,
-        };
+            6 => 'Außer Betrieb'
+        ];
     }
 }

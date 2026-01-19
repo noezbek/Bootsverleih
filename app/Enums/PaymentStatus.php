@@ -10,16 +10,15 @@ enum PaymentStatus: int
     case STORNIERT         = 5;
     case RUECKERSTATTET    = 6;
 
-    public static function label(?int $id): string
+    public static function list(): array
     {
-        return match ($id) {
+        return [
             1 => 'Ausstehend',
             2 => 'Bezahlt',
             3 => 'Teilweise bezahlt',
             4 => 'Fehlgeschlagen',
             5 => 'Storniert',
-            6 => 'Rückerstattet',
-            default => null, // NULL oder ungültig
-        };
+            6 => 'Rückerstattet'
+        ];
     }
 }

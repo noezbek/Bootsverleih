@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Filters\DbFilter;
 use PDO;
 
 abstract class DatabaseEntry
@@ -131,6 +132,6 @@ abstract class DatabaseEntry
     abstract static public function getTable(): string;
     abstract public function saveEntry(PDO $db): void;
     abstract public static function findByIdEntry(PDO $db, int $id): array|null;
-    abstract public static function findAllEntries(PDO $db): array;
+    abstract public static function findAllEntries(PDO $db, ?DbFilter $filter = null): array;
     abstract public function toArray(): array;
 }

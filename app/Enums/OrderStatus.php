@@ -9,14 +9,13 @@ enum OrderStatus: int
     case STORNIERT       = 3;
     case IN_BEARBEITUNG  = 4;
 
-    public static function label(?int $id): ?string
+    public static function list(): array
     {
-        return match ($id) {
+        return [
             1 => 'Bestätigt',
             2 => 'Abgeschlossen',
             3 => 'Storniert',
-            4 => 'In Bearbeitung',
-            default => null,
-        };
+            4 => 'In Bearbeitung'
+        ];
     }
 }

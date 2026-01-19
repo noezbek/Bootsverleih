@@ -15,6 +15,7 @@ $routes->get('/bootsverleih', 'Home::bootsverleih');   // ← Bootsverleih
 $routes->get('/kundenverwaltung', 'Home::kundenverwaltung');   // ← Kundenverwaltung
 
 //Data
+$routes->get('/meta/load', 'MetaController::loadEnums');
 $routes->get('/kundenverwaltung/load', 'KundenverwaltungController::loadKundenverwaltung');
 $routes->post('/kundenverwaltung/save', 'KundenverwaltungController::saveKundenverwaltung');
 $routes->post('/kundenverwaltung/delete', 'KundenverwaltungController::deleteKundenverwaltung');

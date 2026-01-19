@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\OrderStatus;
+use App\Filters\DbFilter;
 use PDO;
 
 class Bestellung extends DatabaseEntry
@@ -40,15 +41,15 @@ class Bestellung extends DatabaseEntry
     protected static function getInsertStmnt() : string
     {
         $table = self::getTable();
-        return "INSERT INTO $table (vorname, nachname, email, geburtsdatum, telefon, strasse, plz, stadt, userID)
-                 VALUES (:vorname, :nachname, :email, :geburtsdatum, :telefon, :strasse, :plz, :stadt, :Benutzer)";
+        return "INSERT INTO $table (kunde_ID, bestellstatus, userID)
+                 VALUES (:kunde_ID, :bestellstatus, :Benutzer)";
     }
 
     protected static function getUpdateStmnt() : string
     {
         $table = self::getTable();
         return "UPDATE $table
-                 SET vorname=:vorname, nachname=:nachname, email=:email, geburtsdatum=:geburtsdatum, telefon=:telefon, strasse=:strasse, plz=:plz, stadt=:stadt, userID=:Benutzer, active=:Active
+                 SET kunde_ID=:kunde_ID, bestellstatus=:bestellstatus, userID=:Benutzer, active=:Active
                  WHERE ID = :ID";
     }
 
@@ -75,39 +76,38 @@ class Bestellung extends DatabaseEntry
         return $bestellung->toArray();
     }
 
-    public static function findAllEntries(PDO $db): array
+    public static function findAllEntries(PDO $db, ?DbFilter $filter = null): array
     {
         $table = self::getTable();
 
-        $stmt = $db->query("SELECT * FROM $table");
+        $filter ??= new DbFilter();
+        $c = $filter->compile();
 
-        $bestellungIDs = [];
+        $sql = "SELECT * FROM $table" . $c['whereSql'] . $c['orderSql'] . $c['limitSql'];
 
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $stmt = $db->prepare($sql);
+        $stmt->execute($c['params']);
+
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $map = [];
+        foreach ($rows as $row) {
+            $id = (int)$row['ID'];
             $bestellung = new Bestellung(
-                $row['kunde_ID'],
+                (int)$row['kunde_ID'],
                 $row['bestellstatus'],
-                $row['ID'],
+                $id,
                 (bool)$row['active'],
                 $row['updated_at'],
                 $row['created_at'],
                 $row['userID'],
             );
-
-            $id = $bestellung->getID();
-            $bestellungIDs[$id] = $bestellung;
+            $map[$id] = $bestellung->toArray();
         }
 
-        if (!$bestellungIDs) return [];
-
-
-        $res = [];
-        foreach ($bestellungIDs as $id => $bestellung) {
-            $res[$id] = $bestellung->toArray();
-        }
-
-        return $res;
+        return $map;
     }
+
 
     public function toArray(): array
     {
