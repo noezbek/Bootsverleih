@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Availability;
 use App\Enums\BoatTyoe;
+use App\Filters\DbFilter;
 use PDO;
 
 class Boot extends DatabaseEntry
@@ -153,7 +154,7 @@ class Boot extends DatabaseEntry
     }
 
 
-    public static function findAllEntries(PDO $db): array
+    public static function findAllEntries(PDO $db, ?DbFilter $filter = null): array
     {
         $table = self::getTable();
 
