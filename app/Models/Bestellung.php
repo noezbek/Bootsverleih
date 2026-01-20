@@ -10,15 +10,19 @@ class Bestellung extends DatabaseEntry
 {
     private Kunde|int $kunde;
     private OrderStatus|int $bestellstatus;
+    private array $boote;
+    private array $liegeplatze;
+
     public function __construct(
-        Kunde|int $kunde,
+        Kunde|int       $kunde,
         OrderStatus|int $bestellstatus,
-        ?int $id = null,
-        ?bool $active = true,
-        string|null $updated_at = null,
-        string|null $created = null,
-        User|int|null $user = null,
-    ) {
+        ?int            $id = null,
+        ?bool           $active = true,
+        string|null     $updated_at = null,
+        string|null     $created = null,
+        User|int|null   $user = null,
+    )
+    {
         parent::__construct($id, $active, $updated_at, $created, $user);
         $this->kunde = $kunde;
         $this->bestellstatus = $bestellstatus;
@@ -29,23 +33,45 @@ class Bestellung extends DatabaseEntry
         return 'bestellungen';
     }
 
+    public static function getBootRelTable(): string
+    {
+        return 'bestellung_boot';
+    }
+
+    public static function getLiegeplatzRelTable(): string
+    {
+        return 'bestellung_liegeplatz';
+    }
+
     public function saveEntry(PDO $db): void
     {
-        $sqlString = empty($this->id) ? self::getInsertStmnt(): self::getUpdateStmnt();
+        $sqlString = empty($this->id) ? self::getInsertStmnt() : self::getUpdateStmnt();
         $stmt = $db->prepare($sqlString);
         $stmt->bindValue(":kunde_ID", $this->getID(), PDO::PARAM_INT);
         $stmt->bindValue(":bestellstatus", $this->getID(), PDO::PARAM_INT);
         $this->saveData($stmt, $db);
+        $this->saveBestellBoote($db);
+        $this->saveBestellLiegeplaetze($db);
     }
 
-    protected static function getInsertStmnt() : string
+    public function saveBestellBoote(PDO $db) : void
+    {
+        self::saveRelations($db, self::getBootRelTable(), 'bestellung_ID', 'boot_ID', $this->getID(), $this->getBoote());
+    }
+
+    public function saveBestellLiegeplaetze(PDO $db) : void
+    {
+        self::saveRelations($db, self::getBootRelTable(), 'bestellung_ID', 'liegeplatz_ID', $this->getID(), $this->getLiegeplatze());
+    }
+
+    protected static function getInsertStmnt(): string
     {
         $table = self::getTable();
         return "INSERT INTO $table (kunde_ID, bestellstatus, userID)
                  VALUES (:kunde_ID, :bestellstatus, :Benutzer)";
     }
 
-    protected static function getUpdateStmnt() : string
+    protected static function getUpdateStmnt(): string
     {
         $table = self::getTable();
         return "UPDATE $table
@@ -108,6 +134,32 @@ class Bestellung extends DatabaseEntry
         return $map;
     }
 
+    private static function attachBoote(PDO $db, array $bestellungen, ?DbFilter $extraFilter = null): void
+    {
+//        if (!$bestellungen) return;
+//
+//        $orderIDs = array_map('intval', array_keys($bestellungen));
+//
+//        $filter = $extraFilter ?? new DbFilter();
+//        $filter->whereIn('kunde_ID', $bestellungen);
+//
+//        // Bestellungen keyed by Bestellung-ID
+//        $bestellungenByBestellId = Bestellung::findAllEntries($db, $filter);
+//
+//        // Gruppieren nach kunde_ID
+//        $bestellungenByKundeId = [];
+//        foreach ($bestellungenByBestellId as $b) {
+//            $kid = $b['kunde_ID'];
+//            $bestellungenByKundeId[$kid][] = $b;
+//        }
+//
+//        // Attach
+//        foreach ($bestellungen as $kid => &$kunde) {
+//            $kunde['bestellungen'] = $bestellungenByKundeId[(int)$kid] ?? [];
+//        }
+//        unset($kunde);
+    }
+
 
     public function toArray(): array
     {
@@ -139,5 +191,25 @@ class Bestellung extends DatabaseEntry
     public function setBestellstatus(OrderStatus|int $bestellstatus): void
     {
         $this->bestellstatus = $bestellstatus;
+    }
+
+    public function getBoote(): array
+    {
+        return $this->boote;
+    }
+
+    public function setBoote(array $boote): void
+    {
+        $this->boote = $boote;
+    }
+
+    public function getLiegeplatze(): array
+    {
+        return $this->liegeplatze;
+    }
+
+    public function setLiegeplatze(array $liegeplatze): void
+    {
+        $this->liegeplatze = $liegeplatze;
     }
 }

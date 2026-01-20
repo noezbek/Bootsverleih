@@ -64,6 +64,37 @@ abstract class DatabaseEntry
         }
     }
 
+    public static function saveRelations(
+        PDO    $db,
+        string $table,
+        string $parentColumn,
+        string $relColumn,
+        int    $parentID,
+        array  $relIDs
+    ): void
+    {
+        $deleteSql = "DELETE FROM `$table` WHERE `$parentColumn` = :parentID";
+        $deleteStmt = $db->prepare($deleteSql);
+        $deleteStmt->execute([
+            ':parentID' => $parentID
+        ]);
+
+        if (!empty($relIDs)) {
+            $insertSql = "
+                INSERT INTO `$table` (`$parentColumn`, `$relColumn`)
+                VALUES (:parentID, :relID)
+            ";
+            $insertStmt = $db->prepare($insertSql);
+
+            foreach ($relIDs as $relID) {
+                $insertStmt->execute([
+                    ':parentID' => $parentID,
+                    ':relID' => $relID
+                ]);
+            }
+        }
+    }
+
     public static function deleteByID(PDO $db, int $id): void
     {
         $table = static::getTable();
