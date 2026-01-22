@@ -11,11 +11,8 @@ async function initPage() {
     if (!page) return;
 
     // home -> /pages/home.js
-    // kundenverwaltung -> /pages/kundenverwaltung/kundenverwaltung.js
-    const path =
-        page === 'home'
-            ? `./pages/home.js`
-            : `./pages/${page}/${page}.js`;
+    // kundenverwaltung -> /pages/kundenverwaltung.js
+    const path = `./pages/${page}.js`;
 
     try {
         const mod = await import(path);

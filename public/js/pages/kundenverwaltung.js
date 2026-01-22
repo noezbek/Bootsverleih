@@ -1,4 +1,4 @@
-import { apiGet, apiPostFormData, toFormData } from '../../api.js';
+import { apiGet, apiPostFormData, toFormData } from '../api.js';
 
 let kunden = {}; // { id: kunde }
 

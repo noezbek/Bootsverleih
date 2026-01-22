@@ -1,4 +1,4 @@
-import { apiGet } from "../../api.js";
+import { apiGet } from "../api.js";
 
 let boote = {};       // { id: boot }
 let currentIds = [];  // gefilterte/sortierte IDs
@@ -8,7 +8,6 @@ let selectedBootId = null;
 // INIT (nur 1x beim Laden)
 // ==============================
 export async function init() {
-    console.log('init')
     wireModalClose();
     wireFilters();
     wireGridActions();
@@ -23,7 +22,6 @@ export async function init() {
 // INITIAL LOAD (EINMALIG)
 // ==============================
 async function initialLoad() {
-    console.log('initialLoad')
     const data = await apiGet('/bootsverleih/load');
 
     // erwartet: { boote: { id: {...} } }
