@@ -162,7 +162,7 @@ abstract class DatabaseEntry
     abstract protected static function getUpdateStmnt() : string;
     abstract static public function getTable(): string;
     abstract public function saveEntry(PDO $db): void;
-    abstract public static function findByIdEntry(PDO $db, int $id): array|null;
+    abstract public static function findByIdEntry(PDO $db, int $id): self|null;
     abstract public static function findAllEntries(PDO $db, ?DbFilter $filter = null): array;
     abstract public function toArray(): array;
 }

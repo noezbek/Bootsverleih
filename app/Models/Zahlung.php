@@ -66,7 +66,7 @@ class Zahlung extends DatabaseEntry
                  WHERE ID = :ID";
     }
 
-    public static function findByIdEntry(PDO $db, int $id): array|null
+    public static function findByIdEntry(PDO $db, int $id): self|null
     {
         $table = self::getTable();
 
@@ -76,7 +76,7 @@ class Zahlung extends DatabaseEntry
 
         if (!$row) return null;
 
-        $bestellung = new Zahlung(
+        return new Zahlung(
             $row['kunde_ID'],
             $row['bestellstatus'],
             $row['ID'],
@@ -85,8 +85,6 @@ class Zahlung extends DatabaseEntry
             $row['created_at'],
             $row['userID'],
         );
-
-        return $bestellung->toArray();
     }
 
     public static function findAllEntries(PDO $db, ?DbFilter $filter = null): array
@@ -106,7 +104,7 @@ class Zahlung extends DatabaseEntry
         $map = [];
         foreach ($rows as $row) {
             $id = (int)$row['ID'];
-            $bestellung = new Zahlung(
+            $zahlunf = new Zahlung(
                 (int)$row['bestellung_ID'],
                 $row['zahlungsstatus'],
                 $row['betrag'],
@@ -117,7 +115,7 @@ class Zahlung extends DatabaseEntry
                 $row['created_at'],
                 $row['userID'],
             );
-            $map[$id]= $bestellung->toArray();
+            $map[$id]= $zahlunf;
         }
 
         return $map;

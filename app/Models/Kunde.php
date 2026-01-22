@@ -52,7 +52,7 @@ class Kunde extends Person
                  WHERE ID = :ID";
     }
 
-    public static function findByIdEntry(PDO $db, int $id): array|null
+    public static function findByIdEntry(PDO $db, int $id): self|null
     {
         $table = self::getTable();
 
@@ -75,7 +75,7 @@ class Kunde extends Person
             (bool)$row['active'],
         );
 
-        return $kunde->toArray();
+        return $kunde;
     }
 
 
@@ -84,10 +84,11 @@ class Kunde extends Person
         $table = self::getTable();
 
         $stmt = $db->query("SELECT * FROM $table");
-        $res = [];
+
+        $kundenById = [];   // id => Kunde
+        $kundeIDs = [];
 
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-
             $kunde = new Kunde(
                 $row['vorname'],
                 $row['nachname'],
@@ -97,89 +98,52 @@ class Kunde extends Person
                 $row['strasse'],
                 (int)$row['plz'],
                 $row['stadt'],
-                $row['ID'],
+                (int)$row['ID'],
                 (bool)$row['active'],
             );
 
-            $id = $kunde->getID(); // falls vorhanden, sonst (int)$row['ID']
-            $res[$id] = $kunde->toArray();
+            $id = $kunde->getID();
+            $kundenById[$id] = $kunde;
+            $kundeIDs[] = $id;
+        }
+
+        if (!$kundeIDs) return [];
+
+        /**Bestellungen batch laden */
+        // kundeID => [Bestellung, ...]
+        $bestellungenByKunde = self::selectBestellRel($db, $kundeIDs);
+
+        /**alles direkt setzen */
+        $res = [];
+        foreach ($kundenById as $kid => $kunde) {
+            $bestellungen = $bestellungenByKunde[$kid] ?? [];
+
+            $kunde->setBestellungen($bestellungen);
+            $res[$kid] = $kunde;
         }
 
         return $res;
     }
 
-    public static function attachBestellungen(PDO $db, array &$kunden, ?DbFilter $extraFilter = null): void
+
+    private static function selectBestellRel(PDO $db, array $kundeIDs): array
     {
-        if (!$kunden) return;
-
-        $kundeIDs = array_map('intval', array_keys($kunden));
-
-        $filter = $extraFilter ?? new DbFilter();
+        $filter = new DbFilter();
         $filter->whereIn('kunde_ID', $kundeIDs);
 
-        // Bestellungen keyed by Bestellung-ID
-        $bestellungenByBestellId = Bestellung::findAllEntries($db, $filter);
+        $bestellungen = Bestellung::findAllEntries($db, $filter);
 
-        // Gruppieren nach kunde_ID
-        $bestellungenByKundeId = [];
-        foreach ($bestellungenByBestellId as $b) {
-            $kid = $b['kunde_ID'];
-            $bestellungenByKundeId[$kid][] = $b;
+        $byKunde = [];      // kundeID => [bestellungen]
+
+        foreach ($bestellungen as $b) {
+            $kid = (int)$b['kunde_ID'];
+
+            $byKunde[$kid][] = $b;
         }
 
-        // Attach
-        foreach ($kunden as $kid => &$kunde) {
-            $kunde['bestellungen'] = $bestellungenByKundeId[(int)$kid] ?? [];
-        }
-        unset($kunde);
+        return $byKunde;
     }
 
-    public static function attachZahlungen(PDO $db, array &$kunden, ?DbFilter $extraFilter = null): void
-    {
-            xdebug_break();
-        if (!$kunden) return;
-
-        // 1) bestellID -> kundeID map bauen + alle bestellIDs sammeln
-        $bestellToKunde = [];
-        $bestellIDs = [];
-
-        foreach ($kunden as $kundeId => $kunde) {
-            foreach (($kunde['bestellungen'] ?? []) as $bestellung) {
-                if (!isset($bestellung['ID'])) continue;
-
-                $bid = (int)$bestellung['ID'];
-                $bestellIDs[] = $bid;
-                $bestellToKunde[$bid] = (int)$kundeId;
-            }
-        }
-
-        $bestellIDs = array_values(array_unique($bestellIDs));
-
-        // Default: jeder Kunde hat erstmal leere Zahlungen
-        foreach ($kunden as $kid => &$kunde) {
-            $kunde['zahlungen'] = [];
-        }
-        unset($kunde);
-
-        if (!$bestellIDs) return;
-
-        // 2) Zahlungen batch laden (findAllEntries bleibt keyed nach Zahlung-ID!)
-        $filter = $extraFilter ?? new DbFilter();
-        $filter->whereIn('bestellung_ID', $bestellIDs);
-
-        $zahlungenByZahlungId = Zahlung::findAllEntries($db, $filter);
-
-        // 3) Zahlungen nach Kunde gruppieren (über bestell_ID -> kundeID)
-        foreach ($zahlungenByZahlungId as $zahlung) {
-            $bid = (int)($zahlung['bestellung'] ?? 0);
-            if ($bid <= 0) continue;
-
-            $kid = $bestellToKunde[$bid] ?? null;
-            if ($kid === null) continue;
-
-            $kunden[$kid]['zahlungen'][] = $zahlung;
-        }
-    }
 
     public function toArray(): array
     {

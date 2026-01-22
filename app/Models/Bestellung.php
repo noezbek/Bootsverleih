@@ -12,6 +12,7 @@ class Bestellung extends DatabaseEntry
     private OrderStatus|int $bestellstatus;
     private array $boote;
     private array $liegeplatze;
+    private Zahlung|int|null $zahlung;
 
     public function __construct(
         Kunde|int       $kunde,
@@ -79,7 +80,7 @@ class Bestellung extends DatabaseEntry
                  WHERE ID = :ID";
     }
 
-    public static function findByIdEntry(PDO $db, int $id): array|null
+    public static function findByIdEntry(PDO $db, int $id): self|null
     {
         $table = self::getTable();
 
@@ -99,7 +100,19 @@ class Bestellung extends DatabaseEntry
             $row['userID'],
         );
 
-        return $bestellung->toArray();
+        $bestellID = $bestellung->getID();
+
+        $rel= self::selectRelItemIDs($db, [$bestellID])[$bestellID];
+
+        if (isset($result[$bestellID])) {
+            $bestellung->setBoote($rel['boot']);
+            $bestellung->setLiegeplatze($rel['liegeplatz']);
+        }
+
+        $zahlungMap = self::selectZahlungsRel($db, [$bestellID]);
+        $bestellung->setZahlung($zahlungMap[$bestellID] ?? null);
+
+        return $bestellung;
     }
 
     public static function findAllEntries(PDO $db, ?DbFilter $filter = null): array
@@ -109,17 +122,25 @@ class Bestellung extends DatabaseEntry
         $filter ??= new DbFilter();
         $c = $filter->compile();
 
-        $sql = "SELECT * FROM $table" . $c['whereSql'] . $c['orderSql'] . $c['limitSql'];
+        $sql = "SELECT * FROM $table"
+            . $c['whereSql']
+            . $c['orderSql']
+            . $c['limitSql'];
 
         $stmt = $db->prepare($sql);
         $stmt->execute($c['params']);
 
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+        /** @var Bestellung[] $map */
         $map = [];
+        $ids = [];
+
         foreach ($rows as $row) {
             $id = (int)$row['ID'];
-            $bestellung = new Bestellung(
+            $ids[] = $id;
+
+            $map[$id] = new Bestellung(
                 (int)$row['kunde_ID'],
                 $row['bestellstatus'],
                 $id,
@@ -128,36 +149,110 @@ class Bestellung extends DatabaseEntry
                 $row['created_at'],
                 $row['userID'],
             );
-            $map[$id] = $bestellung->toArray();
+        }
+
+        if ($ids) {
+            $rels = self::selectRelItemIDs($db, $ids);
+
+            foreach ($rels as $bestellID => $rel) {
+                if (isset($map[$bestellID])) {
+                    $map[$bestellID]->setBoote($rel['boot']);
+                    $map[$bestellID]->setLiegeplatze($rel['liegeplatz']);
+                }
+            }
+
+            $zahlungen = self::selectZahlungsRel($db, $ids);
+            foreach ($zahlungen as $bestellID => $zahlung) {
+                if (isset($map[$bestellID])) {
+                    $map[$bestellID]->setZahlung($zahlung);
+                }
+            }
         }
 
         return $map;
     }
 
-    private static function attachBoote(PDO $db, array $bestellungen, ?DbFilter $extraFilter = null): void
+    public static function selectZahlungsRel(
+        PDO $db,
+        array $bestellIDs,
+        ?DbFilter $extraFilter = null
+    ): array {
+        if (!$bestellIDs) return [];
+
+        $filter = $extraFilter ?? new DbFilter();
+        $filter->whereIn('bestellung_ID', $bestellIDs);
+
+        $zahlungen = Zahlung::findAllEntries($db, $filter);
+
+        $res = []; // bestellID => Zahlung
+
+        foreach ($zahlungen as $zahlung) {
+            $bid = $zahlung->getBestellungID();
+            if ($bid <= 0) continue;
+
+            // falls DB kaputt ist und mehrere Zahlungen existieren:
+            if (isset($res[$bid])) {
+                // defensive Entscheidung
+                // z. B. letzte gewinnt oder erste gewinnt
+                // oder Exception werfen
+                throw new \Exception("Mehrere Zahlungen für Bestellung {$bid} gefunden");
+            }
+
+            $res[$bid] = $zahlung;
+        }
+
+        return $res;
+    }
+
+
+    private static function selectRelItemIDs(PDO $db, array $bestellIDs): array
     {
-//        if (!$bestellungen) return;
-//
-//        $orderIDs = array_map('intval', array_keys($bestellungen));
-//
-//        $filter = $extraFilter ?? new DbFilter();
-//        $filter->whereIn('kunde_ID', $bestellungen);
-//
-//        // Bestellungen keyed by Bestellung-ID
-//        $bestellungenByBestellId = Bestellung::findAllEntries($db, $filter);
-//
-//        // Gruppieren nach kunde_ID
-//        $bestellungenByKundeId = [];
-//        foreach ($bestellungenByBestellId as $b) {
-//            $kid = $b['kunde_ID'];
-//            $bestellungenByKundeId[$kid][] = $b;
-//        }
-//
-//        // Attach
-//        foreach ($bestellungen as $kid => &$kunde) {
-//            $kunde['bestellungen'] = $bestellungenByKundeId[(int)$kid] ?? [];
-//        }
-//        unset($kunde);
+        $bestellIDs = array_values(array_unique(array_map('intval', $bestellIDs)));
+        if (!$bestellIDs) return [];
+
+        $ph = implode(',', array_fill(0, count($bestellIDs), '?'));
+
+        $sql = "
+        SELECT bestellung_ID, boot_ID, NULL AS liegeplatz_ID
+        FROM bestellung_boot
+        WHERE bestellung_ID IN ($ph)
+
+        UNION ALL
+
+        SELECT bestellung_ID, NULL AS boot_ID, liegeplatz_ID
+        FROM bestellung_liegeplatz
+        WHERE bestellung_ID IN ($ph)
+    ";
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute([...$bestellIDs, ...$bestellIDs]);
+
+        $map = [];
+        while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $bid = (int)$r['bestellung_ID'];
+
+            if (!isset($map[$bid])) {
+                $map[$bid] = [
+                    'boote' => [],
+                    'liegeplaetze' => []
+                ];
+            }
+
+            if ($r['boot_ID'] !== null) {
+                $map[$bid]['boote'][] = (int)$r['boot_ID'];
+            }
+            if ($r['liegeplatz_ID'] !== null) {
+                $map[$bid]['liegeplaetze'][] = (int)$r['liegeplatz_ID'];
+            }
+        }
+
+        // unique & reindex
+        foreach ($map as &$entry) {
+            $entry['boote'] = array_values(array_unique($entry['boote']));
+            $entry['liegeplaetze'] = array_values(array_unique($entry['liegeplaetze']));
+        }
+
+        return $map;
     }
 
 
@@ -211,5 +306,15 @@ class Bestellung extends DatabaseEntry
     public function setLiegeplatze(array $liegeplatze): void
     {
         $this->liegeplatze = $liegeplatze;
+    }
+
+    public function getZahlung(): Zahlung|int|null
+    {
+        return $this->zahlung;
+    }
+
+    public function setZahlung(Zahlung|int|null $zahlung): void
+    {
+        $this->zahlung = $zahlung;
     }
 }

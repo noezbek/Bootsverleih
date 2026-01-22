@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-use DBConnection;
+use App\Filters\DbFilter;
+use PDO;
 
 class User extends DatabaseEntry
 {
@@ -16,9 +17,13 @@ class User extends DatabaseEntry
         string $passwordHash,
         ?int $kunde = null,
         ?int $mitarbeiter = null,
-        ?int $id = null
+        ?int $id = null,
+        ?bool $active = true,
+        string|null $updated_at = null,
+        string|null $created_at = null,
+        User|int|null $user = null,
     ) {
-        parent::__construct($id);
+        parent::__construct($id, $active, $updated_at, $created_at, $user);
         $this->username = $username;
         $this->passwordHash = $passwordHash;
         $this->kunde = $kunde;
@@ -46,9 +51,8 @@ class User extends DatabaseEntry
         return password_verify($plainPassword, $this->passwordHash);
     }
 
-    public function saveEntry(): void
+    public function saveEntry(PDO $db): void
     {
-        $db = DBConnection::getConnection();
         $table = self::getTable();
 
         if ($this->id === null) {
@@ -79,19 +83,17 @@ class User extends DatabaseEntry
         }
     }
 
-    public function deleteEntry(): void
+    public function deleteEntry(PDO $db): void
     {
         if ($this->id === null) return;
 
-        $db = DBConnection::getConnection();
         $table = self::getTable();
         $stmt = $db->prepare("DELETE FROM $table WHERE ID = :id");
         $stmt->execute([':id' => $this->id]);
     }
 
-    public static function findByIdEntry(int $id): ?static
+    public static function findByIdEntry(PDO $db, int $id): ?static
     {
-        $db = DBConnection::getConnection();
         $table = self::getTable();
 
         $stmt = $db->prepare("SELECT * FROM $table WHERE ID = :id");
@@ -107,9 +109,8 @@ class User extends DatabaseEntry
         ) : null;
     }
 
-    public static function findByUsername(string $username): ?User
+    public static function findByUsername(PDO $db, string $username): ?User
     {
-        $db = DBConnection::getConnection();
         $table = self::getTable();
 
         $stmt = $db->prepare("SELECT * FROM $table WHERE username = :u");
@@ -125,9 +126,8 @@ class User extends DatabaseEntry
         ) : null;
     }
 
-    public static function findAllEntries(): array
+    public static function findAllEntries(PDO $db, ?DbFilter $filter = null): array
     {
-        $db = DBConnection::getConnection();
         $table = self::getTable();
         $stmt = $db->query("SELECT * FROM $table");
 
@@ -143,5 +143,27 @@ class User extends DatabaseEntry
         }
 
         return $list;
+    }
+
+    protected static function getInsertStmnt() : string
+    {
+        $table = self::getTable();
+        return "INSERT INTO $table (vorname, nachname, email, geburtsdatum, telefon, strasse, plz, stadt, userID)
+                 VALUES (:vorname, :nachname, :email, :geburtsdatum, :telefon, :strasse, :plz, :stadt, :Benutzer)";
+    }
+
+    protected static function getUpdateStmnt() : string
+    {
+        $table = self::getTable();
+        return "UPDATE $table
+                 SET vorname=:vorname, nachname=:nachname, email=:email, geburtsdatum=:geburtsdatum, telefon=:telefon, strasse=:strasse, plz=:plz, stadt=:stadt, userID=:Benutzer, active=:Active
+                 WHERE ID = :ID";
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id
+        ];
     }
 }

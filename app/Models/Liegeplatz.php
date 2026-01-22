@@ -48,7 +48,7 @@ class Liegeplatz extends DatabaseEntry
                  WHERE ID = :ID";
     }
 
-    public static function findByIdEntry(PDO $db, int $id): array|null
+    public static function findByIdEntry(PDO $db, int $id): self|null
     {
         $table = self::getTable();
 
@@ -58,7 +58,7 @@ class Liegeplatz extends DatabaseEntry
 
         if (!$row) return null;
 
-        $liegeplatz = new Liegeplatz(
+        return new Liegeplatz(
             (int)$row['beschreibung'],
             $id,
             (bool)$row['active'],
@@ -66,8 +66,6 @@ class Liegeplatz extends DatabaseEntry
             $row['created_at'],
             $row['userID'],
         );
-
-        return $liegeplatz->toArray();
     }
 
     public static function findAllEntries(PDO $db, ?DbFilter $filter = null): array
@@ -95,7 +93,7 @@ class Liegeplatz extends DatabaseEntry
                 $row['created_at'],
                 $row['userID'],
             );
-            $map[$id] = $liegeplatz->toArray();
+            $map[$id] = $liegeplatz;
         }
 
         return $map;

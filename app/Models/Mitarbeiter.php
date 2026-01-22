@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Filters\DbFilter;
 use PDO;
 
 class Mitarbeiter extends Person
@@ -52,7 +53,7 @@ class Mitarbeiter extends Person
                  WHERE ID = :ID";
     }
 
-    public static function findByIdEntry(PDO $db, int $id): array|null
+    public static function findByIdEntry(PDO $db, int $id): self|null
     {
         $table = self::getTable();
 
@@ -75,11 +76,11 @@ class Mitarbeiter extends Person
             (bool)$row['active'],
         );
 
-        return $mitarbeiter->toArray();
+        return $mitarbeiter;
     }
 
 
-    public static function findAllEntries(PDO $db): array
+    public static function findAllEntries(PDO $db, ?DbFilter $filter = null): array
     {
         $table = self::getTable();
 
@@ -102,7 +103,7 @@ class Mitarbeiter extends Person
             );
 
             $id = $mitarbeiter->getID(); // falls vorhanden, sonst (int)$row['ID']
-            $res[$id] = $mitarbeiter->toArray();
+            $res[$id] = $mitarbeiter;
         }
 
         return $res;

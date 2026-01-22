@@ -90,7 +90,7 @@ class Boot extends DatabaseEntry
                  WHERE ID = :ID";
     }
 
-    public static function findByIdEntry(PDO $db, int $id): array|null
+    public static function findByIdEntry(PDO $db, int $id): self|null
     {
         $table = self::getTable();
 
@@ -121,7 +121,7 @@ class Boot extends DatabaseEntry
 
         $boot->setFeatures($features[$boot->getID()] ?? []);
 
-        return $boot->toArray();
+        return $boot;
     }
 
     private static function selectFeatureIDs(PDO $db, array $bootIDs): array
@@ -193,7 +193,7 @@ class Boot extends DatabaseEntry
         $res = [];
         foreach ($bootsById as $id => $boot) {
             $boot->setFeatures($featureMap[$id] ?? []);
-            $res[$id] = $boot->toArray();
+            $res[$id] = $boot;
         }
 
         return $res;
