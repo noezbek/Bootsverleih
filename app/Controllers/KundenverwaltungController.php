@@ -17,9 +17,12 @@ class KundenverwaltungController extends BaseController
     {
         $db = DBConnection::getConnection();
         // Alle Kunden aus der DB holen
-        $kunden = Kunde::findAllEntries($db);
-//        Kunde::attachBestellungen($db, $kunden);
-//        Kunde::attachZahlungen($db, $kunden);
+        $kundenInstances = Kunde::findAllEntries($db);
+        $kunden = [];
+
+        foreach ($kundenInstances as $id => $kunde) {
+            $kunden[$id] = $kunde->toArray();
+        }
 
         return $this->response->setJSON([
             'kunden' => $kunden

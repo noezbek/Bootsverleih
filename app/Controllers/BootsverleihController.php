@@ -15,7 +15,13 @@ class BootsverleihController extends BaseController
     {
         $db = DBConnection::getConnection();
         // Alle Kunden aus der DB holen
-        $boote = Boot::findAllEntries($db);
+        $bootInstances = Boot::findAllEntries($db);
+
+        $boote = [];
+
+        foreach ($bootInstances as $id => $boot) {
+            $boote[$id] = $boot->toArray();
+        }
 
         return $this->response->setJSON([
             'boote' => $boote

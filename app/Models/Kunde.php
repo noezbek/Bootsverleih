@@ -7,6 +7,9 @@ use PDO;
 
 class Kunde extends Person
 {
+
+    private array $bestellungen;
+
     public function __construct(
         string $vorname,
         string $nachname,
@@ -136,7 +139,7 @@ class Kunde extends Person
         $byKunde = [];      // kundeID => [bestellungen]
 
         foreach ($bestellungen as $b) {
-            $kid = (int)$b['kunde_ID'];
+            $kid = $b->getKunde();
 
             $byKunde[$kid][] = $b;
         }
@@ -144,9 +147,27 @@ class Kunde extends Person
         return $byKunde;
     }
 
-
     public function toArray(): array
     {
-        return self::toPersonArray();
+        $bestellungen = [];
+
+        foreach ($this->bestellungen as $bestellung) {
+            $bestellungen[$bestellung->getID()] = $bestellung->toArray();
+        }
+
+        return [
+            ...self::toPersonArray(),
+            'bestellungen' => $bestellungen,
+        ];
+    }
+
+    public function getBestellungen(): array
+    {
+        return $this->bestellungen;
+    }
+
+    public function setBestellungen(array $bestellungen): void
+    {
+        $this->bestellungen = $bestellungen;
     }
 }

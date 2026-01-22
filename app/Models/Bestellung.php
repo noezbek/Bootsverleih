@@ -105,8 +105,8 @@ class Bestellung extends DatabaseEntry
         $rel= self::selectRelItemIDs($db, [$bestellID])[$bestellID];
 
         if (isset($result[$bestellID])) {
-            $bestellung->setBoote($rel['boot']);
-            $bestellung->setLiegeplatze($rel['liegeplatz']);
+            $bestellung->setBoote($rel['boote']);
+            $bestellung->setLiegeplatze($rel['liegeplaetze']);
         }
 
         $zahlungMap = self::selectZahlungsRel($db, [$bestellID]);
@@ -156,8 +156,8 @@ class Bestellung extends DatabaseEntry
 
             foreach ($rels as $bestellID => $rel) {
                 if (isset($map[$bestellID])) {
-                    $map[$bestellID]->setBoote($rel['boot']);
-                    $map[$bestellID]->setLiegeplatze($rel['liegeplatz']);
+                    $map[$bestellID]->setBoote($rel['boote']);
+                    $map[$bestellID]->setLiegeplatze($rel['liegeplaetze']);
                 }
             }
 
@@ -186,19 +186,21 @@ class Bestellung extends DatabaseEntry
 
         $res = []; // bestellID => Zahlung
 
-        foreach ($zahlungen as $zahlung) {
-            $bid = $zahlung->getBestellungID();
-            if ($bid <= 0) continue;
+        if ($zahlungen) {
+            foreach ($zahlungen as $zahlung) {
+                $bid = $zahlung->getBestellung();
+                if ($bid <= 0) continue;
 
-            // falls DB kaputt ist und mehrere Zahlungen existieren:
-            if (isset($res[$bid])) {
-                // defensive Entscheidung
-                // z. B. letzte gewinnt oder erste gewinnt
-                // oder Exception werfen
-                throw new \Exception("Mehrere Zahlungen für Bestellung {$bid} gefunden");
+                // falls DB kaputt ist und mehrere Zahlungen existieren:
+                if (isset($res[$bid])) {
+                    // defensive Entscheidung
+                    // z. B. letzte gewinnt oder erste gewinnt
+                    // oder Exception werfen
+                    throw new \Exception("Mehrere Zahlungen für Bestellung {$bid} gefunden");
+                }
+
+                $res[$bid] = $zahlung;
             }
-
-            $res[$bid] = $zahlung;
         }
 
         return $res;
