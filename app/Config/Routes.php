@@ -22,5 +22,8 @@ $routes->post('/kundenverwaltung/delete', 'KundenverwaltungController::deleteKun
 $routes->get('/bootsverleih/load', 'BootsverleihController::loadBoote');
 $routes->post('/bootsverleih/save', 'BootsverleihController::saveBoot');
 $routes->post('/bootsverleih/delete', 'BootsverleihController::deleteBoot');
+$routes->get('/zahlungen/load', 'ZahlungenController::loadZahlungen');
+$routes->post('/zahlungen/save', 'ZahlungenController::saveZahlung');
+$routes->post('/zahlungen/delete', 'ZahlungenController::deleteZahlung');
 
 // $routes->setAutoRoute(true);      
