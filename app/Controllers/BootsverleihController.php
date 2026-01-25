@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\Boot;
 use App\Models\DBConnection;
+use App\Models\Feature;
 
 class BootsverleihController extends BaseController
 {
@@ -16,15 +17,21 @@ class BootsverleihController extends BaseController
         $db = DBConnection::getConnection();
         // Alle Kunden aus der DB holen
         $bootInstances = Boot::findAllEntries($db);
+        $featureInstances = Feature::findAllEntries($db);
 
         $boote = [];
+        $features = [];
 
         foreach ($bootInstances as $id => $boot) {
             $boote[$id] = $boot->toArray();
         }
+        foreach ($featureInstances as $id => $feature) {
+            $features[$id] = $feature->toArray();
+        }
 
         return $this->response->setJSON([
-            'boote' => $boote
+            'boote' => $boote,
+            'features' => $features,
         ]);
     }
 
