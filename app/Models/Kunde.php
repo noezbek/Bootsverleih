@@ -8,7 +8,8 @@ use PDO;
 class Kunde extends Person
 {
 
-    private array $bestellungen;
+    private array $bestellungen = [];
+
 
     public function __construct(
         string $vorname,
@@ -86,10 +87,20 @@ class Kunde extends Person
     {
         $table = self::getTable();
 
-        $stmt = $db->query("SELECT * FROM $table");
+        $filter ??= new DbFilter();
+        $c = $filter->compile();
+
+        $sql = "SELECT * FROM $table"
+            . $c['whereSql']
+            . $c['orderSql']
+            . $c['limitSql'];
+
+        $stmt = $db->prepare($sql);
 
         $kundenById = [];   // id => Kunde
         $kundeIDs = [];
+
+        $stmt->execute($c['params']);
 
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $kunde = new Kunde(

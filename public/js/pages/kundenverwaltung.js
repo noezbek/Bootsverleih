@@ -1,4 +1,5 @@
 import { apiGet, apiPostFormData, toFormData } from '../api.js';
+import {setText, setValue, val, escape, isEmpty} from "../helpers.js";
 
 let kunden = {}; // { id: kunde }
 
@@ -162,7 +163,7 @@ function openEditModal(id, isNew = false) {
     setValue('edit-address', k?.strasse);
     setValue('edit-city', k?.stadt);
     setValue('edit-zip', k?.plz);
-    setValue('edit-status', k?.active ?? 0);
+    setValue('edit-status', k?.active ?? 1);
     setValue('edit-geburtsdatum', k?.geburtsdatum ?? null);
 
     document.getElementById('editModal').style.display = 'block';
@@ -190,14 +191,12 @@ async function doSave() {
         plz: val('edit-zip') || null,
         geburtsdatum: val('edit-geburtsdatum') || null,
 
-        active: rawActive === '' ? 1 : Number(rawActive),
+        active: isEmpty(rawActive) ? 1 : rawActive,
     };
-
 
     const fd = toFormData(payload, 'data');
     const saved = await apiPostFormData('/kundenverwaltung/save', fd);
 
-    // 🔥 HIER DER WICHTIGE TEIL
     kunden[saved.id] = saved;
     renderOrUpdateRow(saved.id);
 
@@ -210,7 +209,8 @@ async function doSave() {
 async function doDelete(id) {
     if (!confirm('Kunden wirklich löschen?')) return;
 
-    const fd = toFormData({ id }, 'data');
+    const fd = new FormData()
+    fd.append('id', id);
     await apiPostFormData('/kundenverwaltung/delete', fd);
 
     delete kunden[id];
@@ -241,27 +241,6 @@ function closeModal(id) {
 // ==============================
 // HELPERS
 // ==============================
-const escape = v => String(v ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;');
-
-const setText = (id, v) => {
-    const el = document.getElementById(id);
-    if (!el) return; // verhindert Crash wenn ID fehlt
-    el.textContent = v ?? '';
-};
-
-const setValue = (id, v) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (v === null || v === undefined) el.value = '';
-    else el.value = v;
-};
-const val = id => {
-    const v = document.getElementById(id)?.value;
-    return v === '' ? null : v;
-};
 
 function applyDarkMode() {
     if (localStorage.getItem('darkMode') === 'true') {

@@ -22,6 +22,7 @@ abstract class DatabaseEntry
         $this->active = $active;
         $this->updated_at = $updated_at;
         $this->created_at = $created_at;
+        $this->user = $user;
     }
 
     public function saveData(\PDOStatement $stmt, \PDO $pdoHandler): void
@@ -95,6 +96,15 @@ abstract class DatabaseEntry
         }
     }
 
+    public static function deactivateByID(PDO $db, int $id): void
+    {
+        $table = static::getTable();
+        $stmt = $db->prepare(" UPDATE `$table`
+    SET active = 0
+    WHERE `ID` = :id");
+        $stmt->execute([':id' => $id]);
+    }
+
     public static function deleteByID(PDO $db, int $id): void
     {
         $table = static::getTable();
@@ -148,12 +158,12 @@ abstract class DatabaseEntry
         $this->updated_at = $updated_at;
     }
 
-    public function getUser(): User|int
+    public function getUser(): User|int|null
     {
         return $this->user;
     }
 
-    public function setUser(User|int $user): void
+    public function setUser(User|int|null $user): void
     {
         $this->user = $user;
     }

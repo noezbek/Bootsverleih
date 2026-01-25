@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Filters\DbFilter;
 use App\Models\DBConnection;
 use App\Models\Kunde;
 
@@ -16,8 +17,12 @@ class KundenverwaltungController extends BaseController
     public function loadKundenverwaltung(): \CodeIgniter\HTTP\ResponseInterface
     {
         $db = DBConnection::getConnection();
+
+        $filter = new DbFilter();
+        $filter->where('active', '=', 1);
+
         // Alle Kunden aus der DB holen
-        $kundenInstances = Kunde::findAllEntries($db);
+        $kundenInstances = Kunde::findAllEntries($db, $filter);
         $kunden = [];
 
         foreach ($kundenInstances as $id => $kunde) {
@@ -61,7 +66,7 @@ class KundenverwaltungController extends BaseController
         $db = DBConnection::getConnection();
         $id = ($_POST['id'] === '' ? null : (int) $_POST['id']);
 
-        Kunde::deleteByID($db, $id);
+        Kunde::deactivateByID($db, $id);
 
         return redirect()->back()->with('saved', 1);
     }
