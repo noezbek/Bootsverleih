@@ -109,22 +109,35 @@ class User extends DatabaseEntry
         ) : null;
     }
 
-    public static function findByUsername(PDO $db, string $username): ?User
+    public static function findForAuth(PDO $pdo, string $username): ?User
     {
-        $table = self::getTable();
+        $stmt = $pdo->prepare(
+            'SELECT ID, username, password_hash, active
+         FROM users
+         WHERE username = :username
+         LIMIT 1'
+        );
 
-        $stmt = $db->prepare("SELECT * FROM $table WHERE username = :u");
-        $stmt->execute([':u' => $username]);
-        $row = $stmt->fetch();
+        $stmt->execute(['username' => $username]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $row ? new User(
-            $row['username'],
-            $row['password_hash'],
-            $row['kunde'] !== null ? (int)$row['kunde'] : null,
-            $row['mitarbeiter'] !== null ? (int)$row['mitarbeiter'] : null,
-            (int)$row['ID']
-        ) : null;
+        if (! $row) {
+            return null;
+        }
+
+        return new User(
+            $row['username'],          // string $username
+            $row['password_hash'],     // string $passwordHash
+            null,                      // ?int $kunde
+            null,                      // ?int $mitarbeiter
+            (int) $row['ID'],          // ?int $id
+            (bool) $row['active']      // ?bool $active
+        // updated_at, created_at, user -> bleiben default null
+        );
     }
+
+
+
 
     public static function findAllEntries(PDO $db, ?DbFilter $filter = null): array
     {
@@ -148,16 +161,13 @@ class User extends DatabaseEntry
     protected static function getInsertStmnt() : string
     {
         $table = self::getTable();
-        return "INSERT INTO $table (vorname, nachname, email, geburtsdatum, telefon, strasse, plz, stadt, userID)
-                 VALUES (:vorname, :nachname, :email, :geburtsdatum, :telefon, :strasse, :plz, :stadt, :Benutzer)";
+        return "";
     }
 
     protected static function getUpdateStmnt() : string
     {
         $table = self::getTable();
-        return "UPDATE $table
-                 SET vorname=:vorname, nachname=:nachname, email=:email, geburtsdatum=:geburtsdatum, telefon=:telefon, strasse=:strasse, plz=:plz, stadt=:stadt, userID=:Benutzer, active=:Active
-                 WHERE ID = :ID";
+        return "";
     }
 
     public function toArray(): array
@@ -165,5 +175,25 @@ class User extends DatabaseEntry
         return [
             'id' => $this->id
         ];
+    }
+
+    public function getUsername(): string
+    {
+        return $this->username;
+    }
+
+    public function setUsername(string $username): void
+    {
+        $this->username = $username;
+    }
+
+    public function getPasswordHash(): string
+    {
+        return $this->passwordHash;
+    }
+
+    public function setPasswordHash(string $passwordHash): void
+    {
+        $this->passwordHash = $passwordHash;
     }
 }
