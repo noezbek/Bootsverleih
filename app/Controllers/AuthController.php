@@ -47,17 +47,20 @@ class AuthController extends BaseController
 
     public function register()
     {
-        $username = $this->request->getPost('username');
-        $password = $this->request->getPost('password');
-        $passwordRepeat = $this->request->getPost('password_repeat');
-        $firstName = $this->request->getPost('first_name');
-        $lastName = $this->request->getPost('last_name');
-        $birthday = $this->request->getPost('birthday');
-        $email = $this->request->getPost('email');
-        $phone = $this->request->getPost('phone');
-        $street = ($this->request->getPost('adress')) ?? null;
-        $zip = $this->request->getPost('zip') ?? null;
-        $city = $this->request->getPost('city') ?? null;
+        $data = $this->request->getPost(['username', 'password', 'password_repeat', 'first_name', 'last_name', 'birthday', 'email', 'phone', 'adress', 'zip', 'city',]);
+
+        $username        = $data['username'];
+        $password        = $data['password'];
+        $passwordRepeat  = $data['password_repeat'];
+        $firstName       = $data['first_name'];
+        $lastName        = $data['last_name'];
+        $birthday        = $data['birthday'];
+        $email           = $data['email'];
+        $phone           = $data['phone'];
+        $street          = $data['adress'] ?? null;
+        $zip             = $data['zip'] ?? null;
+        $city            = $data['city'] ?? null;
+
 
         if ((Helper::isAnyEmpty($username, $password, $passwordRepeat, $firstName, $lastName, $email, $phone))) {
             return redirect()->back()->with('error', 'Bitte alle Felder ausfüllen');

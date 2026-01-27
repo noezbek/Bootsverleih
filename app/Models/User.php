@@ -57,7 +57,7 @@ class User extends DatabaseEntry
 
         if ($this->id === null) {
             $stmt = $db->prepare(
-                "INSERT INTO $table (username, password_hash, kunde, mitarbeiter)
+                "INSERT INTO $table (username, password_hash, kunde_ID, mitarbeiter_ID)
                  VALUES (:u, :p, :k, :m)"
             );
             $stmt->execute([
@@ -70,7 +70,7 @@ class User extends DatabaseEntry
         } else {
             $stmt = $db->prepare(
                 "UPDATE $table
-                 SET username = :u, password_hash = :p, kunde = :k, mitarbeiter = :m
+                 SET username = :u, password_hash = :p, kunde_ID = :k, mitarbeiter_ID = :m
                  WHERE ID = :id"
             );
             $stmt->execute([
