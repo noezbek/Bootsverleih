@@ -13,6 +13,7 @@ $routes->get('/support', 'Home::support');   // ← Support
 $routes->get('/zahlungen', 'Home::zahlungen');   // ← Zahlungen
 $routes->get('/bootsverleih', 'Home::bootsverleih');   // ← Bootsverleih
 $routes->get('/kundenverwaltung', 'Home::kundenverwaltung');   // ← Kundenverwaltung
+$routes->get('/liegeplaetze', 'Home::liegeplaetze');   // ← Liegeplätze
 
 //Data
 $routes->get('/meta/load', 'MetaController::loadEnums');

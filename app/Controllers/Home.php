@@ -33,4 +33,9 @@ class Home extends BaseController
     {
         return view('bootsverleih');
     }
+
+    public function liegeplaetze(): string
+    {
+        return view('liegeplaetze');
+    }
 }
