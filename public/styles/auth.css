@@ -120,3 +120,28 @@ button[type="submit"]:active {
     margin-bottom: 16px;
     text-align: center;
 }
+
+.password-field {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.password-field input {
+    flex: 1;
+}
+
+.toggle-password {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.form-error {
+    margin-top: 10px;
+    color: #d32f2f;
+    font-size: 13px;
+    text-align: center;
+}
+

@@ -3,7 +3,6 @@
 <form method="post" action="<?= base_url('register') ?>">
     <?= csrf_field() ?>
 
-
     <label>
         *Vorname
         <input type="text" name="first_name" placeholder="Max" required>
@@ -15,23 +14,23 @@
     </label>
 
     <label>
+        *Geburtstag
+        <input type="date" name="birthday" required>
+    </label>
+
+    <label>
         *E-Mail
         <input type="email" name="email" placeholder="max@example.de" required>
     </label>
 
     <label>
         *Telefonnummer
-        <input type="tel" name="phone" placeholder="+49 176 12345678">
+        <input type="tel" name="phone" placeholder="+49 176 12345678" required>
     </label>
 
     <label>
-        Straße
-        <input type="text" name="street" placeholder="Musterstraße">
-    </label>
-
-    <label>
-        Hausnummer
-        <input type="text" name="house_number" placeholder="12a">
+        Straße + Hausnummer
+        <input type="text" name="adress" placeholder="Musterstraße 12">
     </label>
 
     <label>
@@ -53,17 +52,25 @@
         </label>
 
         <label>
-            *Passwort
-            <input type="password" name="password" required>
+            Passwort
+            <div class="password-field">
+                <input type="password" name="password" id="password" required>
+                <button type="button" class="toggle-password" data-target="password">👁</button>
+            </div>
         </label>
 
         <label>
-            *Passwort wiederholen
-            <input type="password" name="password_repeat" required>
+            Passwort wiederholen
+            <div class="password-field">
+                <input type="password" name="password_repeat" id="password_repeat" required>
+                <button type="button" class="toggle-password" data-target="password_repeat">👁</button>
+            </div>
         </label>
     </legend>
 
     <button type="submit">Registrieren</button>
+
+    <p class="form-error" id="register-error"></p>
 </form>
 
 <p class="switch-text">

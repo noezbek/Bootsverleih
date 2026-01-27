@@ -2,7 +2,9 @@
 
 namespace App\Controllers;
 
+use App\Helpers\Helper;
 use App\Models\DBConnection;
+use App\Models\Kunde;
 use App\Models\User;
 
 class AuthController extends BaseController
@@ -45,40 +47,49 @@ class AuthController extends BaseController
 
     public function register()
     {
-        // 1. Formulardaten
         $username = $this->request->getPost('username');
         $password = $this->request->getPost('password');
+        $passwordRepeat = $this->request->getPost('password_repeat');
+        $firstName = $this->request->getPost('first_name');
+        $lastName = $this->request->getPost('last_name');
+        $birthday = $this->request->getPost('birthday');
+        $email = $this->request->getPost('email');
+        $phone = $this->request->getPost('phone');
+        $street = ($this->request->getPost('adress')) ?? null;
+        $zip = $this->request->getPost('zip') ?? null;
+        $city = $this->request->getPost('city') ?? null;
 
-        if (! $username || ! $password) {
+        if ((Helper::isAnyEmpty($username, $password, $passwordRepeat, $firstName, $lastName, $email, $phone))) {
             return redirect()->back()->with('error', 'Bitte alle Felder ausfüllen');
         }
 
-        // 2. DB holen (statisch – völlig okay)
+        if ($password !== $passwordRepeat) {
+            return redirect()->back()->with('error', 'Passwörter stimmen nicht überein');
+        }
+
         $pdo = DBConnection::getConnection();
 
-        // 3. Prüfen, ob User existiert
         $existingUser = User::findForAuth($pdo, $username);
         if ($existingUser) {
             return redirect()->back()->with('error', 'Username bereits vergeben');
         }
 
-        // 4. Passwort hashen
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
-        // 5. User anlegen (je nach deinem Model)
-        $user = new User($username, $passwordHash);
+        $kunde = new Kunde($firstName, $lastName, $email, $birthday, $phone, $street, $zip, $city);
+        $kunde->saveEntry($pdo);
+        $kundeID = $kunde->getID();
 
-        // Speichern (Methodenname ggf. anpassen)
+        $user = new User($username, $passwordHash, $kundeID);
+
         $user->saveEntry($pdo);
 
-        // 6. Session setzen (Auto-Login)
         session()->set([
             'user_id'   => $user->getID(),
             'username'  => $user->getUsername(),
             'logged_in' => true
         ]);
 
-        // 7. Redirect
         return redirect()->to('/');
     }
 
