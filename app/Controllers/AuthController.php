@@ -28,6 +28,8 @@ class AuthController extends BaseController
             return redirect()->back()->with('error', 'Passwort falsch');
         }
 
+        session()->regenerate();
+
         session()->set([
             'user_id'   => $user->getID(),
             'username'  => $user->getUsername(),
@@ -84,9 +86,6 @@ class AuthController extends BaseController
     {
         // komplette Session löschen
         session()->destroy();
-
-        // optional: neue Session-ID erzwingen
-        session()->regenerate(true);
 
         // zurück zur Auth-Seite
         return redirect()->to('/auth');

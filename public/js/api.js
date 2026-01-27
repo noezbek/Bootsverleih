@@ -18,15 +18,35 @@ export function toFormData(obj, key = 'data') {
     return fd;
 }
 
+async function apiFetch(path, options = {}) {
+    const res = await fetch(buildUrl(path), {
+        credentials: 'same-origin',
+        ...options
+    });
+
+    if (res.status === 401) {
+        window.location.replace(buildUrl('/auth'));
+        throw new Error('unauthorized');
+    }
+
+    return res;
+}
+
+
 export async function apiGet(path) {
-    const res = await fetch(buildUrl(path));
-    if (!res.ok) throw new Error(`GET ${path} -> ${res.status}`);
+    const res = await apiFetch(path);
+
+    if (!res.ok) {
+        throw new Error(`GET ${path} -> ${res.status}`);
+    }
+
     return res.json();
 }
 
+
 // FormData POST (mit CSRF Header)
 export async function apiPostFormData(path, formData) {
-    const res = await fetch(buildUrl(path), {
+    const res = await apiFetch(path, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': window.APP?.csrf || '',

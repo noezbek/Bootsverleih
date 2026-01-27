@@ -12,11 +12,6 @@ class AuthFilter implements FilterInterface
     {
         // nicht eingeloggt?
         if (! session()->get('logged_in')) {
-
-            // gewünschte Zielseite merken
-            session()->set('redirect_after_login', current_url());
-
-            // zur Auth-Seite schicken
             return redirect()->to('/auth');
         }
     }

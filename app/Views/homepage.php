@@ -3,6 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script>
+        window.APP = {
+            baseUrl: "<?= rtrim(base_url(), '/') ?>"
+        };
+    </script>
+
+
     <title>Yachthafen Plau - Dashboard</title>
     <style>
         * {
@@ -195,10 +203,11 @@
         <p>Persönliche Einstellungen und Anzeigeoptionen</p>
     </a>
 
-    <a href="<?= base_url('logout') ?>" class="dashboard-item logout-item">
+    <div class="dashboard-item logout-item" data-logout-button>
         <h2>Ausloggen</h2>
         <p>Sicher vom System abmelden</p>
-    </a>
+    </div>
+
 </div>
 
 <div class="dashboard-grid single-item">
@@ -208,19 +217,6 @@
     </a>
 </div>
 
-<script>
-    // Add click confirmation for logout
-    document.querySelector('.logout-item').addEventListener('click', function(e) {
-        if (!confirm('Möchten Sie sich wirklich ausloggen?')) {
-            e.preventDefault();
-        }
-    });
-
-    // Apply dark mode if enabled
-    if (localStorage.getItem('darkMode') === 'true') {
-        document.body.classList.add('dark-mode');
-    }
-</script>
 
 <script type="module" src="<?= base_url('js/app.js') ?>"></script>
 
