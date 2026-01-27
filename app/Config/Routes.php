@@ -6,25 +6,56 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 
+//User
+$routes->get('/auth', 'AuthController::index');
+$routes->post('/login', 'AuthController::login');
+$routes->post('/register', 'AuthController::register');
+$routes->get('/logout', 'AuthController::logout');
+
+
+$routes->group('', ['filter' => 'auth'], function($routes) {
+
+    $routes->get('/', 'Home::index');
+    $routes->get('/einstellungen', 'Home::settings');
+    $routes->get('/support', 'Home::support');
+    $routes->get('/zahlungen', 'Home::zahlungen');
+    $routes->get('/bootsverleih', 'Home::bootsverleih');
+    $routes->get('/kundenverwaltung', 'Home::kundenverwaltung');
+
+    // DATA
+    $routes->get('/meta/load', 'MetaController::loadEnums');
+    $routes->get('/kundenverwaltung/load', 'KundenverwaltungController::loadKundenverwaltung');
+    $routes->post('/kundenverwaltung/save', 'KundenverwaltungController::saveKundenverwaltung');
+    $routes->post('/kundenverwaltung/delete', 'KundenverwaltungController::deleteKundenverwaltung');
+    $routes->get('/bootsverleih/load', 'BootsverleihController::loadBoote');
+    $routes->post('/bootsverleih/save', 'BootsverleihController::saveBoot');
+    $routes->post('/bootsverleih/delete', 'BootsverleihController::deleteBoot');
+    $routes->get('/zahlungen/load', 'ZahlungenController::loadZahlungen');
+    $routes->post('/zahlungen/save', 'ZahlungenController::saveZahlung');
+    $routes->post('/zahlungen/delete', 'ZahlungenController::deleteZahlung');
+
+});
+
+
+
 //Views
-$routes->get('/', 'Home::index');   // ← Startseite
-$routes->get('/einstellungen', 'Home::settings');   // ← Einstellungen
-$routes->get('/support', 'Home::support');   // ← Support
-$routes->get('/zahlungen', 'Home::zahlungen');   // ← Zahlungen
-$routes->get('/bootsverleih', 'Home::bootsverleih');   // ← Bootsverleih
-$routes->get('/kundenverwaltung', 'Home::kundenverwaltung');   // ← Kundenverwaltung
-$routes->get('/liegeplaetze', 'Home::liegeplaetze');   // ← Liegeplätze
+//$routes->get('/', 'Home::index');   // ← Startseite
+//$routes->get('/einstellungen', 'Home::settings');   // ← Einstellungen
+//$routes->get('/support', 'Home::support');   // ← Support
+//$routes->get('/zahlungen', 'Home::zahlungen');   // ← Zahlungen
+//$routes->get('/bootsverleih', 'Home::bootsverleih');   // ← Bootsverleih
+//$routes->get('/kundenverwaltung', 'Home::kundenverwaltung');   // ← Kundenverwaltung
+//
+////Data
+//$routes->get('/meta/load', 'MetaController::loadEnums');
+//$routes->get('/kundenverwaltung/load', 'KundenverwaltungController::loadKundenverwaltung');
+//$routes->post('/kundenverwaltung/save', 'KundenverwaltungController::saveKundenverwaltung');
+//$routes->post('/kundenverwaltung/delete', 'KundenverwaltungController::deleteKundenverwaltung');
+//$routes->get('/bootsverleih/load', 'BootsverleihController::loadBoote');
+//$routes->post('/bootsverleih/save', 'BootsverleihController::saveBoot');
+//$routes->post('/bootsverleih/delete', 'BootsverleihController::deleteBoot');
+//$routes->get('/zahlungen/load', 'ZahlungenController::loadZahlungen');
+//$routes->post('/zahlungen/save', 'ZahlungenController::saveZahlung');
+//$routes->post('/zahlungen/delete', 'ZahlungenController::deleteZahlung');
 
-//Data
-$routes->get('/meta/load', 'MetaController::loadEnums');
-$routes->get('/kundenverwaltung/load', 'KundenverwaltungController::loadKundenverwaltung');
-$routes->post('/kundenverwaltung/save', 'KundenverwaltungController::saveKundenverwaltung');
-$routes->post('/kundenverwaltung/delete', 'KundenverwaltungController::deleteKundenverwaltung');
-$routes->get('/bootsverleih/load', 'BootsverleihController::loadBoote');
-$routes->post('/bootsverleih/save', 'BootsverleihController::saveBoot');
-$routes->post('/bootsverleih/delete', 'BootsverleihController::deleteBoot');
-$routes->get('/zahlungen/load', 'ZahlungenController::loadZahlungen');
-$routes->post('/zahlungen/save', 'ZahlungenController::saveZahlung');
-$routes->post('/zahlungen/delete', 'ZahlungenController::deleteZahlung');
-
-// $routes->setAutoRoute(true);      
+// $routes->setAutoRoute(true);

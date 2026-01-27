@@ -14,9 +14,6 @@ async function initPage() {
     // kundenverwaltung -> /pages/kundenverwaltung.js
     const path = `./pages/${page}.js`;
 
-    console.log('page', page);
-    console.log('path', path);
-
     try {
         const mod = await import(path);
         if (typeof mod.init === 'function') {
