@@ -22,6 +22,7 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
     $routes->get('/zahlungen', 'Home::zahlungen');
     $routes->get('/bootsverleih', 'Home::bootsverleih');
     $routes->get('/kundenverwaltung', 'Home::kundenverwaltung');
+    $routes->get('/liegeplaetze', 'Home::liegeplaetze');   // ← Liegeplätze
 
     // DATA
     $routes->get('/meta/load', 'MetaController::loadEnums');
