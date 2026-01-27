@@ -1,30 +1,24 @@
-const loginBox = document.getElementById('loginBox');
-const registerBox = document.getElementById('registerBox');
+export function init() {
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
 
-const btnLogin = document.getElementById('showLogin');
-const btnRegister = document.getElementById('showRegister');
+    function showLogin() {
+        loginForm.classList.add('active');
+        registerForm.classList.remove('active');
+    }
 
-function showLogin() {
-    loginBox.classList.remove('hidden');
-    registerBox.classList.add('hidden');
+    function showRegister() {
+        registerForm.classList.add('active');
+        loginForm.classList.remove('active');
+    }
 
-    btnLogin.classList.add('active');
-    btnRegister.classList.remove('active');
-}
-
-function showRegister() {
-    registerBox.classList.remove('hidden');
-    loginBox.classList.add('hidden');
-
-    btnRegister.classList.add('active');
-    btnLogin.classList.remove('active');
-}
-
-btnLogin.onclick = showLogin;
-btnRegister.onclick = showRegister;
-
-document.querySelectorAll('[data-switch]').forEach(el => {
-    el.addEventListener('click', () => {
-        el.dataset.switch === 'login' ? showLogin() : showRegister();
+    document.querySelectorAll('[data-switch]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            btn.dataset.switch === 'login'
+                ? showLogin()
+                : showRegister();
+        });
     });
-});
+}
+
+init();

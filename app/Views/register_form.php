@@ -4,7 +4,7 @@
     <?= csrf_field() ?>
 
     <label>
-        Username
+        Benutzername
         <input type="text" name="username" required>
     </label>
 
@@ -15,18 +15,13 @@
 
     <label>
         Passwort wiederholen
-        <input type="password" name="passwordRepeat" required>
-    </label>
-
-    <label class="agb">
-        <input type="checkbox" name="agb" required>
-        AGB akzeptieren
+        <input type="password" name="password_repeat" required>
     </label>
 
     <button type="submit">Registrieren</button>
-
-    <p class="switch-hint">
-        Schon einen Account?
-        <span data-switch="login">Zum Login</span>
-    </p>
 </form>
+
+<p class="switch-text">
+    Schon registriert?
+    <button type="button" data-switch="login">Zurück zum Login</button>
+</p>

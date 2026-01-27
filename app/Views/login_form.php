@@ -1,16 +1,10 @@
 <h2>Login</h2>
 
-<?php if (session()->getFlashdata('error')): ?>
-    <p class="error">
-        <?= esc(session()->getFlashdata('error')) ?>
-    </p>
-<?php endif; ?>
-
 <form method="post" action="<?= base_url('login') ?>">
     <?= csrf_field() ?>
 
     <label>
-        Username
+        Benutzername
         <input type="text" name="username" required>
     </label>
 
@@ -19,10 +13,10 @@
         <input type="password" name="password" required>
     </label>
 
-    <button type="submit">Login</button>
-
-    <p class="switch-hint">
-        Noch nicht registriert?
-        <span data-switch="register">Jetzt registrieren</span>
-    </p>
+    <button type="submit">Einloggen</button>
 </form>
+
+<p class="switch-text">
+    Noch nicht registriert?
+    <button type="button" data-switch="register">Jetzt registrieren</button>
+</p>
