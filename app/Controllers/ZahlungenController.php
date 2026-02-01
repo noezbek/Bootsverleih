@@ -27,42 +27,4 @@ class ZahlungenController extends BaseController
             'zahlungen' => $zahlungen
         ]);
     }
-
-    public function saveZahlung(): array
-    {
-        $db = DBConnection::getConnection();
-
-        $data = json_decode($_POST['data'], 1);
-
-        $id = ($data['id'] === '' ? null : (int) $data['id']);
-
-        $zahlung = new Zahlung(
-            $data['laenge'],
-            $data['breite'],
-            $data['tiefgang'],
-            $data['beschreibung'],
-            $data['kapazitaet'],
-            $data['zahlungenstyp'],
-            $data['preis_pro_tag'],
-            $data['kaution'],
-            $data['verfuegbarkeit'],
-            $id,
-            (bool) $data['active']
-        );
-        $zahlung->saveEntry($db);
-
-        return $zahlung->toArray();
-    }
-
-    public function deleteZahlung(): \CodeIgniter\HTTP\RedirectResponse
-    {
-        $db = DBConnection::getConnection();
-        $id = ($_POST['id'] === '' ? null : (int) $_POST['id']);
-
-        Zahlung::deleteByID($db, $id);
-
-        return redirect()->back()->with('saved', 1);
-    }
-
-
 }

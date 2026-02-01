@@ -1,6 +1,8 @@
 // ==============================
 // DUMMY DATA
 // ==============================
+import {apiGetMany} from "../services/api";
+
 const dummyBoats = [
     { id: 1, name: 'Windspiel', type: 'Segelboot', icon: '⛵', length: '8.5m', capacity: 4 },
     { id: 2, name: 'Meerblick', type: 'Motorboot', icon: '🚤', length: '6.2m', capacity: 6 },
@@ -63,6 +65,13 @@ let viewportHeight = 0;
 let imageWidth = 0;
 let imageHeight = 0;
 let scale = 1;
+
+async function initialLoad() {
+    const res = apiGetMany({
+        bootsverleih: '/bootsverleih/load',
+        liegeplaetze: '/liegeplaetze/load',
+    })
+}
 
 export async function init() {
     applyDarkMode();

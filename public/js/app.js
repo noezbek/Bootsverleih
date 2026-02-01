@@ -1,6 +1,6 @@
 // public/js/app.js
 
-import {apiGet} from "./services/api.js";
+import {apiGetMany} from "./services/api.js";
 
 window.APP = window.APP || {};
 
@@ -16,11 +16,16 @@ async function bootstrapApp() {
     window.APP._bootstrapped = true;
 
     try {
-        const enums =    await apiGet('/enums/load');
-        const user =    await apiGet('/userdata/load');
+
+        const {user, enums} = await apiGetMany({
+            enums: '/enums/load',
+            user: '/userdata/load',
+        })
 
         window.APP.user = user;
         window.APP.enums = enums;
+
+        console.log(window.APP);
     } catch (e) {
         // 401 wird bereits in apiFetch gehandhabt
         window.APP.user = null;

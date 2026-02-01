@@ -30,12 +30,12 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
     $routes->get('/kundenverwaltung/load', 'KundenverwaltungController::loadKundenverwaltung');
     $routes->post('/kundenverwaltung/save', 'KundenverwaltungController::saveKundenverwaltung');
     $routes->post('/kundenverwaltung/delete', 'KundenverwaltungController::deleteKundenverwaltung');
+    $routes->get('/features/load', 'BootsverleihController::loadFeatures');
     $routes->get('/bootsverleih/load', 'BootsverleihController::loadBoote');
     $routes->post('/bootsverleih/save', 'BootsverleihController::saveBoot');
     $routes->post('/bootsverleih/delete', 'BootsverleihController::deleteBoot');
     $routes->get('/zahlungen/load', 'ZahlungenController::loadZahlungen');
-    $routes->post('/zahlungen/save', 'ZahlungenController::saveZahlung');
-    $routes->post('/zahlungen/delete', 'ZahlungenController::deleteZahlung');
+    $routes->get('/liegeplaetze/load', 'LiegeplatzeController::loadLiegeplaetze');
 
 });
 
