@@ -157,7 +157,7 @@ class Liegeplatz extends DatabaseEntry
     {
         return [
             'ID' => $this->id,
-            'beschreibung' => $this->beschreibung,
+            'name' => $this->beschreibung,
             'bezeichnung' => $this->bezeichnung,
             'preisProTag' => $this->preisProTag,
             'kapazitaet' => $this->kapazitaet,

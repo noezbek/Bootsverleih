@@ -5,6 +5,8 @@ namespace App\Controllers;
 use App\Enums\Availability;
 use App\Enums\BoatTyoe;
 use App\Enums\OrderStatus;
+use App\Enums\PaymentMethod;
+use App\Enums\PaymentRhythm;
 use App\Enums\PaymentStatus;
 
 class MetaController extends BaseController
@@ -21,6 +23,8 @@ class MetaController extends BaseController
             'bootTypen' => BoatTyoe::list(),
             'bestellStatus' => OrderStatus::list(),
             'zahlStatus' => PaymentStatus::list(),
+            'zahlMethoden' => PaymentMethod::list(),
+            'zahlRhythmus' => PaymentRhythm::list(),
         ];
         return $this->response->setJSON($list);
     }

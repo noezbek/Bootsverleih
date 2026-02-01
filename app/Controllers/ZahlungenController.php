@@ -9,6 +9,7 @@ use App\Models\DBConnection;
 use App\Models\LiegeplatzReservierung;
 use App\Models\Vertrag;
 use App\Models\Zahlung;
+use RuntimeException;
 
 class ZahlungenController extends BaseController
 {
@@ -97,17 +98,26 @@ class ZahlungenController extends BaseController
         foreach ($bestellungen as $bid => $bestellung) {
 
             $vertrag = $vertragByBestellung[$bid] ?? null;
-            $item = $bootByBestellung[$bid]
-                ?? $liegeplatzByBestellung[$bid]
-                ?? null;
+            $item = $bootByBestellung[$bid] ?? $liegeplatzByBestellung[$bid] ?? null;
 
-            $zahlungsArray = $vertrag
-                ? ($zahlungenByVertrag[$vertrag->getID()] ?? [])
-                : [];
+            $zahlungsArray = $vertrag ? ($zahlungenByVertrag[$vertrag->getID()] ?? []) : [];
+
+            $itemType = null;
+
+            if ($item instanceof BootMiete) {
+                $itemType = 'boot';
+            } elseif ($item instanceof LiegeplatzReservierung) {
+                $itemType = 'liegeplatz';
+            }
+
+            if (!$itemType) {
+                throw new RuntimeException('Kein Item zur Bestellung gefunden');
+            }
 
             $res = [
                 'bestellung' => $bestellung->toArray(),
                 'item'       => $item ? $item->toArray() : null,
+                'itemType'  => $itemType,
                 'vertrag'    => $vertrag ? $vertrag->toArray() : null,
                 'zahlungen'  => array_map(
                     fn (Zahlung $z) => $z->toArray(),
