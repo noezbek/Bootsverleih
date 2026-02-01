@@ -26,7 +26,7 @@ class AuthController extends BaseController
             return redirect()->back()->with('error', 'User nicht gefunden');
         }
 
-        if ($user->verifyPassword($password)) {
+        if (!$user->verifyPassword($password)) {
             return redirect()->back()->with('error', 'Passwort falsch');
         }
 

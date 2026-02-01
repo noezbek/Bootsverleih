@@ -11,6 +11,8 @@ DocumentRoot "C:/xampp/htdocs/Bootsverleih/public"
 
 um projekt zu starten entweder ./open in gitbash oder http://localhost/Bootsverleih/public im browser ( beides dasselbe )
 
+test user anlegen mit "php spark user:create <nutzername> <password>"
+
 
 
 ## What is CodeIgniter?

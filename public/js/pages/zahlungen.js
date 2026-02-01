@@ -49,9 +49,6 @@ const history = [
 let zahlungen = {};
 let bestellungen = {};
 
-// ==============================
-// INIT
-// ==============================
 export async function init() {
     applyDarkMode();
     await initialLoad();
@@ -64,9 +61,6 @@ async function initialLoad() {
     renderHistory();
 }
 
-// ==============================
-// RENDER
-// ==============================
 function renderPayments() {
     const container = document.getElementById('paymentsContainer');
     container.innerHTML = '';

@@ -16,7 +16,7 @@ class Kunde extends Person
         string $nachname,
         string $email,
         string $geburtsdatum,
-        int $telefon,
+        string $telefon,
         string|null $strasse,
         int|null $plz,
         string|null $stadt,

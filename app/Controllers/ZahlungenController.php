@@ -2,7 +2,8 @@
 
 namespace App\Controllers;
 
-use App\Models\Zahlung;
+use App\Filters\DbFilter;
+use App\Models\Bestellung;
 use App\Models\DBConnection;
 
 class ZahlungenController extends BaseController
@@ -14,15 +15,14 @@ class ZahlungenController extends BaseController
     public function loadZahlungen(): \CodeIgniter\HTTP\ResponseInterface
     {
         $db = DBConnection::getConnection();
-        // Alle zahlungn aus der DB holen
-        $zahlungenInstances = Zahlung::findAllEntries($db);
 
-        $zahlungen = [];
+        $kundeId = 1;
 
-        foreach ($zahlungenInstances as $id => $z) {
-            $zahlungen[$id] = $z->toArray();
-        }
+        $bestellungen = Bestellung::findAllEntries(
+            $db,
+            (new DbFilter())->where('kunde_ID', '=', $kundeId)
+        );
 
-        return $this->response->setJSON($zahlungen);
+        return $this->response->setJSON($bestellungen);
     }
 }

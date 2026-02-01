@@ -24,8 +24,6 @@ async function bootstrapApp() {
 
         window.APP.user = user;
         window.APP.enums = enums;
-
-        console.log(window.APP);
     } catch (e) {
         // 401 wird bereits in apiFetch gehandhabt
         window.APP.user = null;
