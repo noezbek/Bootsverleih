@@ -8,7 +8,7 @@ abstract class Person extends DatabaseEntry
     protected string $nachname;
     protected string $email;
     protected string $geburtsdatum;
-    protected int $telefon;
+    protected string $telefon;
     protected string $strasse;
     protected int $plz;
     protected string $stadt;
@@ -18,7 +18,7 @@ abstract class Person extends DatabaseEntry
         string $nachname,
         string $email,
         string $geburtsdatum,
-        int $telefon,
+        string $telefon,
         string $strasse,
         int $plz,
         string $stadt,
@@ -80,8 +80,8 @@ abstract class Person extends DatabaseEntry
     public function getGeburtsdatum(): string { return $this->geburtsdatum; }
     public function setGeburtsdatum(string $geburtsdatum): void { $this->geburtsdatum = $geburtsdatum; }
 
-    public function getTelefon(): int { return $this->telefon; }
-    public function setTelefon(int $telefon): void { $this->telefon = $telefon; }
+    public function getTelefon(): string { return $this->telefon; }
+    public function setTelefon(string $telefon): void { $this->telefon = $telefon; }
 
     public function getStrasse(): string { return $this->strasse; }
     public function setStrasse(string $strasse): void { $this->strasse = $strasse; }

@@ -51,9 +51,6 @@ const reservedBerths = {
     'B5': { boats: [{ boatId: 3, boatName: 'Wellenreiter', until: '2026-03-20' }] },
 };
 
-// ==============================
-// STATE
-// ==============================
 let panX = 0;
 let panY = 0;
 let isPanning = false;
@@ -67,9 +64,6 @@ let imageWidth = 0;
 let imageHeight = 0;
 let scale = 1;
 
-// ==============================
-// INIT
-// ==============================
 export async function init() {
     applyDarkMode();
     renderBoatsList();
@@ -118,9 +112,6 @@ export async function init() {
     wireModal();
 }
 
-// ==============================
-// CALCULATE SCALE TO COVER VIEWPORT
-// ==============================
 function calculateCoverScale() {
     if (!imageWidth || !imageHeight || !viewportWidth || !viewportHeight) return;
 
@@ -130,9 +121,6 @@ function calculateCoverScale() {
     scale = Math.max(scaleX, scaleY);
 }
 
-// ==============================
-// RENDER BOATS LIST
-// ==============================
 function renderBoatsList() {
     const list = document.getElementById('boatsList');
     if (!list) return;
@@ -159,9 +147,6 @@ function renderBoatsList() {
     });
 }
 
-// ==============================
-// CREATE BERTH MARKERS
-// ==============================
 function createBerthMarkers() {
     const overlay = document.getElementById('berthsOverlay');
     if (!overlay) return;
@@ -207,9 +192,6 @@ function createBerthMarkers() {
     });
 }
 
-// ==============================
-// PAN CONSTRAINTS
-// ==============================
 function constrainPan() {
     const scaledWidth = imageWidth * scale;
     const scaledHeight = imageHeight * scale;
@@ -230,9 +212,6 @@ function updateTransform() {
     content.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
 }
 
-// ==============================
-// PAN (MOUSE/TOUCH) - NO ZOOM
-// ==============================
 function wirePan() {
     const viewport = document.getElementById('mapViewport');
     if (!viewport) return;
@@ -285,9 +264,6 @@ function wirePan() {
     });
 }
 
-// ==============================
-// DRAG & DROP
-// ==============================
 function wireDragDrop() {
     const boatsList = document.getElementById('boatsList');
     const overlay = document.getElementById('berthsOverlay');
@@ -359,9 +335,6 @@ function wireDragDrop() {
     });
 }
 
-// ==============================
-// MODAL
-// ==============================
 function openReservationModal(berth, boat) {
     const modal = document.getElementById('reservationModal');
     if (!modal) return;
@@ -512,9 +485,6 @@ function closeModal(id) {
     currentBerth = null;
 }
 
-// ==============================
-// HELPERS
-// ==============================
 function applyDarkMode() {
     if (localStorage.getItem('darkMode') === 'true') {
         document.body.classList.add('dark-mode');
