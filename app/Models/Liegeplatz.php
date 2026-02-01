@@ -17,6 +17,8 @@ class Liegeplatz extends DatabaseEntry
     private float $posW;
     private float $posH;
 
+    private array $reservierungen = [];
+
     public function __construct(
         string $beschreibung,
         ?string $bezeichnung = null,
@@ -118,21 +120,61 @@ class Liegeplatz extends DatabaseEntry
     {
         $table = self::getTable();
         $filter ??= new DbFilter();
-
         $c = $filter->compile();
-        $sql = "SELECT * FROM $table" . $c['whereSql'] . $c['orderSql'] . $c['limitSql'];
 
-        $stmt = $db->prepare($sql);
+        $stmt = $db->prepare(
+            "SELECT * FROM $table" .
+            $c['whereSql'] .
+            $c['orderSql'] .
+            $c['limitSql']
+        );
         $stmt->execute($c['params']);
 
-        $map = [];
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $obj = self::fromRow($row);
-            $map[$obj->getID()] = $obj;
+        $liegeplaetze = [];
+        $ids = [];
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $lp = new Liegeplatz(
+                $row['bezeichnung'],
+                $row['beschreibung'],
+                $row['preis_pro_tag'],
+                $row['kapazitaet'],
+                $row['pos_x'],
+                $row['pos_y'],
+                $row['pos_w'],
+                $row['pos_h'],
+                (int)$row['ID'],
+                (bool)$row['active'],
+                $row['updated_at'],
+                $row['created_at'],
+                $row['userID'],
+            );
+
+            $liegeplaetze[$lp->getID()] = $lp;
+            $ids[] = $lp->getID();
         }
 
-        return $map;
+        if (!$ids) {
+            return [];
+        }
+
+        $reservierungen = LiegeplatzReservierung::findAllEntries(
+            $db,
+            (new DbFilter())->whereIn('liegeplatz_ID', $ids)
+        );
+
+        $byLiegeplatz = [];
+        foreach ($reservierungen as $r) {
+            $byLiegeplatz[$r->getLiegeplatz()][] = $r;
+        }
+
+        foreach ($liegeplaetze as $id => $lp) {
+            $lp->setReservierungen($byLiegeplatz[$id] ?? []);
+        }
+
+        return $liegeplaetze;
     }
+
 
     private static function fromRow(array $row): self
     {
@@ -159,8 +201,8 @@ class Liegeplatz extends DatabaseEntry
             'ID' => $this->id,
             'name' => $this->beschreibung,
             'bezeichnung' => $this->bezeichnung,
-            'preisProTag' => $this->preisProTag,
-            'kapazitaet' => $this->kapazitaet,
+            'pricePerDay' => $this->preisProTag,
+            'capacity' => $this->kapazitaet,
             'pos' => [
                 'x' => $this->posX,
                 'y' => $this->posY,
@@ -168,6 +210,10 @@ class Liegeplatz extends DatabaseEntry
                 'h' => $this->posH,
             ],
             'active' => $this->active,
+            'reservierungen' => array_map(
+                fn ($r) => $r->toArray(),
+                $this->reservierungen
+            ),
         ];
     }
 
@@ -249,5 +295,15 @@ class Liegeplatz extends DatabaseEntry
     public function setPosH(float $posH): void
     {
         $this->posH = $posH;
+    }
+
+    public function getReservierungen(): array
+    {
+        return $this->reservierungen;
+    }
+
+    public function setReservierungen(array $reservierungen): void
+    {
+        $this->reservierungen = $reservierungen;
     }
 }

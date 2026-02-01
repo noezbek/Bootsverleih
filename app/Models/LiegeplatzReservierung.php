@@ -7,7 +7,7 @@ use PDO;
 
 class LiegeplatzReservierung extends DatabaseEntry
 {
-    private int $liegeplatz;
+    private Liegeplatz|int $liegeplatz;
     private int $boot;
     private int $bestellung;
     private string $startdatum;
@@ -115,5 +115,15 @@ class LiegeplatzReservierung extends DatabaseEntry
             'updated_at' => $this->updated_at,
             'created_at' => $this->created_at,
         ];
+    }
+
+    public function setLiegeplatz(Liegeplatz|int $liegeplatz) : void
+    {
+        $this->liegeplatz = $liegeplatz;
+    }
+
+    public function getLiegeplatz() : Liegeplatz|int
+    {
+        return $this->liegeplatz;
     }
 }
