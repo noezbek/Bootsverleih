@@ -1,7 +1,7 @@
 // ==============================
 // DUMMY DATEN (wie vorher, nur als Variable)
 // ==============================
-import {apiGet} from "../api.js";
+import {apiGet} from "../services/api.js";
 
 const payments = [
     {

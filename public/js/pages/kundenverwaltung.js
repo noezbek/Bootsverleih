@@ -1,5 +1,5 @@
-import { apiGet, apiPostFormData, toFormData } from '../api.js';
-import {setText, setValue, val, escape, isEmpty} from "../helpers.js";
+import { apiGet, apiPostFormData, toFormData } from '../services/api.js';
+import {setText, setValue, val, escape, isEmpty} from "../services/helpers.js";
 
 let kunden = {}; // { id: kunde }
 

@@ -1,4 +1,4 @@
-import { apiGet } from "../api.js";
+import { apiGet } from "../services/api.js";
 
 let boote = {};       // { id: boot }
 let currentIds = [];  // gefilterte/sortierte IDs
