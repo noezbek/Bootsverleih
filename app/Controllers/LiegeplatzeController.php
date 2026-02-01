@@ -23,8 +23,6 @@ class LiegeplatzeController extends BaseController
         }
 
 
-        return $this->response->setJSON([
-            'liegeplaetze' => $liegeplaetze
-        ]);
+        return $this->response->setJSON($liegeplaetze);
     }
 }

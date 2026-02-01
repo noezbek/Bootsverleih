@@ -29,9 +29,7 @@ class KundenverwaltungController extends BaseController
             $kunden[$id] = $kunde->toArray();
         }
 
-        return $this->response->setJSON([
-            'kunden' => $kunden
-        ]);
+        return $this->response->setJSON($kunden);
     }
 
     public function saveKundenverwaltung(): array

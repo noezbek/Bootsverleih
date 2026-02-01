@@ -59,7 +59,7 @@ export async function init() {
 
 async function initialLoad() {
     const data = await apiGet('/zahlungen/load');
-    zahlungen = data?.zahlungen ?? {};
+    zahlungen = data ?? {};
     renderPayments();
     renderHistory();
 }

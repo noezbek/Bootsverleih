@@ -23,8 +23,6 @@ class ZahlungenController extends BaseController
             $zahlungen[$id] = $z->toArray();
         }
 
-        return $this->response->setJSON([
-            'zahlungen' => $zahlungen
-        ]);
+        return $this->response->setJSON($zahlungen);
     }
 }

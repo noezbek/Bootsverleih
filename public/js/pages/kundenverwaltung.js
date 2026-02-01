@@ -21,7 +21,7 @@ export async function init() {
 // ==============================
 async function initialLoad() {
     const data = await apiGet('/kundenverwaltung/load');
-    kunden = data?.kunden ?? {};
+    kunden = data ?? {};
     renderFullTable();
 }
 

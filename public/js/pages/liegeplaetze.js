@@ -1,7 +1,4 @@
-// ==============================
-// DUMMY DATA
-// ==============================
-import {apiGetMany} from "../services/api";
+import {apiGetMany} from "../services/api.js";
 
 const dummyBoats = [
     { id: 1, name: 'Windspiel', type: 'Segelboot', icon: '⛵', length: '8.5m', capacity: 4 },
@@ -66,14 +63,23 @@ let imageWidth = 0;
 let imageHeight = 0;
 let scale = 1;
 
+let liegeplaetzeState = {};
+let featuresState = {};
+let booteState = {};
+
 async function initialLoad() {
-    const res = apiGetMany({
-        bootsverleih: '/bootsverleih/load',
-        liegeplaetze: '/liegeplaetze/load',
+    const {booteData, featuresData, liegeplaetzeData} = await apiGetMany({
+        booteData: '/bootsverleih/load',
+        featuresData: '/features/load',
+        liegeplaetzeData: '/liegeplaetze/load',
     })
+    liegeplaetzeState = liegeplaetzeData;
+    featuresState = featuresData;
+    booteState = booteData;
 }
 
 export async function init() {
+    await initialLoad();
     applyDarkMode();
     renderBoatsList();
 
