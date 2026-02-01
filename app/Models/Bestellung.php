@@ -2,29 +2,24 @@
 
 namespace App\Models;
 
-use App\Enums\OrderStatus;
 use App\Filters\DbFilter;
 use PDO;
 
 class Bestellung extends DatabaseEntry
 {
-    private Kunde|int $kunde;
-    private OrderStatus|int $bestellstatus;
-
-    private BootMiete|null $bootMiete = null;
-    private LiegeplatzReservierung|null $liegeplatzReservierung = null;
-    private Vertrag|int|null $vertrag = null;
+    private int $kunde;
+    private int $bestellstatus;
 
     public function __construct(
-        Kunde|int $kunde,
-        OrderStatus|int $bestellstatus,
+        int $kunde,
+        int $bestellstatus,
         ?int $id = null,
-        ?bool $active = true,
+        bool $active = true,
         ?string $updated_at = null,
         ?string $created_at = null,
-        User|int|null $user = null
+        ?int $userID = null
     ) {
-        parent::__construct($id, $active, $updated_at, $created_at, $user);
+        parent::__construct($id, $active, $updated_at, $created_at, $userID);
         $this->kunde = $kunde;
         $this->bestellstatus = $bestellstatus;
     }
@@ -32,6 +27,44 @@ class Bestellung extends DatabaseEntry
     public static function getTable(): string
     {
         return 'bestellungen';
+    }
+
+    public static function findAllEntries(PDO $db, ?DbFilter $filter = null): array
+    {
+        $filter ??= new DbFilter();
+        $c = $filter->compile();
+
+        $sql = "SELECT * FROM " . self::getTable() . $c['whereSql'];
+        $stmt = $db->prepare($sql);
+        $stmt->execute($c['params']);
+
+        $map = [];
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $obj = new self(
+                (int)$row['kunde_ID'],
+                (int)$row['bestellstatus'],
+                (int)$row['ID'],
+                (bool)$row['active'],
+                $row['updated_at'],
+                $row['created_at'],
+                $row['userID'],
+            );
+
+            $map[$obj->getID()] = $obj;
+        }
+
+        return $map;
+    }
+
+    public function getKundeId(): int
+    {
+        return $this->kunde;
+    }
+
+    public function getBestellstatus(): int
+    {
+        return $this->bestellstatus;
     }
 
     protected static function getInsertStmnt(): string
@@ -57,104 +90,15 @@ class Bestellung extends DatabaseEntry
         return null;
     }
 
-    public static function findAllEntries(PDO $db, ?DbFilter $filter = null): array
-    {
-        $table = self::getTable();
-
-        $filter ??= new DbFilter();
-        $c = $filter->compile();
-
-        $sql = "SELECT * FROM $table" . $c['whereSql'];
-        $stmt = $db->prepare($sql);
-        $stmt->execute($c['params']);
-
-        /** @var Bestellung[] $bestellungen */
-        $bestellungen = [];
-        $bestellungIDs = [];
-
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $bestellung = new Bestellung(
-                (int)$row['kunde_ID'],
-                (int)$row['bestellstatus'],
-                (int)$row['ID'],
-                (bool)$row['active'],
-                $row['updated_at'],
-                $row['created_at'],
-                $row['userID'],
-            );
-
-            $id = $bestellung->getID();
-            $bestellungen[$id] = $bestellung;
-            $bestellungIDs[] = $id;
-        }
-
-        if (!$bestellungIDs) {
-            return [];
-        }
-
-        $bootMieten = BootMiete::findAllEntries(
-            $db,
-            (new DbFilter())->whereIn('bestellung_ID', $bestellungIDs)
-        );
-
-        foreach ($bootMieten as $bootMiete) {
-            $bid = $bootMiete->getBestellung();
-            if (isset($bestellungen[$bid])) {
-                $bestellungen[$bid]->setBootMiete($bootMiete);
-            }
-        }
-
-        $liegeplaetze = LiegeplatzReservierung::findAllEntries(
-            $db,
-            (new DbFilter())->whereIn('bestellung_ID', $bestellungIDs)
-        );
-
-        foreach ($liegeplaetze as $lp) {
-            $bid = $lp->getBestellung();
-            if (isset($bestellungen[$bid])) {
-                $bestellungen[$bid]->setLiegeplatzReservierung($lp);
-            }
-        }
-
-        $vertraege = Vertrag::findAllEntries(
-            $db,
-            (new DbFilter())->whereIn('bestellung_ID', $bestellungIDs)
-        );
-
-        foreach ($vertraege as $vertrag) {
-            $bid = $vertrag->getBestellung();
-            if (isset($bestellungen[$bid])) {
-                $bestellungen[$bid]->setVertrag($vertrag);
-            }
-        }
-
-        return $bestellungen;
-    }
-
-
     public function toArray(): array
     {
-        // TODO: Implement toArray() method.
-        return [];
-    }
-
-    public function setVertrag(Vertrag|int|null $vertrag) : void
-    {
-        $this->vertrag = $vertrag;
-    }
-
-    public function setBootMiete(BootMiete|null $bootMiete) : void
-    {
-        $this->bootMiete = $bootMiete;
-    }
-
-    public function setLiegeplatzReservierung(LiegeplatzReservierung|null $liegeplatzReservierung) : void
-    {
-        $this->liegeplatzReservierung = $liegeplatzReservierung;
-    }
-
-    public function getKunde(): Kunde|int
-    {
-        return $this->kunde;
+        return [
+            'id' => $this->id,
+            'kunde' => $this->kunde,
+            'bestellstatus' => $this->bestellstatus,
+            'active' => $this->active,
+            'updated_at' => $this->updated_at,
+            'created_at' => $this->created_at,
+        ];
     }
 }

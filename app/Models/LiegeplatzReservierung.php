@@ -7,30 +7,30 @@ use PDO;
 
 class LiegeplatzReservierung extends DatabaseEntry
 {
-    private Bestellung|int $bestellung;
-    private Liegeplatz|int $liegeplatz;
-    private Boot|int $boot;
+    private int $liegeplatz;
+    private int $boot;
+    private int $bestellung;
     private string $startdatum;
     private string $enddatum;
     private float $preisProTag;
 
     public function __construct(
-        Bestellung|int $bestellung,
-        Liegeplatz|int $liegeplatz,
-        Boot|int $boot,
+        int $liegeplatz,
+        int $boot,
+        int $bestellung,
         string $startdatum,
         string $enddatum,
         float $preisProTag,
         ?int $id = null,
-        ?bool $active = true,
+        bool $active = true,
         ?string $updated_at = null,
         ?string $created_at = null,
-        User|int|null $user = null
+        ?int $userID = null
     ) {
-        parent::__construct($id, $active, $updated_at, $created_at, $user);
-        $this->bestellung = $bestellung;
+        parent::__construct($id, $active, $updated_at, $created_at, $userID);
         $this->liegeplatz = $liegeplatz;
         $this->boot = $boot;
+        $this->bestellung = $bestellung;
         $this->startdatum = $startdatum;
         $this->enddatum = $enddatum;
         $this->preisProTag = $preisProTag;
@@ -39,6 +39,43 @@ class LiegeplatzReservierung extends DatabaseEntry
     public static function getTable(): string
     {
         return 'liegeplatz_reservierungen';
+    }
+
+    public static function findAllEntries(PDO $db, ?DbFilter $filter = null): array
+    {
+        $filter ??= new DbFilter();
+        $c = $filter->compile();
+
+        $sql = "SELECT * FROM " . self::getTable() . $c['whereSql'];
+        $stmt = $db->prepare($sql);
+        $stmt->execute($c['params']);
+
+        $map = [];
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $obj = new self(
+                (int)$row['liegeplatz_ID'],
+                (int)$row['boot_ID'],
+                (int)$row['bestellung_ID'],
+                $row['startdatum'],
+                $row['enddatum'],
+                (float)$row['preis_pro_tag'],
+                (int)$row['ID'],
+                (bool)$row['active'],
+                $row['updated_at'],
+                $row['created_at'],
+                $row['userID'],
+            );
+
+            $map[$obj->getID()] = $obj;
+        }
+
+        return $map;
+    }
+
+    public function getBestellungId(): int
+    {
+        return $this->bestellung;
     }
 
     protected static function getInsertStmnt(): string
@@ -64,48 +101,19 @@ class LiegeplatzReservierung extends DatabaseEntry
         return null;
     }
 
-    public static function findAllEntries(PDO $db, ?DbFilter $filter = null): array
-    {
-        $table = self::getTable();
-
-        $filter ??= new DbFilter();
-        $c = $filter->compile();
-
-        $sql = "SELECT * FROM $table" . $c['whereSql'];
-        $stmt = $db->prepare($sql);
-        $stmt->execute($c['params']);
-
-        /** @var LiegeplatzReservierung[] $liegeplatzReservierung */
-        $liegeplatzReservierung = [];
-
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $bootMiete = new LiegeplatzReservierung(
-                (int)$row['bestellung_ID'],
-                (int)$row['liegeplatz_ID'],
-                $row['startdatum'],
-                $row['enddatum'],
-                (float)$row['preis_pro_tag'],
-                (int)$row['ID'],
-                (bool)$row['active'],
-                $row['updated_at'],
-                $row['created_at'],
-                $row['userID'],
-            );
-
-            $liegeplatzReservierung[$bootMiete->getID()] = $bootMiete;
-        }
-
-        return $liegeplatzReservierung;
-    }
-
     public function toArray(): array
     {
-        // TODO: Implement toArray() method.
-        return [];
-    }
-
-    public function getBestellung() : Bestellung|int
-    {
-        return $this->bestellung;
+        return [
+            'id' => $this->id,
+            'bestellung' => $this->bestellung,
+            'liegeplatz' => $this->liegeplatz,
+            'boot' => $this->boot,
+            'startdatum' => $this->startdatum,
+            'enddatum' => $this->enddatum,
+            'preisProTag' => $this->preisProTag,
+            'active' => $this->active,
+            'updated_at' => $this->updated_at,
+            'created_at' => $this->created_at,
+        ];
     }
 }

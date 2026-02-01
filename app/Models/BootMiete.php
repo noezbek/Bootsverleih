@@ -7,27 +7,27 @@ use PDO;
 
 class BootMiete extends DatabaseEntry
 {
-    private Bestellung|int $bestellung;
-    private Boot|int $boot;
+    private int $boot;
+    private int $bestellung;
     private string $startdatum;
     private string $enddatum;
     private float $preisProTag;
 
     public function __construct(
-        Bestellung|int $bestellung,
-        Boot|int $boot,
+        int $boot,
+        int $bestellung,
         string $startdatum,
         string $enddatum,
         float $preisProTag,
         ?int $id = null,
-        ?bool $active = true,
+        bool $active = true,
         ?string $updated_at = null,
         ?string $created_at = null,
-        User|int|null $user = null
+        ?int $userID = null
     ) {
-        parent::__construct($id, $active, $updated_at, $created_at, $user);
-        $this->bestellung = $bestellung;
+        parent::__construct($id, $active, $updated_at, $created_at, $userID);
         $this->boot = $boot;
+        $this->bestellung = $bestellung;
         $this->startdatum = $startdatum;
         $this->enddatum = $enddatum;
         $this->preisProTag = $preisProTag;
@@ -36,6 +36,42 @@ class BootMiete extends DatabaseEntry
     public static function getTable(): string
     {
         return 'boot_mieten';
+    }
+
+    public static function findAllEntries(PDO $db, ?DbFilter $filter = null): array
+    {
+        $filter ??= new DbFilter();
+        $c = $filter->compile();
+
+        $sql = "SELECT * FROM " . self::getTable() . $c['whereSql'];
+        $stmt = $db->prepare($sql);
+        $stmt->execute($c['params']);
+
+        $map = [];
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $obj = new self(
+                (int)$row['boot_ID'],
+                (int)$row['bestellung_ID'],
+                $row['startdatum'],
+                $row['enddatum'],
+                (float)$row['preis_pro_tag'],
+                (int)$row['ID'],
+                (bool)$row['active'],
+                $row['updated_at'],
+                $row['created_at'],
+                $row['userID'],
+            );
+
+            $map[$obj->getID()] = $obj;
+        }
+
+        return $map;
+    }
+
+    public function getBestellungId(): int
+    {
+        return $this->bestellung;
     }
 
     protected static function getInsertStmnt(): string
@@ -61,48 +97,18 @@ class BootMiete extends DatabaseEntry
         return null;
     }
 
-    public static function findAllEntries(PDO $db, ?DbFilter $filter = null): array
-    {
-        $table = self::getTable();
-
-        $filter ??= new DbFilter();
-        $c = $filter->compile();
-
-        $sql = "SELECT * FROM $table" . $c['whereSql'];
-        $stmt = $db->prepare($sql);
-        $stmt->execute($c['params']);
-
-        /** @var BootMiete[] $bootMieten */
-        $bootMieten = [];
-
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $bootMiete = new BootMiete(
-                (int)$row['bestellung_ID'],
-                (int)$row['boot_ID'],
-                $row['startdatum'],
-                $row['enddatum'],
-                (float)$row['preis_pro_tag'],
-                (int)$row['ID'],
-                (bool)$row['active'],
-                $row['updated_at'],
-                $row['created_at'],
-                $row['userID'],
-            );
-
-            $bootMieten[$bootMiete->getID()] = $bootMiete;
-        }
-
-        return $bootMieten;
-    }
-
-    public function getBestellung() : Bestellung|int
-    {
-        return $this->bestellung;
-    }
-
     public function toArray(): array
     {
-        // TODO: Implement toArray() method.
-        return [];
+        return [
+            'id' => $this->id,
+            'bestellung' => $this->bestellung,
+            'boot' => $this->boot,
+            'startdatum' => $this->startdatum,
+            'enddatum' => $this->enddatum,
+            'preisProTag' => $this->preisProTag,
+            'active' => $this->active,
+            'updated_at' => $this->updated_at,
+            'created_at' => $this->created_at,
+        ];
     }
 }
