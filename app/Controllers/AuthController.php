@@ -26,7 +26,7 @@ class AuthController extends BaseController
             return redirect()->back()->with('error', 'User nicht gefunden');
         }
 
-        if (! password_verify($password, $user->getPasswordHash())) {
+        if ($user->verifyPassword($password)) {
             return redirect()->back()->with('error', 'Passwort falsch');
         }
 
@@ -103,5 +103,29 @@ class AuthController extends BaseController
 
         // zurück zur Auth-Seite
         return redirect()->to('/auth');
+    }
+
+    public function loadUser()
+    {
+        $userId = session()->get('user_id');
+
+        if (! $userId) {
+            return $this->response->setStatusCode(401);
+        }
+
+        $db = DBConnection::getConnection();
+        $user = User::findByIdEntry($db, (int)$userId);
+
+        if (! $user) {
+            session()->destroy();
+            return $this->response->setStatusCode(401);
+        }
+
+        return $this->response->setJSON([
+            'id'          => $user->getID(),
+            'username'    => $user->getUsername(),
+            'kunde'       => $user->getKunde(),
+            'mitarbeiter' => $user->getMitarbeiter(),
+        ]);
     }
 }

@@ -35,17 +35,6 @@ class User extends DatabaseEntry
         return 'users';
     }
 
-    // Hilfsfunktion zum Erstellen mit Klartext-Passwort
-    public static function createWithPlainPassword(
-        string $username,
-        string $plainPassword,
-        ?int $kunde = null,
-        ?int $mitarbeiter = null
-    ): User {
-        $hash = password_hash($plainPassword, PASSWORD_DEFAULT);
-        return new User($username, $hash, $kunde, $mitarbeiter);
-    }
-
     public function verifyPassword(string $plainPassword): bool
     {
         return password_verify($plainPassword, $this->passwordHash);
@@ -56,10 +45,7 @@ class User extends DatabaseEntry
         $table = self::getTable();
 
         if ($this->id === null) {
-            $stmt = $db->prepare(
-                "INSERT INTO $table (username, password_hash, kunde_ID, mitarbeiter_ID)
-                 VALUES (:u, :p, :k, :m)"
-            );
+            $stmt = $db->prepare(self::getInsertStmnt());
             $stmt->execute([
                 ':u' => $this->username,
                 ':p' => $this->passwordHash,
@@ -103,9 +89,12 @@ class User extends DatabaseEntry
         return $row ? new User(
             $row['username'],
             $row['password_hash'],
-            $row['kunde'] !== null ? (int)$row['kunde'] : null,
-            $row['mitarbeiter'] !== null ? (int)$row['mitarbeiter'] : null,
-            (int)$row['ID']
+            $row['kunde_ID'] !== null ? (int)$row['kunde_ID'] : null,
+            $row['mitarbeiter_ID'] !== null ? (int)$row['mitarbeiter_ID'] : null,
+            (int)$row['ID'],
+            (bool)$row['active'],
+            $row['updated_at'],
+            $row['created_at'],
         ) : null;
     }
 
@@ -126,17 +115,14 @@ class User extends DatabaseEntry
         }
 
         return new User(
-            $row['username'],          // string $username
-            $row['password_hash'],     // string $passwordHash
-            null,                      // ?int $kunde
-            null,                      // ?int $mitarbeiter
-            (int) $row['ID'],          // ?int $id
-            (bool) $row['active']      // ?bool $active
-        // updated_at, created_at, user -> bleiben default null
+            $row['username'],
+            $row['password_hash'],
+            null,
+            null,
+            (int) $row['ID'],
+            (bool) $row['active']
         );
     }
-
-
 
 
     public static function findAllEntries(PDO $db, ?DbFilter $filter = null): array
@@ -161,13 +147,13 @@ class User extends DatabaseEntry
     protected static function getInsertStmnt() : string
     {
         $table = self::getTable();
-        return "";
+        return "INSERT INTO $table (username, password_hash, kunde_ID, mitarbeiter_ID) VALUES (:u, :p, :k, :m)";
     }
 
     protected static function getUpdateStmnt() : string
     {
         $table = self::getTable();
-        return "";
+        return "UPDATE $table SET username = :u, password_hash = :p, kunde_ID = :k, mitarbeiter_ID = :m, active = :Active  WHERE ID = :ID";
     }
 
     public function toArray(): array
@@ -195,5 +181,25 @@ class User extends DatabaseEntry
     public function setPasswordHash(string $passwordHash): void
     {
         $this->passwordHash = $passwordHash;
+    }
+
+    public function getKunde(): Kunde|int|null
+    {
+        return $this->kunde;
+    }
+
+    public function setKunde(Kunde|int|null $kunde): void
+    {
+        $this->kunde = $kunde;
+    }
+
+    public function getMitarbeiter(): Mitarbeiter|int|null
+    {
+        return $this->mitarbeiter;
+    }
+
+    public function setMitarbeiter(Mitarbeiter|int|null $mitarbeiter): void
+    {
+        $this->mitarbeiter = $mitarbeiter;
     }
 }

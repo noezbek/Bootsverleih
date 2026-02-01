@@ -13,7 +13,6 @@ export async function init() {
     wireSaveButton();
     wireTableActions();
     applyDarkMode();
-
     await initialLoad();
 }
 

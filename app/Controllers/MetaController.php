@@ -16,11 +16,12 @@ class MetaController extends BaseController
 
     public function loadEnums()
     {
-        return $this->response->setJSON([
+        $list = [
             'verfuegbarkeiten' => Availability::list(),
             'bootTypen' => BoatTyoe::list(),
             'bestellStatus' => OrderStatus::list(),
             'zahlStatus' => PaymentStatus::list(),
-        ]);
+        ];
+        return $this->response->setJSON($list);
     }
 }

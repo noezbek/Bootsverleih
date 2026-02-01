@@ -25,7 +25,8 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
     $routes->get('/liegeplaetze', 'Home::liegeplaetze');   // ← Liegeplätze
 
     // DATA
-    $routes->get('/meta/load', 'MetaController::loadEnums');
+    $routes->get('/userdata/load', 'AuthController::loadUser');
+    $routes->get('/enums/load', 'MetaController::loadEnums');
     $routes->get('/kundenverwaltung/load', 'KundenverwaltungController::loadKundenverwaltung');
     $routes->post('/kundenverwaltung/save', 'KundenverwaltungController::saveKundenverwaltung');
     $routes->post('/kundenverwaltung/delete', 'KundenverwaltungController::deleteKundenverwaltung');
