@@ -18,7 +18,10 @@ class MitarbeiterFilter implements FilterInterface
 
         // Kein Mitarbeiter?
         $role = session()->get('role');
-        if ($role !== UserType::MITARBEITER->value && $role !== UserType::MITARBEITER) {
+        $mitarbeiterValue = UserType::MITARBEITER->value; // = 2
+
+        // Vergleiche als Integer
+        if ((int)$role !== $mitarbeiterValue) {
             // Zurück zum Dashboard mit Fehlermeldung
             return redirect()->to('/')->with('error', 'Zugriff verweigert. Nur für Mitarbeiter.');
         }

@@ -27,11 +27,9 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
     $routes->get('/', 'Home::index');
     $routes->get('/einstellungen', 'Home::settings');
     $routes->get('/support', 'Home::support');
-    $routes->get('/bootsverleih', 'Home::bootsverleih');
-    $routes->get('/liegeplaetze', 'Home::liegeplaetze');
     $routes->get('/accountEinstellungen', 'Home::accountSettings');
 
-    // DATA für alle
+    // DATA für alle (Mitarbeiter braucht Zugriff für Verwaltungsseiten)
     $routes->get('/userdata/load', 'AuthController::loadUser');
     $routes->get('/enums/load', 'MetaController::loadEnums');
     $routes->get('/features/load', 'BootsverleihController::loadFeatures');
@@ -40,7 +38,10 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
     $routes->get('/bootsverleih/load_staff', 'BootsverleihController::loadMitarbeiterBoote');
     $routes->post('/bootsverleih/mieten', 'BootsverleihController::saveBootMiete');
     $routes->get('/liegeplaetze/load', 'LiegeplatzeController::loadLiegeplaetze');
-    $routes->post('/liegeplaetze/reservieren', 'LiegeplatzeController::saveReservierung');
+    $routes->get('/zahlungen/loadFull', 'ZahlungenController::loadZahlungsVerwaltung');
+    $routes->get('/bestellungen/load', 'ZahlungenController::loadBestellungen');
+    $routes->get('/vertraege/load', 'ZahlungenController::loadVertaege');
+    $routes->get('/zahlungen/load', 'ZahlungenController::loadZahlungen');
 
     // Account Einstellungen für alle
     $routes->get('/accountEinstellungen/load', 'AccountEinstellungenController::loadAccountData');
@@ -70,12 +71,12 @@ $routes->group('', ['filter' => 'kunde'], function($routes) {
 
     // Views nur für Kunden
     $routes->get('/zahlungen', 'Home::zahlungen');
+    $routes->get('/bootsverleih', 'Home::bootsverleih');
+    $routes->get('/liegeplaetze', 'Home::liegeplaetze');
 
-    // DATA nur für Kunden
-    $routes->get('/zahlungen/loadFull', 'ZahlungenController::loadZahlungsVerwaltung');
-    $routes->get('/bestellungen/load', 'ZahlungenController::loadBestellungen');
-    $routes->get('/vertraege/load', 'ZahlungenController::loadVertaege');
-    $routes->get('/zahlungen/load', 'ZahlungenController::loadZahlungem');
+    // Aktionen nur für Kunden
+    $routes->post('/bootsverleih/mieten', 'BootsverleihController::saveBootMiete');
+    $routes->post('/liegeplaetze/reservieren', 'LiegeplatzeController::saveReservierung');
 
 });
 

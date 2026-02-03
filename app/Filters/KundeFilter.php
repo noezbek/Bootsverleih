@@ -18,7 +18,10 @@ class KundeFilter implements FilterInterface
 
         // Kein Kunde?
         $role = session()->get('role');
-        if ($role !== UserType::KUNDE->value && $role !== UserType::KUNDE) {
+        $kundeValue = UserType::KUNDE->value; // = 1
+
+        // Vergleiche als Integer
+        if ((int)$role !== $kundeValue) {
             // Zurück zum Dashboard mit Fehlermeldung
             return redirect()->to('/')->with('error', 'Zugriff verweigert. Nur für Kunden.');
         }

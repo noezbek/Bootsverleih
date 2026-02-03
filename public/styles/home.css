@@ -59,15 +59,6 @@ body.dark-mode .subtitle {
     max-width: 300px;
 }
 
-.dashboard-grid.management-section {
-    margin-top: 50px;
-    padding-top: 40px;
-    border-top: 2px solid #e0e0e0;
-}
-
-body.dark-mode .dashboard-grid.management-section {
-    border-top-color: #444;
-}
 
 .dashboard-item {
     background: white;

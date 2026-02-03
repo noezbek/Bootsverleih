@@ -25,13 +25,11 @@
 
 <header>
     <h1>Yachthafen Plau am See</h1>
-    <?= base_url() ?>
-
     <p class="subtitle">Verwaltungssystem</p>
 </header>
 
 <div class="dashboard-grid">
-
+    <?php if ($isKunde): ?>
     <a href="<?= base_url('liegeplaetze') ?>" class="dashboard-item">
         <h2>Liegeplätze</h2>
         <p>Verwaltung und Reservierung von Bootsliegeplätzen</p>
@@ -42,10 +40,26 @@
         <p>Vermietung und Buchung von Booten</p>
     </a>
 
-    <?php if ($isKunde): ?>
     <a href="<?= base_url('zahlungen') ?>" class="dashboard-item">
         <h2>Zahlungen</h2>
         <p>Übersicht und Verwaltung aller Zahlungen</p>
+    </a>
+    <?php endif; ?>
+
+    <?php if ($isMitarbeiter): ?>
+    <a href="<?= base_url('liegeplatzverwaltung') ?>" class="dashboard-item">
+        <h2>Liegeplatzverwaltung</h2>
+        <p>Liegeplätze, Reservierungen und Preise verwalten</p>
+    </a>
+
+    <a href="<?= base_url('bootsverwaltung') ?>" class="dashboard-item">
+        <h2>Bootsverwaltung</h2>
+        <p>Boote, Preise und Verfügbarkeit verwalten</p>
+    </a>
+
+    <a href="<?= base_url('kundenverwaltung') ?>" class="dashboard-item">
+        <h2>Kundenverwaltung</h2>
+        <p>Kundenkonten und Stammdaten verwalten</p>
     </a>
     <?php endif; ?>
 </div>
@@ -68,32 +82,9 @@
             <p>Sicher vom System abmelden</p>
         </button>
     </form>
-
-
 </div>
-
-<?php if ($isMitarbeiter): ?>
-<div class="dashboard-grid management-section">
-    <a href="<?= base_url('liegeplatzverwaltung') ?>" class="dashboard-item">
-        <h2>Liegeplatzverwaltung</h2>
-        <p>Liegeplätze, Reservierungen und Preise verwalten</p>
-    </a>
-
-    <a href="<?= base_url('bootsverwaltung') ?>" class="dashboard-item">
-        <h2>Bootsverwaltung</h2>
-        <p>Boote, Preise und Verfügbarkeit verwalten</p>
-    </a>
-
-    <a href="<?= base_url('kundenverwaltung') ?>" class="dashboard-item">
-        <h2>Kundenverwaltung</h2>
-        <p>Kundenkonten und Stammdaten verwalten</p>
-    </a>
-</div>
-<?php endif; ?>
-
 
 <script type="module" src="<?= base_url('js/app.js') ?>"></script>
-
 
 </body>
 </html>
