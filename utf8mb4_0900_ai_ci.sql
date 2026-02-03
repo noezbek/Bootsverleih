@@ -1,4 +1,4 @@
-CREATE DATABASE  IF NOT EXISTS `bootsverleih` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+CREATE DATABASE  IF NOT EXISTS `bootsverleih` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `bootsverleih`;
 -- MySQL dump 10.13  Distrib 8.0.40, for Win64 (x86_64)
 --
@@ -37,7 +37,7 @@ CREATE TABLE `bestellungen` (
   KEY `fk_bestellungen_user` (`userID`),
   CONSTRAINT `fk_bestellung_kunde` FOREIGN KEY (`kunde_ID`) REFERENCES `kunde` (`ID`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_bestellungen_user` FOREIGN KEY (`userID`) REFERENCES `users` (`ID`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -64,7 +64,7 @@ CREATE TABLE `boot_hat_feature` (
   KEY `fk_bhf_feature` (`feature_ID`),
   CONSTRAINT `fk_bhf_boot` FOREIGN KEY (`boot_ID`) REFERENCES `boote` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_bhf_feature` FOREIGN KEY (`feature_ID`) REFERENCES `features` (`ID`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -102,7 +102,7 @@ CREATE TABLE `boot_mieten` (
   CONSTRAINT `fk_bm_bestellung` FOREIGN KEY (`bestellung_ID`) REFERENCES `bestellungen` (`ID`) ON DELETE CASCADE,
   CONSTRAINT `fk_bm_boot` FOREIGN KEY (`boot_ID`) REFERENCES `boote` (`ID`),
   CONSTRAINT `fk_boot_mieten_user` FOREIGN KEY (`userID`) REFERENCES `users` (`ID`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -140,7 +140,7 @@ CREATE TABLE `boote` (
   PRIMARY KEY (`ID`),
   KEY `fk_boote_user` (`userID`),
   CONSTRAINT `fk_boote_user` FOREIGN KEY (`userID`) REFERENCES `users` (`ID`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -172,7 +172,7 @@ CREATE TABLE `features` (
   UNIQUE KEY `uq_boot_features_name` (`bezeichnung`),
   KEY `fk_features_user` (`userID`),
   CONSTRAINT `fk_features_user` FOREIGN KEY (`userID`) REFERENCES `users` (`ID`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -209,7 +209,7 @@ CREATE TABLE `kunde` (
   PRIMARY KEY (`ID`),
   KEY `fk_kunde_user` (`userID`),
   CONSTRAINT `fk_kunde_user` FOREIGN KEY (`userID`) REFERENCES `users` (`ID`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -218,7 +218,7 @@ CREATE TABLE `kunde` (
 
 LOCK TABLES `kunde` WRITE;
 /*!40000 ALTER TABLE `kunde` DISABLE KEYS */;
-INSERT INTO `kunde` VALUES (7,'Max','Müller','max.mueller@email.de','1985-06-15','+49 170 1234567','Hauptstraße 15',19395,'Plau am See',1,'2026-02-01 16:25:02','2026-02-01 16:25:02',NULL),(8,'Anna','Schmidt','anna.schmidt@email.de','1990-09-22','+49 172 9876543','Seestraße 42',19395,'Plau am See',1,'2026-02-01 16:25:02','2026-02-01 16:25:02',NULL),(9,'Thomas','Weber','thomas.weber@email.de','1978-03-10','+49 151 5551234','Uferweg 8',17213,'Malchow',1,'2026-02-01 16:25:02','2026-02-01 16:25:02',NULL),(10,'Julia','Fischer','julia.fischer@email.de','1995-01-05','+49 160 7778888','Fischerweg 23',17192,'Waren',1,'2026-02-01 16:25:02','2026-02-01 16:25:02',NULL),(11,'Peter','Schneider','peter.schneider@email.de','1970-02-18','+49 175 4443332','Bergstraße 67',17207,'Röbel',0,'2026-02-01 16:25:02','2026-02-01 16:25:02',NULL),(12,'Sarah','Bauer','sarah.bauer@email.de','1988-11-12','+49 162 1112223','Gartenweg 5',19395,'Plau am See',1,'2026-02-01 16:25:02','2026-02-01 16:25:02',NULL);
+INSERT INTO `kunde` VALUES (7,'Maxs','Müller','nathanoezbek2004@gmail.com','1985-06-15','49','Hauptstraße 15',19395,'Plau am See',1,'2026-02-01 16:25:02','2026-02-03 13:39:21',NULL),(8,'Anna','Schmidt','nathanoezbek2004@gmail.com','1990-09-22','+49 172 9876543','Seestraße 42',19395,'Plau am See',1,'2026-02-01 16:25:02','2026-02-03 11:21:37',NULL),(9,'Thomas','Weber','nathanoezbek2004@gmail.com','1978-03-10','+49 151 5551234','Uferweg 8',17213,'Malchow',1,'2026-02-01 16:25:02','2026-02-03 11:21:37',NULL),(10,'Julia','Fischer','nathanoezbek2004@gmail.com','1995-01-05','+49 160 7778888','Fischerweg 23',17192,'Waren',1,'2026-02-01 16:25:02','2026-02-03 11:21:37',NULL),(11,'Peter','Schneider','nathanoezbek2004@gmail.com','1970-02-18','+49 175 4443332','Bergstraße 67',17207,'Röbel',0,'2026-02-01 16:25:02','2026-02-03 11:21:37',NULL),(12,'Sarah','Bauer','nathanoezbek2004@gmail.com','1988-11-12','49','Gartenweg 5',19395,'Plau am See',0,'2026-02-01 16:25:02','2026-02-03 13:44:13',NULL),(13,'tst','test','nathanoezbek2004@gmail.com','2000-11-11','1','1',1,'1',0,'2026-02-03 13:34:05','2026-02-03 13:34:26',NULL),(14,'a','a','a@gmail.com','2004-11-11','1','a',1,'a',0,'2026-02-03 13:39:57','2026-02-03 13:42:37',NULL),(15,'a','a','a@gmail.com','2004-11-11','1','a',1,'a',0,'2026-02-03 13:42:54','2026-02-03 13:43:01',NULL);
 /*!40000 ALTER TABLE `kunde` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -246,7 +246,7 @@ CREATE TABLE `liegeplaetze` (
   PRIMARY KEY (`ID`),
   KEY `fk_liegeplaetze_user` (`userID`),
   CONSTRAINT `fk_liegeplaetze_user` FOREIGN KEY (`userID`) REFERENCES `users` (`ID`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -278,6 +278,10 @@ CREATE TABLE `liegeplatz_reservierungen` (
   `userID` int unsigned DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` tinyint unsigned NOT NULL DEFAULT '1',
+  `expires_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `confirmed_at` datetime DEFAULT NULL,
+  `confirm_token` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`ID`),
   KEY `fk_lpr_bestellung` (`bestellung_ID`),
   KEY `fk_lpr_liegeplatz` (`liegeplatz_ID`),
@@ -287,7 +291,7 @@ CREATE TABLE `liegeplatz_reservierungen` (
   CONSTRAINT `fk_lpr_bestellung` FOREIGN KEY (`bestellung_ID`) REFERENCES `bestellungen` (`ID`) ON DELETE CASCADE,
   CONSTRAINT `fk_lpr_boot` FOREIGN KEY (`boot_ID`) REFERENCES `boote` (`ID`),
   CONSTRAINT `fk_lpr_liegeplatz` FOREIGN KEY (`liegeplatz_ID`) REFERENCES `liegeplaetze` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -296,7 +300,7 @@ CREATE TABLE `liegeplatz_reservierungen` (
 
 LOCK TABLES `liegeplatz_reservierungen` WRITE;
 /*!40000 ALTER TABLE `liegeplatz_reservierungen` DISABLE KEYS */;
-INSERT INTO `liegeplatz_reservierungen` VALUES (2,4,27,5,'2024-02-05','2024-02-05',50.00,1,NULL,'2026-02-01 21:51:07','2026-02-01 21:51:07'),(3,6,26,5,'2025-12-28','2024-02-05',50.00,1,NULL,'2026-02-01 21:51:07','2026-02-01 21:51:07');
+INSERT INTO `liegeplatz_reservierungen` VALUES (2,4,27,5,'2024-02-05','2024-02-05',50.00,1,NULL,'2026-02-01 21:51:07','2026-02-03 12:23:26',2,'2024-02-05 00:30:00','2024-02-05 00:00:00','a3f9c1e7b4d28a6f5c0e9a1b7d3f8e2c4a6d9b1e5f7c8a0d2e4b6c9f1\n'),(3,6,26,5,'2025-12-28','2024-02-05',50.00,1,NULL,'2026-02-01 21:51:07','2026-02-03 12:23:26',2,'2025-12-28 00:30:00','2025-12-28 00:00:00','9d4b6a8c2f1e0b7d5a3c9e6f8d2b4a1c0e7f9a5d8b6c4e3f1a2d0\n');
 /*!40000 ALTER TABLE `liegeplatz_reservierungen` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -324,7 +328,7 @@ CREATE TABLE `mitarbeiter` (
   PRIMARY KEY (`ID`),
   KEY `fk_mitarbeiter_user` (`userID`),
   CONSTRAINT `fk_mitarbeiter_user` FOREIGN KEY (`userID`) REFERENCES `users` (`ID`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -358,7 +362,7 @@ CREATE TABLE `users` (
   KEY `fk_user_mitarbeiter` (`mitarbeiter_ID`),
   CONSTRAINT `fk_user_kunde` FOREIGN KEY (`kunde_ID`) REFERENCES `kunde` (`ID`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_user_mitarbeiter` FOREIGN KEY (`mitarbeiter_ID`) REFERENCES `mitarbeiter` (`ID`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -394,7 +398,7 @@ CREATE TABLE `vertraege` (
   KEY `fk_vertrag_user` (`userID`),
   CONSTRAINT `fk_vertrag_bestellung` FOREIGN KEY (`bestellung_ID`) REFERENCES `bestellungen` (`ID`) ON DELETE CASCADE,
   CONSTRAINT `fk_vertrag_user` FOREIGN KEY (`userID`) REFERENCES `users` (`ID`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -430,7 +434,7 @@ CREATE TABLE `zahlungen` (
   KEY `fk_zahlung_vertrag` (`vertrag_ID`),
   CONSTRAINT `fk_zahlung_vertrag` FOREIGN KEY (`vertrag_ID`) REFERENCES `vertraege` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_zahlungen_user` FOREIGN KEY (`userID`) REFERENCES `users` (`ID`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -452,4 +456,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-02-01 23:12:09
+-- Dump completed on 2026-02-03 15:51:23
