@@ -37,14 +37,3 @@ function wireEmailNotifications() {
         localStorage.setItem('emailNotifications', toggle.checked);
     });
 }
-
-// --------------------
-// Profile Edit (Demo)
-// --------------------
-function wireEditProfile() {
-    document
-        .getElementById('editProfileBtn')
-        ?.addEventListener('click', () => {
-            alert('Funktion in Entwicklung');
-        });
-}

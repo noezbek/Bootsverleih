@@ -44,14 +44,6 @@
 
         <div class="setting-item">
             <div class="setting-info">
-                <h3>Profilname</h3>
-                <p>Ihr angezeigter Name im System</p>
-            </div>
-            <button class="edit-button" id="editProfileBtn">Bearbeiten</button>
-        </div>
-
-        <div class="setting-item">
-            <div class="setting-info">
                 <h3>E-Mail Benachrichtigungen</h3>
                 <p>Erhalten Sie Updates per E-Mail</p>
             </div>
