@@ -9,6 +9,7 @@ use App\Models\DBConnection;
 use App\Models\LiegeplatzReservierung;
 use App\Models\Vertrag;
 use App\Models\Zahlung;
+use Exception;
 use RuntimeException;
 
 class ZahlungenController extends BaseController
@@ -17,14 +18,16 @@ class ZahlungenController extends BaseController
     {
         echo "<h1>ZahlungenController funktioniert!</h1>";
     }
-    public function loadZahlungen(): \CodeIgniter\HTTP\ResponseInterface
+    public function loadZahlungsVerwaltung(): \CodeIgniter\HTTP\ResponseInterface
     {
-        $db = DBConnection::getConnection();
-        $kundeId = 7; // TODO: aus Session/Auth
+        $kundeId = $_SESSION['kunde_id'];
 
-        /* =========================
-         * 1. Bestellungen
-         * ========================= */
+        if (!$kundeId) {
+            throw new Exception('Keine KundenID');
+        }
+
+        $db = DBConnection::getConnection();
+
         $bestellungen = Bestellung::findAllEntries(
             $db,
             (new DbFilter())->where('kunde_ID', '=', $kundeId)
@@ -36,9 +39,7 @@ class ZahlungenController extends BaseController
 
         $bestellungIds = array_keys($bestellungen);
 
-        /* =========================
-         * 2. Items
-         * ========================= */
+
         $bootMieten = BootMiete::findAllEntries(
             $db,
             (new DbFilter())->whereIn('bestellung_ID', $bestellungIds)
@@ -59,9 +60,6 @@ class ZahlungenController extends BaseController
             $liegeplatzByBestellung[$lp->getBestellungId()] = $lp;
         }
 
-        /* =========================
-         * 3. Verträge
-         * ========================= */
         $vertraege = Vertrag::findAllEntries(
             $db,
             (new DbFilter())->whereIn('bestellung_ID', $bestellungIds)
@@ -71,13 +69,10 @@ class ZahlungenController extends BaseController
         $vertragIds = [];
 
         foreach ($vertraege as $v) {
-            $vertragByBestellung[$v->getBestellungId()] = $v;
+            $vertragByBestellung[$v->getBestellung()] = $v;
             $vertragIds[] = $v->getID();
         }
 
-        /* =========================
-         * 4. Zahlungen
-         * ========================= */
         $zahlungen = $vertragIds
             ? Zahlung::findAllEntries(
                 $db,
@@ -90,9 +85,6 @@ class ZahlungenController extends BaseController
             $zahlungenByVertrag[$z->getVertrag()][] = $z;
         }
 
-        /* =========================
-         * 5. Response bauen
-         * ========================= */
         $result = [];
 
         foreach ($bestellungen as $bid => $bestellung) {
@@ -129,6 +121,69 @@ class ZahlungenController extends BaseController
         }
 
         return $this->response->setJSON($result);
+    }
+
+    public function loadZahlungem(): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $db = DBConnection::getConnection();
+
+        $filter = new DbFilter();
+        $filter->where('active', '=', 1);
+
+        $zahlungenInstances = Zahlung::findAllEntries(
+            $db,
+            $filter
+        );
+
+        $zahlungen = [];
+
+        foreach ($zahlungenInstances as $id => $zahlung) {
+            $zahlungen[$id] = $zahlung->toArray();
+        }
+
+        return $this->response->setJSON($zahlungen);
+    }
+
+    public function loadBestellungen(): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $db = DBConnection::getConnection();
+
+        $filter = new DbFilter();
+        $filter->where('active', '=', 1);
+
+        $bestellungenInstances = Bestellung::findAllEntries(
+            $db,
+            $filter
+        );
+
+        $bestellungen = [];
+
+        foreach ($bestellungenInstances as $id => $bestellungen) {
+            $bestellungen[$id] = $bestellungen->toArray();
+        }
+
+        return $this->response->setJSON($bestellungen);
+    }
+
+    public function loadVertaege(): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $db = DBConnection::getConnection();
+
+        $filter = new DbFilter();
+        $filter->where('active', '=', 1);
+
+        $vertraegeInstances = Vertrag::findAllEntries(
+            $db,
+            $filter
+        );
+
+        $vertraege = [];
+
+        foreach ($vertraegeInstances as $id => $vertraeg) {
+            $vertraege[$id] = $vertraeg->toArray();
+        }
+
+        return $this->response->setJSON($vertraege);
     }
 
 }

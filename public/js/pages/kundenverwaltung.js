@@ -1,11 +1,11 @@
-import { apiGet, apiPostFormData, toFormData } from '../services/api.js';
+import {apiGetMany, apiPostFormData, toFormData} from '../services/api.js';
 import {setText, setValue, val, escape, isEmpty} from "../services/helpers.js";
 
-let kunden = {}; // { id: kunde }
+let kunden = {};
+let zahlungen = {};
+let bestellungen = {};
+let vertraege = {};
 
-// ==============================
-// INIT (nur 1x beim Laden)
-// ==============================
 export async function init() {
     wireModalClose();
     wireSearch();
@@ -16,18 +16,23 @@ export async function init() {
     await initialLoad();
 }
 
-// ==============================
-// INITIAL LOAD (EINMALIG)
-// ==============================
 async function initialLoad() {
-    const data = await apiGet('/kundenverwaltung/load');
-    kunden = data ?? {};
+
+    const {clients, payments, contracts, orders} = await apiGetMany({
+        clients: '/kundenverwaltung/load',
+        payments: '/zahlungen/load',
+        contracts: '/vertraege/load',
+        orders: '/bestellungen/load',
+    })
+
+    kunden = clients ?? {};
+    zahlungen = payments ?? {};
+    bestellungen = orders ?? {};
+    vertraege = contracts ?? {};
+
     renderFullTable();
 }
 
-// ==============================
-// RENDER
-// ==============================
 function renderFullTable() {
     const tbody = document.querySelector('#customersTable tbody');
     tbody.innerHTML = '';
@@ -89,9 +94,6 @@ function buildRow(id, k) {
     return tr;
 }
 
-// ==============================
-// SEARCH
-// ==============================
 function wireSearch() {
     const input = document.getElementById('searchInput');
     if (!input) return;
@@ -105,9 +107,6 @@ function wireSearch() {
     });
 }
 
-// ==============================
-// TABLE ACTIONS
-// ==============================
 function wireTableActions() {
     document.querySelector('#customersTable tbody')
         .addEventListener('click', e => {
@@ -123,9 +122,6 @@ function wireTableActions() {
         });
 }
 
-// ==============================
-// VIEW
-// ==============================
 function openViewModal(id) {
     const k = kunden[id];
     if (!k) return;
@@ -140,12 +136,12 @@ function openViewModal(id) {
     );
     setText('view-geburtsdatum', k.geburtsdatum ?? '-');
 
+    renderPayments(k.zahlungen);
+    renderOrders(k.bestellungen);
+
     document.getElementById('viewModal').style.display = 'block';
 }
 
-// ==============================
-// EDIT
-// ==============================
 function wireAddButton() {
     document.getElementById('btnAddCustomer')
         ?.addEventListener('click', () => openEditModal(null, true));
@@ -162,15 +158,89 @@ function openEditModal(id, isNew = false) {
     setValue('edit-address', k?.strasse);
     setValue('edit-city', k?.stadt);
     setValue('edit-zip', k?.plz);
-    setValue('edit-status', k?.active ?? 1);
     setValue('edit-geburtsdatum', k?.geburtsdatum ?? null);
+
+    const statusGroup = document.getElementById('edit-status')?.closest('.form-group');
+
+    if (isNew) {
+        statusGroup.style.display = 'none';
+        setValue('edit-status', 1); // neuer Kunde immer aktiv
+    } else {
+        statusGroup.style.display = '';
+        setValue('edit-status', String(k?.active === true || k?.active === 1 ? '1' : '0'));
+
+    }
 
     document.getElementById('editModal').style.display = 'block';
 }
 
-// ==============================
-// SAVE (UPDATE LOKAL)
-// ==============================
+function renderPayments(zahlungsIds = []) {
+    const container = document.getElementById('view-payments');
+    container.innerHTML = '';
+
+    if (!zahlungsIds.length) {
+        container.innerHTML =
+            '<div class="history-item">Noch keine Zahlungsdaten</div>';
+        return;
+    }
+
+    zahlungsIds.forEach(id => {
+        const z = zahlungen[id];
+
+        console.log('zahlungen',z);
+
+        if (!z) return;
+
+        container.innerHTML += `
+            <div class="history-item">
+                <span class="date">${z.datum ?? '-'}</span>
+                <span class="amount">${Number(z.betrag).toFixed(2)} €</span>
+                <span class="status ${z.status === 'bezahlt' ? 'paid' : 'open'}">
+                    ${z.status}
+                </span>
+            </div>
+        `;
+    });
+}
+
+function renderOrders(bestellIds = []) {
+    const container = document.getElementById('view-orders');
+    container.innerHTML = '';
+
+    if (!bestellIds.length) {
+        container.innerHTML =
+            '<div class="history-item">Noch keine Bestellhistorie</div>';
+        return;
+    }
+
+    bestellIds.forEach(id => {
+        const b = bestellungen[id];
+
+        console.log('bestellungen',b);
+
+        if (!b) return;
+
+        // passenden Vertrag suchen (1 Bestellung → 1 Vertrag angenommen)
+        const vertrag = Object.values(vertraege)
+            .find(v => v.bestellung_ID === id);
+
+        const zeitraum = vertrag
+            ? `${vertrag.startdatum} – ${vertrag.enddatum}`
+            : '—';
+
+        container.innerHTML += `
+            <div class="history-item">
+                <span class="order-id">#${id}</span>
+                <span class="period">${zeitraum}</span>
+                <span class="status ${b.status === 1 ? 'active' : 'inactive'}">
+                    ${b.status === 1 ? 'Aktiv' : 'Abgeschlossen'}
+                </span>
+            </div>
+        `;
+    });
+}
+
+
 function wireSaveButton() {
     document.getElementById('btnSaveCustomer')
         ?.addEventListener('click', doSave);
@@ -202,9 +272,6 @@ async function doSave() {
     closeModal('editModal');
 }
 
-// ==============================
-// DELETE (LOKAL)
-// ==============================
 async function doDelete(id) {
     if (!confirm('Kunden wirklich löschen?')) return;
 
@@ -216,9 +283,6 @@ async function doDelete(id) {
     removeRow(id);
 }
 
-// ==============================
-// MODALS
-// ==============================
 function wireModalClose() {
     document.querySelectorAll('.close[data-close]').forEach(el =>
         el.addEventListener('click', () => closeModal(el.dataset.close))
@@ -236,10 +300,6 @@ function closeModal(id) {
     }
 }
 
-
-// ==============================
-// HELPERS
-// ==============================
 
 function applyDarkMode() {
     if (localStorage.getItem('darkMode') === 'true') {

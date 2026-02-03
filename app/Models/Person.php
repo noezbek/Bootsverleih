@@ -55,7 +55,7 @@ abstract class Person extends DatabaseEntry
     protected function toPersonArray(): array
     {
         return [
-            'ID'       => $this->id,
+            'id'       => $this->id,
             'active' => $this->active,
             'vorname' => $this->vorname,
             'nachname' => $this->nachname,

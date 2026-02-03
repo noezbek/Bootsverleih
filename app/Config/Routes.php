@@ -41,9 +41,12 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
     $routes->get('/bootsverleih/load', 'BootsverleihController::loadBoote');
     $routes->post('/bootsverleih/save', 'BootsverleihController::saveBoot');
     $routes->post('/bootsverleih/delete', 'BootsverleihController::deleteBoot');
-    $routes->get('/zahlungen/load', 'ZahlungenController::loadZahlungen');
+    $routes->get('/zahlungen/loadFull', 'ZahlungenController::loadZahlungsVerwaltung');
     $routes->get('/liegeplaetze/load', 'LiegeplatzeController::loadLiegeplaetze');
     $routes->post('/liegeplaetze/reservieren', 'LiegeplatzeController::saveReservierung');
+    $routes->get('/bestellungen/load', 'ZahlungenController::loadBestellungen');
+    $routes->get('/vertraege/load', 'ZahlungenController::loadVertaege');
+    $routes->get('/zahlungen/load', 'ZahlungenController::loadZahlungem');
 
 });
 

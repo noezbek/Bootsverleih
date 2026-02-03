@@ -1,8 +1,4 @@
-// ==============================
-// IMPORT
-// ==============================
-import {apiGet, apiGetMany} from "../services/api.js";
-
+import {apiGetMany} from "../services/api.js";
 
 let payments = [];
 let historyRows = [];
@@ -12,9 +8,6 @@ let berths = {};
 export const ITEM_TYPE_BOAT_CONST = 'boot';
 export const ITEM_TYPE_BERTH_CONST = 'liegeplatz';
 
-// ==============================
-// INIT
-// ==============================
 export async function init() {
     applyDarkMode();
     await initialLoad();
@@ -23,7 +16,7 @@ export async function init() {
 async function initialLoad() {
     try {
         const {zahlungen, boote, liegeplaetze} = await apiGetMany({
-            zahlungen: '/zahlungen/load',
+            zahlungen: '/zahlungen/loadFull',
             boote: '/bootsverleih/load',
             liegeplaetze: '/liegeplaetze/load',
         })
@@ -47,9 +40,6 @@ async function initialLoad() {
     renderHistory();
 }
 
-// ==============================
-// API → VIEW MAPPING
-// ==============================
 function mapApiPayments(apiData) {
     const cards = [];
     const history = [];

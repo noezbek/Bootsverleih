@@ -9,6 +9,8 @@ class Kunde extends Person
 {
 
     private array $bestellungen = [];
+    private array $zahlungen = [];
+    private array $vertraege = [];
 
 
     public function __construct(
@@ -60,7 +62,19 @@ class Kunde extends Person
     {
         $table = self::getTable();
 
-        $stmt = $db->prepare("SELECT * FROM $table WHERE ID = :id");
+        $stmt = $db->prepare("SELECT
+    k.*,
+    GROUP_CONCAT(DISTINCT b.ID) AS bestellungen,
+    GROUP_CONCAT(DISTINCT v.ID) AS vertraege,
+    GROUP_CONCAT(DISTINCT z.ID) AS zahlungen
+FROM $table k
+LEFT JOIN bestellungen b ON b.kunde_ID = k.ID
+LEFT JOIN vertraege v    ON v.bestellung_ID = b.ID
+LEFT JOIN zahlungen z    ON z.vertrag_ID = v.ID
+WHERE k.ID = :id
+GROUP BY k.ID
+LIMIT 1;
+");
         $stmt->execute(['id' => $id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -90,15 +104,26 @@ class Kunde extends Person
         $filter ??= new DbFilter();
         $c = $filter->compile();
 
-        $sql = "SELECT * FROM $table"
+        $sql = "
+    SELECT
+        k.*,
+        GROUP_CONCAT(DISTINCT b.ID) AS bestellungen,
+        GROUP_CONCAT(DISTINCT v.ID) AS vertraege,
+        GROUP_CONCAT(DISTINCT z.ID) AS zahlungen
+    FROM $table k
+    LEFT JOIN bestellungen b ON b.kunde_ID = k.ID
+    LEFT JOIN vertraege v    ON v.bestellung_ID = b.ID
+    LEFT JOIN zahlungen z    ON z.vertrag_ID = v.ID
+"
             . $c['whereSql']
+            . " GROUP BY k.ID "
             . $c['orderSql']
             . $c['limitSql'];
+
 
         $stmt = $db->prepare($sql);
 
         $kundenById = [];   // id => Kunde
-        $kundeIDs = [];
 
         $stmt->execute($c['params']);
 
@@ -116,27 +141,19 @@ class Kunde extends Person
                 (bool)$row['active'],
             );
 
-            $id = $kunde->getID();
-            $kundenById[$id] = $kunde;
-            $kundeIDs[] = $id;
-        }
-
-        if (!$kundeIDs) return [];
-
-        /**Bestellungen batch laden */
-        // kundeID => [Bestellung, ...]
-        $bestellungenByKunde = self::selectBestellRel($db, $kundeIDs);
-
-        /**alles direkt setzen */
-        $res = [];
-        foreach ($kundenById as $kid => $kunde) {
-            $bestellungen = $bestellungenByKunde[$kid] ?? [];
+            $bestellungen = $row['bestellungen'] ? array_map('intval', explode(',', $row['bestellungen'])) : [];
+            $zahlungen = $row['zahlungen'] ? array_map('intval', explode(',', $row['zahlungen'])) : [];
+            $vertraege = $row['vertraege'] ? array_map('intval', explode(',', $row['vertraege'])) : [];
 
             $kunde->setBestellungen($bestellungen);
-            $res[$kid] = $kunde;
+            $kunde->setZahlungen($zahlungen);
+            $kunde->setVertraege($vertraege);
+
+            $id = $kunde->getID();
+            $kundenById[$id] = $kunde;
         }
 
-        return $res;
+        return $kundenById ?? [];
     }
 
 
@@ -160,15 +177,11 @@ class Kunde extends Person
 
     public function toArray(): array
     {
-        $bestellungen = [];
-
-        foreach ($this->bestellungen as $bestellung) {
-            $bestellungen[$bestellung->getID()] = $bestellung->toArray();
-        }
-
         return [
             ...self::toPersonArray(),
-            'bestellungen' => $bestellungen,
+            'bestellungen' => $this->getBestellungen(),
+            'zahlungen' => $this->getZahlungen(),
+            'vertraege' => $this->getVertraege(),
         ];
     }
 
@@ -180,5 +193,25 @@ class Kunde extends Person
     public function setBestellungen(array $bestellungen): void
     {
         $this->bestellungen = $bestellungen;
+    }
+
+    public function getVertraege(): array
+    {
+        return $this->vertraege;
+    }
+
+    public function setVertraege(array $vertraege): void
+    {
+        $this->vertraege = $vertraege;
+    }
+
+    public function getZahlungen(): array
+    {
+        return $this->zahlungen;
+    }
+
+    public function setZahlungen(array $zahlungen): void
+    {
+        $this->zahlungen = $zahlungen;
     }
 }
