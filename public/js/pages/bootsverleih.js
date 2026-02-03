@@ -1,5 +1,5 @@
 import {apiGetMany, apiPostFormData, toFormData} from "../services/api.js";
-import {setText, setValue, val, escape, formatEuro} from "../services/helpers.js";
+import {setText, setValue, val, escape, formatEuro, isEmpty} from "../services/helpers.js";
 
 let boote = {};
 let featuresState = {};
@@ -51,17 +51,29 @@ function renderGrid() {
     }
 }
 
-function isBookedInPeriod(boatID) {
+function getMietbar(boatID, startDate, endDate) {
+    const reservations = bootMieten[boatID];
 
+    if (isEmpty(reservations)) return 'Verfügbar';
+
+    for (let r of reservations) {
+        if (r.startdatum <= endDate && r.enddatum >= startDate) {
+            return 'Vermietet'
+        }
+    }
+    return 'Verfügbar'
 }
+
 
 function buildCard(id, b) {
     const card = document.createElement('div');
     card.className = 'boat-card';
     card.dataset.boatId = String(id);
 
-    const availabilityText = b.isBooked  ? 'Vermietet' : 'Verfügbar';
-    const availabilityClass = b.isBooked ? 'limited' : 'available';
+    const isBooked = getMietbar(id, new Date().toISOString().split('T')[0], new Date().toISOString().split('T')[0])
+
+    const availabilityText = isBooked;
+    const availabilityClass = isBooked !== 'Verfügbar' ? 'limited' : 'available';
 
     card.innerHTML = `
         <div class="boat-image">${escape(b.icon ?? '⛵')}</div>
