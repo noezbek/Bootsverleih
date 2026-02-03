@@ -37,7 +37,7 @@ CREATE TABLE `bestellungen` (
                                 KEY `fk_bestellungen_user` (`userID`),
                                 CONSTRAINT `fk_bestellung_kunde` FOREIGN KEY (`kunde_ID`) REFERENCES `kunde` (`ID`) ON DELETE RESTRICT ON UPDATE CASCADE,
                                 CONSTRAINT `fk_bestellungen_user` FOREIGN KEY (`userID`) REFERENCES `users` (`ID`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -46,7 +46,7 @@ CREATE TABLE `bestellungen` (
 
 LOCK TABLES `bestellungen` WRITE;
 /*!40000 ALTER TABLE `bestellungen` DISABLE KEYS */;
-INSERT INTO `bestellungen` VALUES (4,7,2,1,'2026-02-01 16:29:35','2026-02-01 16:29:35',NULL),(5,7,2,1,'2026-02-01 16:29:35','2026-02-01 16:29:35',NULL),(6,7,2,1,'2026-02-01 16:29:35','2026-02-01 21:38:09',NULL);
+INSERT INTO `bestellungen` VALUES (38,7,1,1,'2026-02-03 17:23:16','2026-02-03 17:23:16',NULL),(46,7,1,1,'2026-02-03 17:42:19','2026-02-03 17:42:19',NULL);
 /*!40000 ALTER TABLE `bestellungen` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -102,7 +102,7 @@ CREATE TABLE `boot_mieten` (
                                CONSTRAINT `fk_bm_bestellung` FOREIGN KEY (`bestellung_ID`) REFERENCES `bestellungen` (`ID`) ON DELETE CASCADE,
                                CONSTRAINT `fk_bm_boot` FOREIGN KEY (`boot_ID`) REFERENCES `boote` (`ID`),
                                CONSTRAINT `fk_boot_mieten_user` FOREIGN KEY (`userID`) REFERENCES `users` (`ID`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -111,7 +111,7 @@ CREATE TABLE `boot_mieten` (
 
 LOCK TABLES `boot_mieten` WRITE;
 /*!40000 ALTER TABLE `boot_mieten` DISABLE KEYS */;
-INSERT INTO `boot_mieten` VALUES (4,5,5,'2025-12-28','2025-12-28',120.00,1,NULL,'2026-02-01 21:48:27','2026-02-01 21:48:27');
+INSERT INTO `boot_mieten` VALUES (16,46,19,'2026-02-03','2026-02-04',45.00,1,NULL,'2026-02-03 17:42:22','2026-02-03 17:42:22');
 /*!40000 ALTER TABLE `boot_mieten` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -300,7 +300,6 @@ CREATE TABLE `liegeplatz_reservierungen` (
 
 LOCK TABLES `liegeplatz_reservierungen` WRITE;
 /*!40000 ALTER TABLE `liegeplatz_reservierungen` DISABLE KEYS */;
-INSERT INTO `liegeplatz_reservierungen` VALUES (2,4,27,5,'2024-02-05','2024-02-05',50.00,1,NULL,'2026-02-01 21:51:07','2026-02-03 12:23:26',2,'2024-02-05 00:30:00','2024-02-05 00:00:00','a3f9c1e7b4d28a6f5c0e9a1b7d3f8e2c4a6d9b1e5f7c8a0d2e4b6c9f1\n'),(3,6,26,5,'2025-12-28','2024-02-05',50.00,1,NULL,'2026-02-01 21:51:07','2026-02-03 12:23:26',2,'2025-12-28 00:30:00','2025-12-28 00:00:00','9d4b6a8c2f1e0b7d5a3c9e6f8d2b4a1c0e7f9a5d8b6c4e3f1a2d0\n');
 /*!40000 ALTER TABLE `liegeplatz_reservierungen` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -328,7 +327,7 @@ CREATE TABLE `mitarbeiter` (
                                PRIMARY KEY (`ID`),
                                KEY `fk_mitarbeiter_user` (`userID`),
                                CONSTRAINT `fk_mitarbeiter_user` FOREIGN KEY (`userID`) REFERENCES `users` (`ID`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -337,6 +336,7 @@ CREATE TABLE `mitarbeiter` (
 
 LOCK TABLES `mitarbeiter` WRITE;
 /*!40000 ALTER TABLE `mitarbeiter` DISABLE KEYS */;
+INSERT INTO `mitarbeiter` VALUES (1,'a','a','a@gmail.com','2026-02-02','1','a',1,'a',1,'2026-02-03 18:01:08','2026-02-03 18:01:08',NULL);
 /*!40000 ALTER TABLE `mitarbeiter` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -356,6 +356,7 @@ CREATE TABLE `users` (
                          `active` tinyint unsigned NOT NULL DEFAULT '1',
                          `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
                          `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                         `usertype` tinyint DEFAULT NULL,
                          PRIMARY KEY (`ID`),
                          UNIQUE KEY `username` (`username`),
                          KEY `fk_user_kunde` (`kunde_ID`),
@@ -371,7 +372,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (5,'noezbek','$2y$10$9TP9ZiG7coNHgFtnKwyqae4kKWRRtMwY9n/wwvJLANmadJrrRG676',7,NULL,1,'2026-02-01 19:50:37','2026-02-01 21:37:27'),(6,'mbarth','$2y$10$9TP9ZiG7coNHgFtnKwyqae4kKWRRtMwY9n/wwvJLANmadJrrRG676',8,NULL,1,'2026-02-01 19:50:37','2026-02-01 21:37:27');
+INSERT INTO `users` VALUES (5,'kundenUser','$2y$10$9TP9ZiG7coNHgFtnKwyqae4kKWRRtMwY9n/wwvJLANmadJrrRG676',7,NULL,1,'2026-02-01 19:50:37','2026-02-03 18:01:31',1),(6,'mitarbeiterUser','$2y$10$9TP9ZiG7coNHgFtnKwyqae4kKWRRtMwY9n/wwvJLANmadJrrRG676',NULL,1,1,'2026-02-01 19:50:37','2026-02-03 18:01:31',2);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -398,7 +399,7 @@ CREATE TABLE `vertraege` (
                              KEY `fk_vertrag_user` (`userID`),
                              CONSTRAINT `fk_vertrag_bestellung` FOREIGN KEY (`bestellung_ID`) REFERENCES `bestellungen` (`ID`) ON DELETE CASCADE,
                              CONSTRAINT `fk_vertrag_user` FOREIGN KEY (`userID`) REFERENCES `users` (`ID`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -407,7 +408,7 @@ CREATE TABLE `vertraege` (
 
 LOCK TABLES `vertraege` WRITE;
 /*!40000 ALTER TABLE `vertraege` DISABLE KEYS */;
-INSERT INTO `vertraege` VALUES (10,4,'2024-02-05',3,2,1,NULL,'2026-02-01 21:44:25','2026-02-01 21:50:22',NULL),(11,5,'2025-06-21',2,4,1,NULL,'2026-02-01 21:44:25','2026-02-01 21:44:25',NULL),(12,6,'2025-12-28',1,1,1,NULL,'2026-02-01 21:44:25','2026-02-01 21:47:23',NULL);
+INSERT INTO `vertraege` VALUES (16,46,'2026-02-03',1,1,1,NULL,'2026-02-03 17:42:22','2026-02-03 17:42:22',NULL);
 /*!40000 ALTER TABLE `vertraege` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -443,7 +444,6 @@ CREATE TABLE `zahlungen` (
 
 LOCK TABLES `zahlungen` WRITE;
 /*!40000 ALTER TABLE `zahlungen` DISABLE KEYS */;
-INSERT INTO `zahlungen` VALUES (22,10,2,1250.00,'2025-02-05 00:00:00','2025-02-05',1,'2026-02-01 21:55:55','2026-02-01 21:55:55',NULL),(23,10,2,1250.00,'2024-02-05 00:00:00','2024-02-05',1,'2026-02-01 21:55:56','2026-02-01 21:55:56',NULL),(24,11,2,350.00,'2025-06-25 00:00:00','2025-06-30',1,'2026-02-01 21:55:56','2026-02-01 21:55:56',NULL),(25,11,2,350.00,'2025-07-25 00:00:00','2025-07-30',1,'2026-02-01 21:55:56','2026-02-01 21:55:56',NULL),(26,12,1,580.00,NULL,'2026-02-05',1,'2026-02-01 21:55:56','2026-02-01 21:55:56',NULL);
 /*!40000 ALTER TABLE `zahlungen` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -456,4 +456,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-02-03 15:51:23
+-- Dump completed on 2026-02-03 18:02:54

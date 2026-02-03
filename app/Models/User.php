@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\UserType;
 use App\Filters\DbFilter;
 use PDO;
 
@@ -9,25 +10,28 @@ class User extends DatabaseEntry
 {
     private string $username;
     private string $passwordHash;
-    private ?int $kunde;
-    private ?int $mitarbeiter;
+    private Kunde|int|null $kunde;
+    private Mitarbeiter|int|null $mitarbeiter;
+    private UserType|int|null $usertype;
 
     public function __construct(
-        string $username,
-        string $passwordHash,
-        ?int $kunde = null,
-        ?int $mitarbeiter = null,
-        ?int $id = null,
-        ?bool $active = true,
-        string|null $updated_at = null,
-        string|null $created_at = null,
-        User|int|null $user = null,
+        string               $username,
+        string               $passwordHash,
+        UserType|int|null    $usertype = null,
+        Kunde|int|null       $kunde = null,
+        Mitarbeiter|int|null $mitarbeiter = null,
+        ?int                 $id = null,
+        ?bool                $active = true,
+        string|null          $updated_at = null,
+        string|null          $created_at = null,
+        User|int|null        $user = null,
     ) {
         parent::__construct($id, $active, $updated_at, $created_at, $user);
         $this->username = $username;
         $this->passwordHash = $passwordHash;
         $this->kunde = $kunde;
         $this->mitarbeiter = $mitarbeiter;
+        $this->usertype = $usertype;
     }
 
     public static function getTable(): string
@@ -56,7 +60,7 @@ class User extends DatabaseEntry
         } else {
             $stmt = $db->prepare(
                 "UPDATE $table
-                 SET username = :u, password_hash = :p, kunde_ID = :k, mitarbeiter_ID = :m
+                 SET username = :u, password_hash = :p, kunde_ID = :k, mitarbeiter_ID = :m, usertype =:usertype
                  WHERE ID = :id"
             );
             $stmt->execute([
@@ -64,6 +68,7 @@ class User extends DatabaseEntry
                 ':p'  => $this->passwordHash,
                 ':k'  => $this->kunde,
                 ':m'  => $this->mitarbeiter,
+                ':usertype'  => $this->usertype,
                 ':id' => $this->id
             ]);
         }
@@ -89,6 +94,7 @@ class User extends DatabaseEntry
         return $row ? new User(
             $row['username'],
             $row['password_hash'],
+            $row['usertype'],
             $row['kunde_ID'] !== null ? (int)$row['kunde_ID'] : null,
             $row['mitarbeiter_ID'] !== null ? (int)$row['mitarbeiter_ID'] : null,
             (int)$row['ID'],
@@ -101,7 +107,7 @@ class User extends DatabaseEntry
     public static function findForAuth(PDO $pdo, string $username): ?User
     {
         $stmt = $pdo->prepare(
-            'SELECT ID, username, password_hash, active, kunde_ID, mitarbeiter_ID
+            'SELECT ID, username, password_hash, active, kunde_ID, mitarbeiter_ID, usertype
          FROM users
          WHERE username = :username
          LIMIT 1'
@@ -117,6 +123,7 @@ class User extends DatabaseEntry
         return new User(
             $row['username'],
             $row['password_hash'],
+            $row['usertype'] ?? null,
             $row['kunde_ID'] ?? null,
             $row['mitarbeiter_ID'] ?? null,
             (int) $row['ID'],
@@ -135,6 +142,7 @@ class User extends DatabaseEntry
             $list[] = new User(
                 $row['username'],
                 $row['password_hash'],
+                $row['usertype'],
                 $row['kunde_ID'] !== null ? (int)$row['kunde_ID'] : null,
                 $row['mitarbeiter_ID'] !== null ? (int)$row['mitarbeiter_ID'] : null,
                 (int)$row['ID']
@@ -147,7 +155,7 @@ class User extends DatabaseEntry
     protected static function getInsertStmnt() : string
     {
         $table = self::getTable();
-        return "INSERT INTO $table (username, password_hash, kunde_ID, mitarbeiter_ID) VALUES (:u, :p, :k, :m)";
+        return "INSERT INTO $table (username, password_hash, kunde_ID, mitarbeiter_ID, usertype) VALUES (:u, :p, :k, :m, :usertype)";
     }
 
     protected static function getUpdateStmnt() : string
@@ -204,5 +212,15 @@ class User extends DatabaseEntry
     public function setMitarbeiter(Mitarbeiter|int|null $mitarbeiter): void
     {
         $this->mitarbeiter = $mitarbeiter;
+    }
+
+    public function getUserType(): UserType|int|null
+    {
+        return $this->usertype;
+    }
+
+    public function setUserType(UserType|int|null $usertype): void
+    {
+        $this->usertype = $usertype;
     }
 }

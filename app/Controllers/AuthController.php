@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Enums\UserType;
 use App\Helpers\Helper;
 use App\Models\DBConnection;
 use App\Models\Kunde;
@@ -34,8 +35,9 @@ class AuthController extends BaseController
 
         session()->set([
             'user_id'   => $user->getID(),
-            'kunde_id'   => $user->getKunde(),
-            'mitarbeiter_id'=> $user->getMitarbeiter(),
+            'kunde_id'   => $user->getKunde() ?? null,
+            'role'   => $user->getUserType(),
+            'mitarbeiter_id'=> $user->getMitarbeiter() ?? null,
             'username'  => $user->getUsername(),
             'logged_in' => true
         ]);
@@ -85,14 +87,15 @@ class AuthController extends BaseController
         $kunde->saveEntry($pdo);
         $kundeID = $kunde->getID();
 
-        $user = new User($username, $passwordHash, $kundeID);
+        $user = new User($username, $passwordHash, $kundeID, UserType::KUNDE->value);
 
         $user->saveEntry($pdo);
 
         session()->set([
             'user_id'   => $user->getID(),
             'kunde_id'   => $user->getKunde(),
-            'mitarbeiter_id'=> $user->getMitarbeiter(),
+            'role'   => $user->getUserType(),
+            'mitarbeiter_id'=> null,
             'username'  => $user->getUsername(),
             'logged_in' => true
         ]);
@@ -128,6 +131,7 @@ class AuthController extends BaseController
         return $this->response->setJSON([
             'user_id'   => $user->getID(),
             'kunde_id'   => $user->getKunde(),
+            'role'   => $user->getUserType(),
             'mitarbeiter_id'=> $user->getMitarbeiter(),
             'username'  => $user->getUsername(),
             'logged_in' => true

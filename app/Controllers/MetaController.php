@@ -8,6 +8,7 @@ use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentRhythm;
 use App\Enums\PaymentStatus;
+use App\Enums\UserType;
 
 class MetaController extends BaseController
 {
@@ -25,6 +26,7 @@ class MetaController extends BaseController
             'zahlStatus' => PaymentStatus::list(),
             'zahlMethoden' => PaymentMethod::list(),
             'zahlRhythmus' => PaymentRhythm::list(),
+            'userTypes' => UserType::list(),
         ];
         return $this->response->setJSON($list);
     }
