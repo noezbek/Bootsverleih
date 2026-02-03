@@ -15,6 +15,12 @@
     <title>Yachthafen Plau - Dashboard</title>
     <link rel="stylesheet" href="<?= base_url('styles/home.css') ?>">
 </head>
+<?php
+    use App\Enums\UserType;
+    $userRole = session()->get('role');
+    $isKunde = ($userRole === UserType::KUNDE->value || $userRole === UserType::KUNDE);
+    $isMitarbeiter = ($userRole === UserType::MITARBEITER->value || $userRole === UserType::MITARBEITER);
+?>
 <body data-page="home">
 
 <header>
@@ -35,10 +41,12 @@
         <p>Vermietung und Buchung von Booten</p>
     </a>
 
+    <?php if ($isKunde): ?>
     <a href="<?= base_url('zahlungen') ?>" class="dashboard-item">
         <h2>Zahlungen</h2>
         <p>Übersicht und Verwaltung aller Zahlungen</p>
     </a>
+    <?php endif; ?>
 </div>
 
 <div class="dashboard-grid">
@@ -63,6 +71,7 @@
 
 </div>
 
+<?php if ($isMitarbeiter): ?>
 <div class="dashboard-grid management-section">
     <a href="<?= base_url('liegeplatzverwaltung') ?>" class="dashboard-item">
         <h2>Liegeplatzverwaltung</h2>
@@ -79,6 +88,7 @@
         <p>Kundenkonten und Stammdaten verwalten</p>
     </a>
 </div>
+<?php endif; ?>
 
 
 <script type="module" src="<?= base_url('js/app.js') ?>"></script>
