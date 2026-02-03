@@ -31,6 +31,8 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
     $routes->get('/kundenverwaltung', 'Home::kundenverwaltung');
     $routes->get('/liegeplaetze', 'Home::liegeplaetze');
     $routes->get('/accountEinstellungen', 'Home::accountSettings');
+    $routes->get('/liegeplatzverwaltung', 'Home::liegeplatzverwaltung');
+    $routes->get('/bootsverwaltung', 'Home::bootsverwaltung');
 
     // DATA
     $routes->get('/userdata/load', 'AuthController::loadUser');

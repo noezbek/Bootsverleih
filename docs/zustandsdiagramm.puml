@@ -1,0 +1,49 @@
+@startuml Bootsverleih Zustandsdiagramme
+
+title Zustandsdiagramme - Liegeplatzverwaltung und Bootsverleih\nBasierend auf AnforderungenAnleger.docx
+
+' ==========================================
+' LIEGEPLATZ ZUSTANDSDIAGRAMM
+' ==========================================
+state "Liegeplatz" as LiegeplatzState {
+    [*] --> Verfuegbar : Anlage erstellt
+
+    state "Verfuegbar" as Verfuegbar #LightGreen {
+        Verfuegbar : Farbe: Gruen
+        Verfuegbar : Kann reserviert werden
+        Verfuegbar : Kann vermietet werden
+    }
+
+    state "Reserviert" as Reserviert #Orange {
+        Reserviert : Farbe: Orange
+        Reserviert : Warte auf Bestaetigung
+        Reserviert : Zeitlich begrenzt
+    }
+
+    state "Vermietet" as Vermietet #LightBlue {
+        Vermietet : Farbe: Blau
+        Vermietet : Aktiver Mietvertrag
+        Vermietet : Boot liegt an
+    }
+
+    state "Gesperrt" as Gesperrt #Salmon {
+        Gesperrt : Farbe: Rot
+        Gesperrt : Wartung/Reparatur
+        Gesperrt : Administrativ gesperrt
+    }
+
+    ' Transitionen
+    Verfuegbar --> Reserviert : Kunde reserviert\n[Online/Telefon]
+    Verfuegbar --> Gesperrt : Mitarbeiter sperrt\n[Login erforderlich]
+
+    Reserviert --> Vermietet : Kunde bestaetigt &\nZahlung erfolgt
+    Reserviert --> Verfuegbar : Reservierung\nabgelaufen/storniert
+    Reserviert --> Gesperrt : Mitarbeiter sperrt\n[Login erforderlich]
+
+    Vermietet --> Verfuegbar : Vertrag endet /\nKuendigung
+    Vermietet --> Gesperrt : Mitarbeiter sperrt\n[Login erforderlich]
+
+    Gesperrt --> Verfuegbar : Mitarbeiter gibt frei\n[Login erforderlich]
+}
+
+@enduml

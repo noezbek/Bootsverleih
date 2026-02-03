@@ -43,4 +43,14 @@ class Home extends BaseController
     {
         return view('accountEinstellungen');
     }
+
+    public function liegeplatzverwaltung(): string
+    {
+        return view('liegeplatzverwaltung');
+    }
+
+    public function bootsverwaltung(): string
+    {
+        return view('bootsverwaltung');
+    }
 }
