@@ -3,8 +3,10 @@
 namespace App\Controllers;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentMethod;
 use App\Enums\PaymentRhythm;
 use App\Enums\PaymentStatus;
+use App\Enums\ReservationStatus;
 use App\Models\Bestellung;
 use App\Models\DBConnection;
 use App\Models\ReservationEmail;
@@ -23,6 +25,7 @@ class LiegeplatzeController extends BaseController
     {
         echo "<h1>LiegeplatzeController funktioniert!</h1>";
     }
+
     public function loadLiegeplaetze(): \CodeIgniter\HTTP\ResponseInterface
     {
         $db = DBConnection::getConnection();
@@ -51,37 +54,60 @@ class LiegeplatzeController extends BaseController
 
         $db = DBConnection::getConnection();
 
-        $kundenInstance = Kunde::findByIdEntry($db, $kundenID);
+        try {
+            $db->beginTransaction();
 
-        if (!$kundenInstance) {
-            throw new Exception('Kein Kunde gefunden');
+            $kundenInstance = Kunde::findByIdEntry($db, $kundenID);
+
+            if (!$kundenInstance) {
+                throw new Exception('Kein Kunde gefunden');
+            }
+
+            $data = json_decode($_POST['data'], 1);
+
+            $bestellung = new Bestellung($kundenID, OrderStatus::IN_BEARBEITUNG->value);
+            $bestellung->saveEntry($db);
+            $bestellID = $bestellung->getID();
+
+            $expiresAt = LiegeplatzReservierung::calculateExpireDate();
+            $token = bin2hex(random_bytes(32));
+            $confirmUrl = LiegeplatzReservierung::buildConfirmUrl($token);
+            $reservierung = new LiegeplatzReservierung($data['liegeplatz'], $data['boot'], $bestellID, $data['startdatum'], $data['enddatum'], $data['preisProTag'],
+//            ReservationStatus::ANGEFRAGT->value,//Todo normalerweise per mail aber geht gerade nihct
+                ReservationStatus::RESERVIERT->value,
+                $expiresAt, $token);
+
+            $reservierung->saveEntry($db);
+
+            //Todo normalerweise per mail aber geht gerade nihct
+//        ReservationEmail::sendConfirmation(
+//            $kundenInstance,
+//            $confirmUrl,
+//            $expiresAt
+//        );
+
+            //Todo normalerweise per mail aber geht gerade nihct
+            $vertrag = new Vertrag($bestellID, PaymentRhythm::EINMALIG->value, PaymentMethod::UEBERWEISUNG->value);
+            $vertrag->saveEntry($db);
+
+            $zahlung = new Zahlung($vertrag->getID(), PaymentStatus::BEZAHLT, $reservierung->getCalculatedSollPreis(), Zahlung::calculateFaelligAm());
+            $zahlung->saveEntry($db);
+
+            $db->commit();
+
+            $payload  = [
+                'reservierung' => $reservierung->toArray(),
+                'vertrag' => $vertrag->toArray(),
+                'zahlung' => $zahlung->toArray(),
+                'bestellung' => $bestellung->toArray(),
+            ];
+
+            return $this->response->setJSON($payload);
+
+        } catch (\Throwable $e) {
+            $db->rollBack();
+            throw $e; // oder eigene Fehlermeldung
         }
-
-        $data = json_decode($_POST['data'], 1);
-
-        $expiresAt = (new DateTime('now', new DateTimeZone('Europe/Berlin')))
-            ->modify('+30 minutes')
-            ->format('Y-m-d H:i:s');
-
-        $token = bin2hex(random_bytes(32));
-
-        $confirmUrl = base_url('reservierung/confirm/' . $token);
-
-        $generateBestellung = new Bestellung($kundenID, OrderStatus::IN_BEARBEITUNG->value);
-        $generateBestellung->saveEntry($db);
-        $bestellID = $generateBestellung->getID();
-
-        $reservierung = new LiegeplatzReservierung($data['liegeplatz'], $data['boot'], $bestellID, $data['startdatum'], $data['enddatum'], $data['preisProTag'], 1, $expiresAt, $token);
-
-        $reservierung->saveEntry($db);
-
-        ReservationEmail::sendConfirmation(
-            $kundenInstance,
-            $confirmUrl,
-            $expiresAt
-        );
-
-        return $this->response->setJSON($reservierung->toArray());
     }
 
     public function confirm(string $token)
@@ -117,7 +143,7 @@ class LiegeplatzeController extends BaseController
 
     public function confirmPost()
     {
-        $token       = $_POST['token'] ?? null;
+        $token = $_POST['token'] ?? null;
         $zahlungsart = $_POST['zahlungsart'] ?? null;
 
         if (!$token || !$zahlungsart) {
@@ -172,7 +198,6 @@ class LiegeplatzeController extends BaseController
             'Vielen Dank! Ihre Reservierung ist nun verbindlich.'
         );
     }
-
 
 
 }

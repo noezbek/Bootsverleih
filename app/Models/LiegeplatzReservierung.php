@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\ReservationStatus;
 use App\Filters\DbFilter;
+use DateTime;
+use DateTimeZone;
 use PDO;
 
 class LiegeplatzReservierung extends DatabaseEntry
@@ -13,7 +16,7 @@ class LiegeplatzReservierung extends DatabaseEntry
     private string $startdatum;
     private string $enddatum;
     private float $preisProTag;
-    private int $status;
+    private ReservationStatus|int $status;
     private string $expires_at;
     private string|null $confirmed_at;
     private string $confirm_token;
@@ -25,7 +28,7 @@ class LiegeplatzReservierung extends DatabaseEntry
         string $startdatum,
         string $enddatum,
         float $preisProTag,
-        int $status,
+        ReservationStatus|int $status,
         string $expires_at,
         string $confirm_token,
         ?int $id = null,
@@ -99,9 +102,45 @@ class LiegeplatzReservierung extends DatabaseEntry
         return $map;
     }
 
-    public function getBestellungId(): int
+    public function getStartdatum(): string
     {
-        return $this->bestellung;
+        return $this->startdatum;
+    }
+
+    public function getEnddatum(): string
+    {
+        return $this->enddatum;
+    }
+
+    public function getPreisProTag(): float
+    {
+        return $this->preisProTag;
+    }
+
+    public function getCalculatedDays() : int
+    {
+        $start = new DateTime($this->getStartdatum());
+        $end   = new DateTime($this->getEnddatum());
+        return $start->diff($end)->days;
+    }
+
+    public function getCalculatedSollPreis() : float
+    {
+        $days = $this->getCalculatedDays();
+        return $this->getPreisProTag() * $days;
+    }
+
+    public static function calculateExpireDate(): string
+    {
+        $dt = new DateTime('now', new DateTimeZone('Europe/Berlin'));
+        $dt->modify('+30 minutes');
+
+        return $dt->format('Y-m-d H:i:s');
+    }
+
+    public static function buildConfirmUrl(string $token): string
+    {
+        return base_url('reservierung/confirm/' . $token);
     }
 
     protected static function getInsertStmnt(): string
@@ -267,12 +306,12 @@ class LiegeplatzReservierung extends DatabaseEntry
         return $this->confirmed_at;
     }
 
-    public function setStatus(int $status) : void
+    public function setStatus(ReservationStatus|int $status) : void
     {
         $this->status = $status;
     }
 
-    public function getStatus() : int
+    public function getStatus() : ReservationStatus|int
     {
         return $this->status;
     }

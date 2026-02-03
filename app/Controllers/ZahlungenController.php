@@ -52,12 +52,12 @@ class ZahlungenController extends BaseController
 
         $bootByBestellung = [];
         foreach ($bootMieten as $bm) {
-            $bootByBestellung[$bm->getBestellungId()] = $bm;
+            $bootByBestellung[$bm->getBestellung()] = $bm;
         }
 
         $liegeplatzByBestellung = [];
         foreach ($liegeplaetze as $lp) {
-            $liegeplatzByBestellung[$lp->getBestellungId()] = $lp;
+            $liegeplatzByBestellung[$lp->getBestellung()] = $lp;
         }
 
         $vertraege = Vertrag::findAllEntries(

@@ -133,8 +133,6 @@ class BootsverleihController extends BaseController
             $zahlung = new Zahlung($vertrag->getID(), PaymentStatus::BEZAHLT, $miete->getCalculatedSollPreis(), Zahlung::calculateFaelligAm());
             $zahlung->saveEntry($db);
 
-
-
             $db->commit();
 
             $payload  = [
