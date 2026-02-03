@@ -1,5 +1,5 @@
-import { apiGet, apiPostFormData, toFormData } from '../api.js';
-import { setText, setValue, val } from '../helpers.js';
+import { apiGet, apiPostFormData, toFormData } from '../services/api.js';
+import { setText, setValue, val } from '../services/helpers.js';
 
 // State
 let userData = null;

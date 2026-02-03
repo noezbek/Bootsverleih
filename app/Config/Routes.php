@@ -27,7 +27,6 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
     $routes->get('/', 'Home::index');
     $routes->get('/einstellungen', 'Home::settings');
     $routes->get('/support', 'Home::support');
-    $routes->get('/accountEinstellungen', 'Home::accountSettings');
 
     // DATA für alle (Mitarbeiter braucht Zugriff für Verwaltungsseiten)
     $routes->get('/userdata/load', 'AuthController::loadUser');
@@ -39,12 +38,6 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
     $routes->get('/bestellungen/load', 'ZahlungenController::loadBestellungen');
     $routes->get('/vertraege/load', 'ZahlungenController::loadVertaege');
     $routes->get('/zahlungen/load', 'ZahlungenController::loadZahlungen');
-
-    // Account Einstellungen für alle
-    $routes->get('/accountEinstellungen/load', 'AccountEinstellungenController::loadAccountData');
-    $routes->post('/accountEinstellungen/savePersonal', 'AccountEinstellungenController::savePersonalData');
-    $routes->post('/accountEinstellungen/changeUsername', 'AccountEinstellungenController::changeUsername');
-    $routes->post('/accountEinstellungen/changePassword', 'AccountEinstellungenController::changePassword');
 
 });
 
@@ -70,10 +63,17 @@ $routes->group('', ['filter' => 'kunde'], function($routes) {
     $routes->get('/zahlungen', 'Home::zahlungen');
     $routes->get('/bootsverleih', 'Home::bootsverleih');
     $routes->get('/liegeplaetze', 'Home::liegeplaetze');
+    $routes->get('/accountEinstellungen', 'Home::accountSettings');
 
     // Aktionen nur für Kunden
     $routes->post('/bootsverleih/mieten', 'BootsverleihController::saveBootMiete');
     $routes->post('/liegeplaetze/reservieren', 'LiegeplatzeController::saveReservierung');
+
+    // Account Einstellungen nur für Kunden
+    $routes->get('/accountEinstellungen/load', 'AccountEinstellungenController::loadAccountData');
+    $routes->post('/accountEinstellungen/savePersonal', 'AccountEinstellungenController::savePersonalData');
+    $routes->post('/accountEinstellungen/changeUsername', 'AccountEinstellungenController::changeUsername');
+    $routes->post('/accountEinstellungen/changePassword', 'AccountEinstellungenController::changePassword');
 
 });
 
