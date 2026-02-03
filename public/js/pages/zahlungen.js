@@ -4,6 +4,8 @@ let payments = [];
 let historyRows = [];
 let boats = {};
 let berths = {};
+let contracts = {};
+let orders = {};
 
 export const ITEM_TYPE_BOAT_CONST = 'boot';
 export const ITEM_TYPE_BERTH_CONST = 'liegeplatz';
@@ -15,22 +17,21 @@ export async function init() {
 
 async function initialLoad() {
     try {
-        const {zahlungen, boote, liegeplaetze} = await apiGetMany({
-            zahlungen: '/zahlungen/loadFull',
+        const {zahlungen, boote, liegeplaetze, vertraege, bestellungen} = await apiGetMany({
+            zahlungen: '/zahlungen/loadByKunde',
             boote: '/bootsverleih/load',
+            vertraege: '/vertraege/load',
+            bestellungen: '/bestellungen/load',
             liegeplaetze: '/liegeplaetze/load',
         })
 
-        if (Array.isArray(zahlungen) && zahlungen.length) {
-            boats = boote;
-            berths = liegeplaetze;
-            const mapped = mapApiPayments(zahlungen);
-            payments = mapped.payments;
-            historyRows = mapped.history;
-        } else {
-            payments = [];
-            historyRows = [];
-        }
+        boats = boote;
+        berths = liegeplaetze;
+        contracts = vertraege;
+        orders = bestellungen;
+        const mapped = mapApiPayments(Object.values(zahlungen));
+        payments = mapped.payments;
+        historyRows = mapped.history;
     } catch (e) {
         payments = [];
         historyRows = [];
@@ -41,49 +42,85 @@ async function initialLoad() {
 }
 
 function mapApiPayments(apiData) {
-    const cards = [];
     const history = [];
+    const byVertrag = {};
 
-    apiData.forEach(entry => {
-        const { item, itemType, vertrag, zahlungen } = entry;
-        if (!vertrag || !Array.isArray(zahlungen)) return;
-
-        const relevant = getRelevantPayment(zahlungen);
-
-        const entity = getItem(item, itemType);
-
-        zahlungen.forEach(z => {
-            history.push({
-                date: formatDate(z.bezahltAm ?? z.faelligAm),
-                title: entity?.name ?? '-',
-                price: formatPrice(z.betrag),
-                status: z.bezahltAm ? 'Bezahlt' : 'Ausstehend',
-                invoice: '-'
-            });
+    apiData.forEach(z => {
+        // History: alle Zahlungen
+        history.push({
+            date: formatDate(z.bezahltAm ?? z.faelligAm),
+            title: getTitleByVertrag(z.vertrag),
+            price: formatPrice(z.betrag),
+            status: z.bezahltAm ? 'Bezahlt' : 'Ausstehend',
+            invoice: '-'
         });
 
-        cards.push({
-            id: `V-${vertrag.id}`,
-            title: entity?.name ?? '-',
-            type: getIntervalLabel(vertrag.zahlungsrhythmus),
-            status: relevant?.bezahltAm ? 'active' : 'pending',
-            nextText: relevant
-                ? `${daysUntil(relevant.faelligAm)} Tage (${formatDate(relevant.faelligAm)})`
-                : '-',
-            price: relevant ? formatPrice(relevant.betrag) : '-',
-            interval: getIntervalLabel(vertrag.zahlungsrhythmus),
-            start: formatDate(vertrag.vertragsbeginn),
-            method: getMethodLabel(vertrag.zahlungsmethode),
-        });
+        if (!byVertrag[z.vertrag]) {
+            byVertrag[z.vertrag] = [];
+        }
+        byVertrag[z.vertrag].push(z);
     });
+
+    const cards = Object.entries(byVertrag)
+        .map(([vertragId, payments]) => {
+            const relevant = getRelevantPayment(payments);
+            if (!relevant) return null;
+
+            const vertrag = contracts[vertragId];
+            if (!vertrag) return null;
+
+            return {
+                id: `V-${vertragId}`,
+                title: getTitleByVertrag(vertragId),
+                type: getIntervalLabel(vertrag.zahlungsrhythmus),
+                status: relevant.bezahltAm ? 'active' : 'pending',
+                nextText: relevant.faelligAm
+                    ? `${daysUntil(relevant.faelligAm)} Tage (${formatDate(relevant.faelligAm)})`
+                    : '-',
+                price: formatPrice(relevant.betrag),
+                interval: getIntervalLabel(vertrag.zahlungsrhythmus),
+                start: formatDate(vertrag.vertragsbeginn),
+                method: getMethodLabel(vertrag.zahlungsmethode),
+            };
+        })
+        .filter(Boolean);
 
     return { payments: cards, history };
 }
 
+
+
 function getRelevantPayment(payments = []) {
-    return payments.filter(p => !p.bezahltAm).sort((a, b) => new Date(a.faelligAm) - new Date(b.faelligAm))[0]
-        ?? payments.filter(p => p.bezahltAm).sort((a, b) => new Date(b.bezahltAm) - new Date(a.bezahltAm))[0]
+    return payments
+            .filter(p => !p.bezahltAm)
+            .sort((a, b) => new Date(a.faelligAm) - new Date(b.faelligAm))[0]
+        ?? payments
+            .filter(p => p.bezahltAm)
+            .sort((a, b) => new Date(b.bezahltAm) - new Date(a.bezahltAm))[0]
         ?? null;
+}
+
+
+function getTitleByVertrag(vertragId) {
+    const vertrag = contracts[vertragId];
+    if (!vertrag) return '-';
+
+    const bestellung = orders[vertrag.bestellung];
+    if (!bestellung) return '-';
+
+    // 1️⃣ Bootmiete hat Vorrang
+    if (bestellung.gemieteteBoote?.length) {
+        const bootId = bestellung.gemieteteBoote[0].boot;
+        return boats[bootId]?.name ?? 'Boot';
+    }
+
+    // 2️⃣ sonst Liegeplatz
+    if (bestellung.reservierteLiegeplaetze?.length) {
+        const lpId = bestellung.reservierteLiegeplaetze[0].liegeplatz;
+        return berths[lpId]?.name ?? 'Liegeplatz';
+    }
+
+    return '-';
 }
 
 function renderPayments() {
@@ -174,15 +211,4 @@ function daysUntil(d) {
 
 function formatPrice(v) {
     return v.toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
-}
-
-function getItem(item, itemType) {
-    switch (itemType) {
-        case ITEM_TYPE_BOAT_CONST:
-            return boats[item.boot];
-        case ITEM_TYPE_BERTH_CONST:
-            return berths[item.liegeplatz];
-        default:
-            return null;
-    }
 }

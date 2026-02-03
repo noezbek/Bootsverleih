@@ -158,19 +158,19 @@ class Liegeplatz extends DatabaseEntry
             return [];
         }
 
-        $reservierungen = LiegeplatzReservierung::findAllEntries(
-            $db,
-            (new DbFilter())->whereIn('liegeplatz_ID', $ids)
-        );
-
-        $byLiegeplatz = [];
-        foreach ($reservierungen as $r) {
-            $byLiegeplatz[$r->getLiegeplatz()][] = $r;
-        }
-
-        foreach ($liegeplaetze as $id => $lp) {
-            $lp->setReservierungen($byLiegeplatz[$id] ?? []);
-        }
+//        $reservierungen = LiegeplatzReservierung::findAllEntries(
+//            $db,
+//            (new DbFilter())->whereIn('liegeplatz_ID', $ids)
+//        );
+//
+//        $byLiegeplatz = [];
+//        foreach ($reservierungen as $r) {
+//            $byLiegeplatz[$r->getLiegeplatz()][] = $r;
+//        }
+//
+//        foreach ($liegeplaetze as $id => $lp) {
+//            $lp->setReservierungen($byLiegeplatz[$id] ?? []);
+//        }
 
         return $liegeplaetze;
     }

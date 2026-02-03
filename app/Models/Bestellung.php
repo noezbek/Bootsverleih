@@ -10,6 +10,8 @@ class Bestellung extends DatabaseEntry
 {
     private Kunde|int $kunde;
     private OrderStatus|int $bestellstatus;
+    private array $reservierteLiegeplaetze = [];
+    private array $gemieteteBoote = [];
 
     public function __construct(
         Kunde|int $kunde,
@@ -95,6 +97,8 @@ class Bestellung extends DatabaseEntry
             'active' => $this->active,
             'updated_at' => $this->updated_at,
             'created_at' => $this->created_at,
+            'reservierteLiegeplaetze' => $this->reservierteLiegeplaetze,
+            'gemieteteBoote' => $this->gemieteteBoote,
         ];
     }
 
@@ -118,4 +122,23 @@ class Bestellung extends DatabaseEntry
         $this->bestellstatus = $bestellstatus;
     }
 
+    public function getReservierteLiegeplaetze(): array
+    {
+        return $this->reservierteLiegeplaetze;
+    }
+
+    public function getGemieteteBoote(): array
+    {
+        return $this->gemieteteBoote;
+    }
+
+    public function setReservierteLiegeplaetze(array $reservierteLiegeplaetze): void
+    {
+        $this->reservierteLiegeplaetze = $reservierteLiegeplaetze;
+    }
+
+    public function setGemieteteBoote(array $gemieteteBoote): void
+    {
+        $this->gemieteteBoote = $gemieteteBoote;
+    }
 }
