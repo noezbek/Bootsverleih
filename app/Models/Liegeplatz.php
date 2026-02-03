@@ -12,10 +12,10 @@ class Liegeplatz extends DatabaseEntry
     private ?float $preisProTag;
     private ?int $kapazitaet;
 
-    private float $posX;
-    private float $posY;
-    private float $posW;
-    private float $posH;
+    private ?float $posX;
+    private ?float $posY;
+    private ?float $posW;
+    private ?float $posH;
 
     private array $reservierungen = [];
 
@@ -54,7 +54,7 @@ class Liegeplatz extends DatabaseEntry
 
     public function saveEntry(PDO $db): void
     {
-        $sql = $this->getID() ? self::getInsertStmnt() : self::getUpdateStmnt();
+        $sql = self::getUpdateStmnt();
 
         $stmt = $db->prepare($sql);
 
@@ -62,12 +62,16 @@ class Liegeplatz extends DatabaseEntry
         $stmt->bindValue(':bezeichnung', $this->bezeichnung);
         $stmt->bindValue(':preis', $this->preisProTag);
         $stmt->bindValue(':kapazitaet', $this->kapazitaet);
-        $stmt->bindValue(':pos_x', $this->posX);
-        $stmt->bindValue(':pos_y', $this->posY);
-        $stmt->bindValue(':pos_w', $this->posW);
-        $stmt->bindValue(':pos_h', $this->posH);
+        $stmt->bindValue(':Benutzer', $this->getUser());
+        $stmt->bindValue(':Active', $this->getActive());
+        $stmt->bindValue(':ID', $this->getID(), PDO::PARAM_INT);
+        $stmt->execute();
+//        $stmt->bindValue(':pos_x', $this->posX);
+//        $stmt->bindValue(':pos_y', $this->posY);
+//        $stmt->bindValue(':pos_w', $this->posW);
+//        $stmt->bindValue(':pos_h', $this->posH);
 
-        $this->saveData($stmt, $db);
+//        $this->saveData($stmt, $db);
     }
 
     protected static function getInsertStmnt(): string
@@ -92,10 +96,6 @@ class Liegeplatz extends DatabaseEntry
                 bezeichnung  = :bezeichnung,
                 preis_pro_tag = :preis,
                 kapazitaet = :kapazitaet,
-                pos_x = :pos_x,
-                pos_y = :pos_y,
-                pos_w = :pos_w,
-                pos_h = :pos_h,
                 userID = :Benutzer,
                 active = :Active
             WHERE ID = :ID
@@ -131,7 +131,6 @@ class Liegeplatz extends DatabaseEntry
         $stmt->execute($c['params']);
 
         $liegeplaetze = [];
-        $ids = [];
 
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $lp = new Liegeplatz(
@@ -151,26 +150,7 @@ class Liegeplatz extends DatabaseEntry
             );
 
             $liegeplaetze[$lp->getID()] = $lp;
-            $ids[] = $lp->getID();
         }
-
-        if (!$ids) {
-            return [];
-        }
-
-//        $reservierungen = LiegeplatzReservierung::findAllEntries(
-//            $db,
-//            (new DbFilter())->whereIn('liegeplatz_ID', $ids)
-//        );
-//
-//        $byLiegeplatz = [];
-//        foreach ($reservierungen as $r) {
-//            $byLiegeplatz[$r->getLiegeplatz()][] = $r;
-//        }
-//
-//        foreach ($liegeplaetze as $id => $lp) {
-//            $lp->setReservierungen($byLiegeplatz[$id] ?? []);
-//        }
 
         return $liegeplaetze;
     }

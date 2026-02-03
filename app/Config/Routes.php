@@ -32,6 +32,7 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
     $routes->get('/userdata/load', 'AuthController::loadUser');
     $routes->get('/enums/load', 'MetaController::loadEnums');
     $routes->get('/features/load', 'BootsverleihController::loadFeatures');
+    $routes->get('/bootsverleih/loadmietedBoote', 'BootsverleihController::loadKundenReservierteBoote');
     $routes->get('/bootsverleih/load', 'BootsverleihController::loadKundenBoote');
     $routes->get('/bootsverleih/loadMieten', 'BootsverleihController::loadBootmietenByBootID');
     $routes->get('/bootsverleih/load_staff', 'BootsverleihController::loadMitarbeiterBoote');
@@ -59,7 +60,7 @@ $routes->group('', ['filter' => 'mitarbeiter'], function($routes) {
     $routes->post('/kundenverwaltung/delete', 'KundenverwaltungController::deleteKundenverwaltung');
     $routes->post('/bootsverleih/save', 'BootsverleihController::saveBoot');
     $routes->post('/bootsverleih/delete', 'BootsverleihController::deleteBoot');
-
+    $routes->post('/liegeplaetze/save', 'LiegeplatzeController::saveLiegeplatz');
 });
 
 // Nur für Kunden

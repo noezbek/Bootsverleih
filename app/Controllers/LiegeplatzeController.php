@@ -10,14 +10,11 @@ use App\Enums\ReservationStatus;
 use App\Filters\DbFilter;
 use App\Models\Bestellung;
 use App\Models\DBConnection;
-use App\Models\ReservationEmail;
 use App\Models\Kunde;
 use App\Models\Liegeplatz;
 use App\Models\LiegeplatzReservierung;
 use App\Models\Vertrag;
 use App\Models\Zahlung;
-use DateTime;
-use DateTimeZone;
 use Exception;
 
 class LiegeplatzeController extends BaseController
@@ -48,6 +45,27 @@ class LiegeplatzeController extends BaseController
 
 
         return $this->response->setJSON($liegeplaetze);
+    }
+
+    public function saveLiegeplatz(): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $db = DBConnection::getConnection();
+
+        $data = json_decode($_POST['data'], 1);
+
+        $id = ($data['id'] === '' ? null : (int) $data['id']);
+
+        $boot = new Liegeplatz(
+            $data['beschreibung'],
+            $data['bezeichnung'],
+            $data['preis_pro_tag'],
+            $data['kapazitaet'],
+            $id,
+            (bool) $data['active']
+        );
+        $boot->saveEntry($db);
+
+        return $this->response->setJSON($boot->toArray());
     }
 
     /**

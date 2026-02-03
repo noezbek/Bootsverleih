@@ -21,7 +21,7 @@ let boats = {};
 
 async function initialLoad() {
     const {boote, featuresData, liegeplaetze} = await apiGetMany({
-        boote: '/bootsverleih/load',
+        boote: '/bootsverleih/loadmietedBoote',
         featuresData: '/features/load',
         liegeplaetze: '/liegeplaetze/load',
     })

@@ -16,6 +16,7 @@ use App\Models\Feature;
 use App\Models\Vertrag;
 use App\Models\Zahlung;
 use Exception;
+use PDO;
 
 class BootsverleihController extends BaseController
 {
@@ -186,6 +187,46 @@ class BootsverleihController extends BaseController
             $db->rollBack();
             throw $e; // oder eigene Fehlermeldung
         }
+    }
+
+    public function loadKundenReservierteBoote(): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $kundeID = $_SESSION['kunde_id'] ?? null;
+
+        if (!$kundeID) {
+            throw new Exception('Nicht eingeloggt oder keine Kunden-ID');
+        }
+
+        $db = DBConnection::getConnection();
+
+        // 1. Alle Boot-Mieten des Kunden holen
+        $stmt = $db->prepare("
+        SELECT DISTINCT bm.boot_ID
+        FROM boot_mieten bm
+        JOIN bestellungen b ON b.ID = bm.bestellung_ID
+        WHERE b.kunde_ID = :kundeID
+          AND bm.active = 1
+    ");
+        $stmt->execute([
+            ':kundeID' => $kundeID
+        ]);
+
+        $bootIDs = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        if (empty($bootIDs)) {
+            return $this->response->setJSON([]);
+        }
+
+        // 2. Boote laden
+        $boote = [];
+        foreach ($bootIDs as $bootID) {
+            $boot = Boot::findByIdEntry($db, (int)$bootID);
+            if ($boot) {
+                $boote[$bootID] = $boot->toArray();
+            }
+        }
+
+        return $this->response->setJSON($boote);
     }
 
     public function deleteBoot(): \CodeIgniter\HTTP\RedirectResponse
