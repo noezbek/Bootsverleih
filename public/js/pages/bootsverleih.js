@@ -257,32 +257,37 @@ async function wireBookingForm() {
             const startDate = val('booking-start-date') ?? '';
             const endDate = val('booking-end-date') ?? '';
 
-            const name = val('booking-name') ?? '';
-            const total = document.getElementById('cost-total')?.textContent ?? '0,00 €';
+            const bookedText = getMietbar(selectedBootId, startDate, endDate);
+            const isVerfuegbar = bookedText === 'Verfügbar';
 
-            const data = {
-                bootID: selectedBootId,
-                startDate,
-                endDate,
-                preisProTag: b.pricePerDay
-            }
+            if (isVerfuegbar) {
+                const name = val('booking-name') ?? '';
+                const total = document.getElementById('cost-total')?.textContent ?? '0,00 €';
 
-            const res = await apiPostFormData('/bootsverleih/mieten', toFormData(data));
+                const data = {
+                    bootID: selectedBootId,
+                    startDate,
+                    endDate,
+                    preisProTag: b.pricePerDay
+                }
 
-            console.log('res', res);
+                const res = await apiPostFormData('/bootsverleih/mieten', toFormData(data));
 
-            if (res) {
-                alert(
-                    `Buchung erfolgreich!\n\n` +
-                    `Boot: ${b.name}\n` +
-                    `Name: ${name}\n` +
-                    `Startdatum: ${startDate}\n` +
-                    `Enddatum: ${endDate}\n` +
-                    `Gesamtpreis: ${total}\n\n` +
-                    `Sie erhalten eine Bestätigung per E-Mail.`
-                );
+                if (res) {
+                    alert(
+                        `Buchung erfolgreich!\n\n` +
+                        `Boot: ${b.name}\n` +
+                        `Name: ${name}\n` +
+                        `Startdatum: ${startDate}\n` +
+                        `Enddatum: ${endDate}\n` +
+                        `Gesamtpreis: ${total}\n\n` +
+                        `Sie erhalten eine Bestätigung per E-Mail.`
+                    );
 
-                closeModal('bookingModal');
+                    closeModal('bookingModal');
+                }
+            } else {
+                alert('Boot ist bereits gebucht');
             }
         });
 }
