@@ -196,4 +196,14 @@ class User extends DatabaseEntry
     {
         $this->passwordHash = $passwordHash;
     }
+
+    public function getKunde(): ?int
+    {
+        return $this->kunde;
+    }
+
+    public function getMitarbeiter(): ?int
+    {
+        return $this->mitarbeiter;
+    }
 }
