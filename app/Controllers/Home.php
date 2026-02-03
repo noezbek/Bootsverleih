@@ -4,9 +4,12 @@ namespace App\Controllers;
 
 class Home extends BaseController
 {
+
     public function index(): string
     {
-        return view('homepage');
+        return view('homepage', [
+            'role' => session()->get('role')
+        ]);
     }
 
     public function settings(): string

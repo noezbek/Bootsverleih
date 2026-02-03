@@ -129,7 +129,7 @@ class BootsverleihController extends BaseController
             $vertrag = new Vertrag($bestellID, PaymentRhythm::EINMALIG->value, PaymentMethod::UEBERWEISUNG->value);
             $vertrag->saveEntry($db);
 
-            $zahlung = new Zahlung($vertrag->getID(), PaymentStatus::BEZAHLT, $miete->getCalculatedSollPreis(), Zahlung::calculateFaelligAm());
+            $zahlung = new Zahlung($vertrag->getID(), PaymentStatus::BEZAHLT->value, $miete->getCalculatedSollPreis(), Zahlung::calculateFaelligAm());
             $zahlung->saveEntry($db);
 
             $db->commit();

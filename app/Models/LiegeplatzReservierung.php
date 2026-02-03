@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ReservationStatus;
 use App\Filters\DbFilter;
+use App\Helpers\Helper;
 use DateTime;
 use DateTimeZone;
 use PDO;
@@ -132,16 +133,9 @@ FROM " . self::getTable() . "
         return $this->preisProTag;
     }
 
-    public function getCalculatedDays() : int
-    {
-        $start = new DateTime($this->getStartdatum());
-        $end   = new DateTime($this->getEnddatum());
-        return $start->diff($end)->days;
-    }
-
     public function getCalculatedSollPreis() : float
     {
-        $days = $this->getCalculatedDays();
+        $days = Helper::calculatedDays($this->getStartdatum(), $this->getEnddatum());
         return $this->getPreisProTag() * $days;
     }
 
