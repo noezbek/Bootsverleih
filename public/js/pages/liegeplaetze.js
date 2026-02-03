@@ -406,7 +406,7 @@ async function handleReservation() {
         boot: Number(boatId),
         liegeplatz: berth.id,
         startdatum: endDate,
-        enddatum: endDate,
+        enddatum: startDate,
         preisProTag: berth.pricePerDay,
     }
 

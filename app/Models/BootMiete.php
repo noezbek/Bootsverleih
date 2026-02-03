@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Filters\DbFilter;
+use App\Helpers\Helper;
 use DateTime;
 use PDO;
 
@@ -79,7 +80,7 @@ class BootMiete extends DatabaseEntry
 
     public function getCalculatedSollPreis() : float
     {
-        $days = $this->getCalculatedDays();
+        $days = Helper::calculatedDays($this->getStartdatum(), $this->getEnddatum());
         return $this->getPreisProTag() * $days;
     }
 

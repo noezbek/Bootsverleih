@@ -10,7 +10,7 @@ use App\Models\LiegeplatzReservierung;
 use App\Models\Vertrag;
 use App\Models\Zahlung;
 use Exception;
-use RuntimeException;
+use PDO;
 
 class ZahlungenController extends BaseController
 {
@@ -18,8 +18,10 @@ class ZahlungenController extends BaseController
     {
         echo "<h1>ZahlungenController funktioniert!</h1>";
     }
-    public function loadZahlungsVerwaltung(): \CodeIgniter\HTTP\ResponseInterface
+
+    public function loadZahlungenByKunde(): \CodeIgniter\HTTP\ResponseInterface
     {
+
         $kundeId = $_SESSION['kunde_id'];
 
         if (!$kundeId) {
@@ -28,102 +30,69 @@ class ZahlungenController extends BaseController
 
         $db = DBConnection::getConnection();
 
-        $bestellungen = Bestellung::findAllEntries(
+        $filter = new DbFilter();
+        $filter->where('active', '=', 1);
+
+        $zahlungenInstances = Zahlung::findByKunde(
             $db,
-            (new DbFilter())->where('kunde_ID', '=', $kundeId)
+            $kundeId
         );
 
-        if (!$bestellungen) {
-            return $this->response->setJSON([]);
+        $zahlungen = [];
+
+        foreach ($zahlungenInstances as $id => $zahlung) {
+            $zahlungen[$id] = $zahlung->toArray();
         }
 
-        $bestellungIds = array_keys($bestellungen);
-
-
-        $bootMieten = BootMiete::findAllEntries(
-            $db,
-            (new DbFilter())->whereIn('bestellung_ID', $bestellungIds)
-        );
-
-        $liegeplaetze = LiegeplatzReservierung::findAllEntries(
-            $db,
-            (new DbFilter())->whereIn('bestellung_ID', $bestellungIds)
-        );
-
-        $bootByBestellung = [];
-        foreach ($bootMieten as $bm) {
-            $bootByBestellung[$bm->getBestellung()] = $bm;
-        }
-
-        $liegeplatzByBestellung = [];
-        foreach ($liegeplaetze as $lp) {
-            $liegeplatzByBestellung[$lp->getBestellung()] = $lp;
-        }
-
-        $vertraege = Vertrag::findAllEntries(
-            $db,
-            (new DbFilter())->whereIn('bestellung_ID', $bestellungIds)
-        );
-
-        $vertragByBestellung = [];
-        $vertragIds = [];
-
-        foreach ($vertraege as $v) {
-            $vertragByBestellung[$v->getBestellung()] = $v;
-            $vertragIds[] = $v->getID();
-        }
-
-        $zahlungen = $vertragIds
-            ? Zahlung::findAllEntries(
-                $db,
-                (new DbFilter())->whereIn('vertrag_ID', $vertragIds)
-            )
-            : [];
-
-        $zahlungenByVertrag = [];
-        foreach ($zahlungen as $z) {
-            $zahlungenByVertrag[$z->getVertrag()][] = $z;
-        }
-
-        $result = [];
-
-        foreach ($bestellungen as $bid => $bestellung) {
-
-            $vertrag = $vertragByBestellung[$bid] ?? null;
-            $item = $bootByBestellung[$bid] ?? $liegeplatzByBestellung[$bid] ?? null;
-
-            $zahlungsArray = $vertrag ? ($zahlungenByVertrag[$vertrag->getID()] ?? []) : [];
-
-            $itemType = null;
-
-            if ($item instanceof BootMiete) {
-                $itemType = 'boot';
-            } elseif ($item instanceof LiegeplatzReservierung) {
-                $itemType = 'liegeplatz';
-            }
-
-            if (!$itemType) {
-                throw new RuntimeException('Kein Item zur Bestellung gefunden');
-            }
-
-            $res = [
-                'bestellung' => $bestellung->toArray(),
-                'item'       => $item ? $item->toArray() : null,
-                'itemType'  => $itemType,
-                'vertrag'    => $vertrag ? $vertrag->toArray() : null,
-                'zahlungen'  => array_map(
-                    fn (Zahlung $z) => $z->toArray(),
-                    $zahlungsArray
-                ),
-            ];
-
-            $result[] = $res;
-        }
-
-        return $this->response->setJSON($result);
+        return $this->response->setJSON($zahlungen);
     }
 
-    public function loadZahlungem(): \CodeIgniter\HTTP\ResponseInterface
+    public static function loadItemsForOrders(PDO $db, array $bestellIDs): array
+    {
+        if (empty($bestellIDs)) {
+            return [];
+        }
+
+        // Ergebnis vorbereiten
+        $result = [];
+        foreach ($bestellIDs as $bid) {
+            $result[(int)$bid] = [
+                'bootmieten' => [],
+                'liegeplatzReservierungen' => [],
+            ];
+        }
+
+        $mietFilter = new DbFilter();
+        $mietFilter->where('active', '=', 1);
+        $mietFilter->whereIn('bestellung_ID',  $bestellIDs);
+
+        $bootmieten = BootMiete::findAllEntries($db, $mietFilter);
+
+        foreach ($bootmieten as $bm) {
+            $bid = $bm->getBestellung();
+            if (isset($result[$bid])) {
+                $result[$bid]['bootmieten'][] = $bm->toArray();
+            }
+        }
+
+        $resFilter = new DbFilter();
+        $resFilter->where('active', '=', 1);
+        $resFilter->whereIn('bestellung_ID', $bestellIDs);
+
+        $liegeplatzReservierungen = LiegeplatzReservierung::findAllEntries($db, $resFilter);
+
+        foreach ($liegeplatzReservierungen as $lr) {
+            $bid = $lr->getBestellung();
+            if (isset($result[$bid])) {
+                $result[$bid]['liegeplatzReservierungen'][] = $lr->toArray();
+            }
+        }
+
+        return $result;
+    }
+
+
+    public function loadZahlungen(): \CodeIgniter\HTTP\ResponseInterface
     {
         $db = DBConnection::getConnection();
 
@@ -158,7 +127,12 @@ class ZahlungenController extends BaseController
 
         $bestellungen = [];
 
+        $items = self::loadItemsForOrders($db, array_keys($bestellungenInstances));
+
         foreach ($bestellungenInstances as $id => $bestellung) {
+            $item = $items[$id];
+            $bestellung->setReservierteLiegeplaetze($item['liegeplatzReservierungen']);
+            $bestellung->setGemieteteBoote($item['bootmieten']);
             $bestellungen[$id] = $bestellung->toArray();
         }
 

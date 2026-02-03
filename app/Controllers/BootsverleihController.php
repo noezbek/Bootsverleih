@@ -14,7 +14,6 @@ use App\Models\DBConnection;
 use App\Models\Feature;
 use App\Models\Vertrag;
 use App\Models\Zahlung;
-use DateTime;
 use Exception;
 
 class BootsverleihController extends BaseController
@@ -130,7 +129,7 @@ class BootsverleihController extends BaseController
             $vertrag = new Vertrag($bestellID, PaymentRhythm::EINMALIG->value, PaymentMethod::UEBERWEISUNG->value);
             $vertrag->saveEntry($db);
 
-            $zahlung = new Zahlung($vertrag->getID(), PaymentStatus::BEZAHLT, $miete->getCalculatedSollPreis(), Zahlung::calculateFaelligAm());
+            $zahlung = new Zahlung($vertrag->getID(), PaymentStatus::BEZAHLT->value, $miete->getCalculatedSollPreis(), Zahlung::calculateFaelligAm());
             $zahlung->saveEntry($db);
 
             $db->commit();

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ReservationStatus;
 use App\Filters\DbFilter;
+use App\Helpers\Helper;
 use DateTime;
 use DateTimeZone;
 use PDO;
@@ -56,24 +57,39 @@ class LiegeplatzReservierung extends DatabaseEntry
 
     public static function findAllEntries(PDO $db, ?DbFilter $filter = null): array
     {
-//        $filter ??= new DbFilter();
-//        $c = $filter->compile();
+        $filter ??= new DbFilter();
+        $c = $filter->compile();
 
-        $sql = "
-    SELECT *
-    FROM " . self::getTable() . "
-    WHERE active = 1
-      AND (
-            status = 2
-            OR (status = 1 AND expires_at > NOW())
-      )
-      " ;
-//            . $c['whereSql'];
+        $where = trim($c['whereSql'] ?? '');
 
+        $sql = "SELECT *
+FROM " . self::getTable() . "
+";
+
+        if ($where !== '') {
+            // DbFilter liefert WHERE ...
+            if (stripos($where, 'where') === 0) {
+                $sql .= $where . " ";
+            } else {
+                // DbFilter liefert nur AND ...
+                $sql .= "WHERE " . $where . " ";
+            }
+        } else {
+            // gar kein Filter
+            $sql .= "WHERE 1=1 ";
+        }
+
+// feste Business-Logik
+        $sql .= "
+  AND active = 1
+  AND (
+        status = 2
+        OR (status = 1 AND expires_at > NOW())
+  )
+";
         $stmt = $db->prepare($sql);
-        $stmt->execute(
-//            $c['params']
-        );
+        $stmt->execute($c['params']);
+
 
         $map = [];
 
@@ -117,16 +133,9 @@ class LiegeplatzReservierung extends DatabaseEntry
         return $this->preisProTag;
     }
 
-    public function getCalculatedDays() : int
-    {
-        $start = new DateTime($this->getStartdatum());
-        $end   = new DateTime($this->getEnddatum());
-        return $start->diff($end)->days;
-    }
-
     public function getCalculatedSollPreis() : float
     {
-        $days = $this->getCalculatedDays();
+        $days = Helper::calculatedDays($this->getStartdatum(), $this->getEnddatum());
         return $this->getPreisProTag() * $days;
     }
 

@@ -7,6 +7,7 @@ use App\Enums\PaymentMethod;
 use App\Enums\PaymentRhythm;
 use App\Enums\PaymentStatus;
 use App\Enums\ReservationStatus;
+use App\Filters\DbFilter;
 use App\Models\Bestellung;
 use App\Models\DBConnection;
 use App\Models\ReservationEmail;
@@ -31,9 +32,17 @@ class LiegeplatzeController extends BaseController
         $db = DBConnection::getConnection();
         $liegeplaetzInstances = Liegeplatz::findAllEntries($db);
 
+        $reservierungen = LiegeplatzReservierung::findAllEntries($db, (new DbFilter())->whereIn('liegeplatz_ID', array_keys($liegeplaetzInstances)));
+        $groupedReservierungen = [];
+        foreach ($reservierungen as $r) {
+            $groupedReservierungen[$r->getLiegeplatz()][] = $r;
+        }
+
         $liegeplaetze = [];
 
         foreach ($liegeplaetzInstances as $id => $liegeplaetz) {
+            $reservierungenPerLiegeplatz = $groupedReservierungen[$id] ?? [];
+            $liegeplaetz->setReservierungen($reservierungenPerLiegeplatz);
             $liegeplaetze[$id] = $liegeplaetz->toArray();
         }
 
@@ -72,6 +81,7 @@ class LiegeplatzeController extends BaseController
             $expiresAt = LiegeplatzReservierung::calculateExpireDate();
             $token = bin2hex(random_bytes(32));
             $confirmUrl = LiegeplatzReservierung::buildConfirmUrl($token);
+            $confirmUrl = LiegeplatzReservierung::buildConfirmUrl($token);
             $reservierung = new LiegeplatzReservierung($data['liegeplatz'], $data['boot'], $bestellID, $data['startdatum'], $data['enddatum'], $data['preisProTag'],
 //            ReservationStatus::ANGEFRAGT->value,//Todo normalerweise per mail aber geht gerade nihct
                 ReservationStatus::RESERVIERT->value,
@@ -90,7 +100,7 @@ class LiegeplatzeController extends BaseController
             $vertrag = new Vertrag($bestellID, PaymentRhythm::EINMALIG->value, PaymentMethod::UEBERWEISUNG->value);
             $vertrag->saveEntry($db);
 
-            $zahlung = new Zahlung($vertrag->getID(), PaymentStatus::BEZAHLT, $reservierung->getCalculatedSollPreis(), Zahlung::calculateFaelligAm());
+            $zahlung = new Zahlung($vertrag->getID(), PaymentStatus::BEZAHLT->value, $reservierung->getCalculatedSollPreis(), Zahlung::calculateFaelligAm(), date('Y-m-d'));
             $zahlung->saveEntry($db);
 
             $db->commit();
