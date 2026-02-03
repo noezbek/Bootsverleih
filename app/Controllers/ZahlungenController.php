@@ -158,8 +158,8 @@ class ZahlungenController extends BaseController
 
         $bestellungen = [];
 
-        foreach ($bestellungenInstances as $id => $bestellungen) {
-            $bestellungen[$id] = $bestellungen->toArray();
+        foreach ($bestellungenInstances as $id => $bestellung) {
+            $bestellungen[$id] = $bestellung->toArray();
         }
 
         return $this->response->setJSON($bestellungen);
