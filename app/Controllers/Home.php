@@ -38,4 +38,9 @@ class Home extends BaseController
     {
         return view('liegeplaetze');
     }
+
+    public function accountSettings(): string
+    {
+        return view('accountEinstellungen');
+    }
 }

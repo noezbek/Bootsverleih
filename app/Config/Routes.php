@@ -29,7 +29,8 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
     $routes->get('/zahlungen', 'Home::zahlungen');
     $routes->get('/bootsverleih', 'Home::bootsverleih');
     $routes->get('/kundenverwaltung', 'Home::kundenverwaltung');
-    $routes->get('/liegeplaetze', 'Home::liegeplaetze');   // ← Liegeplätze
+    $routes->get('/liegeplaetze', 'Home::liegeplaetze');
+    $routes->get('/accountEinstellungen', 'Home::accountSettings');
 
     // DATA
     $routes->get('/userdata/load', 'AuthController::loadUser');
@@ -46,6 +47,12 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
     $routes->get('/bestellungen/load', 'ZahlungenController::loadBestellungen');
     $routes->get('/vertraege/load', 'ZahlungenController::loadVertaege');
     $routes->get('/zahlungen/load', 'ZahlungenController::loadZahlungem');
+
+    // Account Einstellungen
+    $routes->get('/accountEinstellungen/load', 'AccountEinstellungenController::loadAccountData');
+    $routes->post('/accountEinstellungen/savePersonal', 'AccountEinstellungenController::savePersonalData');
+    $routes->post('/accountEinstellungen/changeUsername', 'AccountEinstellungenController::changeUsername');
+    $routes->post('/accountEinstellungen/changePassword', 'AccountEinstellungenController::changePassword');
 
 });
 
