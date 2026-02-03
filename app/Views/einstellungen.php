@@ -15,6 +15,11 @@
 
     <link rel="stylesheet" href="<?= base_url('styles/einstellungen.css') ?>">
 </head>
+<?php
+    use App\Enums\UserType;
+    $userRole = session()->get('role');
+    $isKunde = ($userRole === UserType::KUNDE->value || $userRole === UserType::KUNDE);
+?>
 <body data-page="einstellungen">
 
 <div class="container">
@@ -26,6 +31,16 @@
 
     <div class="settings-section">
         <h2>Nutzereinstellungen</h2>
+
+        <?php if ($isKunde): ?>
+        <a href="<?= base_url('accountEinstellungen') ?>" class="setting-item setting-link">
+            <div class="setting-info">
+                <h3>Account Einstellungen</h3>
+                <p>Persönliche Daten, Benutzername und Passwort ändern</p>
+            </div>
+            <span class="arrow">→</span>
+        </a>
+        <?php endif; ?>
 
         <div class="setting-item">
             <div class="setting-info">

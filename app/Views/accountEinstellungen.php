@@ -8,7 +8,7 @@
     <script>
         window.APP = {
             baseUrl: "<?= rtrim(base_url(), '/') ?>",
-            csrf: document.querySelector('meta[name="csrf-token"]').content
+            csrf: "<?= csrf_hash() ?>"
         };
     </script>
 
@@ -19,7 +19,7 @@
 <body data-page="accountEinstellungen">
 
 <div class="container">
-    <a href="<?= base_url('/') ?>" class="back-link">← Zurück zum Dashboard</a>
+    <a href="<?= base_url('/einstellungen') ?>" class="back-link">← Zurück zu Einstellungen</a>
 
     <header>
         <h1>Account Einstellungen</h1>
