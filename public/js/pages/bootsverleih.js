@@ -2,7 +2,7 @@ import {apiGetMany, apiPostFormData, toFormData} from "../services/api.js";
 import {setText, setValue, val, escape, formatEuro} from "../services/helpers.js";
 
 let boote = {};
-let features = {};
+let featuresState = {};
 let currentIds = [];
 let selectedBootId = null;
 
@@ -25,7 +25,7 @@ async function initialLoad() {
     })
 
     boote = booteData ?? {};
-    features = featuresData ?? {};
+    featuresState = featuresData ?? {};
     currentIds = Object.keys(boote).map(Number);
 
     applyFilterAndSort();
@@ -83,7 +83,7 @@ function buildCard(id, b) {
                 </div>
                 <div class="spec-item">
                     <span class="spec-label">Features</span>
-                    ${escape(b.features)}
+                    ${b.features.map(id => featuresState[id]?.bezeichnung).join(', ')}
                 </div>
             </div>
 
