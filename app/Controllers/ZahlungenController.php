@@ -87,7 +87,7 @@ class ZahlungenController extends BaseController
 
         $zahlungenByVertrag = [];
         foreach ($zahlungen as $z) {
-            $zahlungenByVertrag[$z->getVertragId()][] = $z;
+            $zahlungenByVertrag[$z->getVertrag()][] = $z;
         }
 
         /* =========================

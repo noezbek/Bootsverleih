@@ -198,7 +198,7 @@ class Liegeplatz extends DatabaseEntry
     public function toArray(): array
     {
         return [
-            'ID' => $this->id,
+            'id' => $this->id,
             'name' => $this->beschreibung,
             'bezeichnung' => $this->bezeichnung,
             'pricePerDay' => $this->preisProTag,

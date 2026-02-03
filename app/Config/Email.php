@@ -6,6 +6,20 @@ use CodeIgniter\Config\BaseConfig;
 
 class Email extends BaseConfig
 {
+    public string $protocol = 'smtp';
+
+    public string $SMTPHost = 'sandbox.smtp.mailtrap.io';
+    public string $SMTPUser = 'dc2efd33901285';
+    public string $SMTPPass = '537ebd68290110';
+    public int    $SMTPPort = 2525;
+
+    public string $mailType = 'text';
+    public string $charset  = 'UTF-8';
+    public string $CRLF    = "\r\n";
+    public string   $newline  = "\r\n";
+
+
+
     public string $fromEmail  = '';
     public string $fromName   = '';
     public string $recipients = '';
@@ -18,7 +32,7 @@ class Email extends BaseConfig
     /**
      * The mail sending protocol: mail, sendmail, smtp
      */
-    public string $protocol = 'mail';
+//    public string $protocol = 'mail';
 
     /**
      * The server path to Sendmail.
@@ -28,22 +42,22 @@ class Email extends BaseConfig
     /**
      * SMTP Server Hostname
      */
-    public string $SMTPHost = '';
-
-    /**
-     * SMTP Username
-     */
-    public string $SMTPUser = '';
-
-    /**
-     * SMTP Password
-     */
-    public string $SMTPPass = '';
-
-    /**
-     * SMTP Port
-     */
-    public int $SMTPPort = 25;
+//    public string $SMTPHost = '';
+//
+//    /**
+//     * SMTP Username
+//     */
+//    public string $SMTPUser = '';
+//
+//    /**
+//     * SMTP Password
+//     */
+//    public string $SMTPPass = '';
+//
+//    /**
+//     * SMTP Port
+//     */
+//    public int $SMTPPort = 25;
 
     /**
      * SMTP Timeout (in seconds)
@@ -77,12 +91,12 @@ class Email extends BaseConfig
     /**
      * Type of mail, either 'text' or 'html'
      */
-    public string $mailType = 'text';
-
-    /**
-     * Character set (utf-8, iso-8859-1, etc.)
-     */
-    public string $charset = 'UTF-8';
+//    public string $mailType = 'text';
+//
+//    /**
+//     * Character set (utf-8, iso-8859-1, etc.)
+//     */
+//    public string $charset = 'UTF-8';
 
     /**
      * Whether to validate the email address
@@ -94,15 +108,15 @@ class Email extends BaseConfig
      */
     public int $priority = 3;
 
-    /**
-     * Newline character. (Use “\r\n” to comply with RFC 822)
-     */
-    public string $CRLF = "\r\n";
-
-    /**
-     * Newline character. (Use “\r\n” to comply with RFC 822)
-     */
-    public string $newline = "\r\n";
+//    /**
+//     * Newline character. (Use “\r\n” to comply with RFC 822)
+//     */
+//    public string $CRLF = "\r\n";
+//
+//    /**
+//     * Newline character. (Use “\r\n” to comply with RFC 822)
+//     */
+//    public string $newline = "\r\n";
 
     /**
      * Enable BCC Batch Mode.

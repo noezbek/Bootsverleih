@@ -2,17 +2,18 @@
 
 namespace App\Models;
 
+use App\Enums\OrderStatus;
 use App\Filters\DbFilter;
 use PDO;
 
 class Bestellung extends DatabaseEntry
 {
-    private int $kunde;
-    private int $bestellstatus;
+    private Kunde|int $kunde;
+    private OrderStatus|int $bestellstatus;
 
     public function __construct(
-        int $kunde,
-        int $bestellstatus,
+        Kunde|int $kunde,
+        OrderStatus|int $bestellstatus,
         ?int $id = null,
         bool $active = true,
         ?string $updated_at = null,
@@ -57,31 +58,26 @@ class Bestellung extends DatabaseEntry
         return $map;
     }
 
-    public function getKundeId(): int
+    protected static function getInsertStmnt() : string
     {
-        return $this->kunde;
+        $table = self::getTable();
+        return "INSERT INTO $table (kunde_ID, bestellstatus, userID) VALUES (:kunde_ID, :bestellstatus, :Benutzer)";
     }
 
-    public function getBestellstatus(): int
+    protected static function getUpdateStmnt() : string
     {
-        return $this->bestellstatus;
+        $table = self::getTable();
+        return "UPDATE $table SET kunde_ID=:kunde_ID, bestellstatus=:bestellstatus, userID=:Benutzer, active=:Active WHERE ID = :ID";
     }
 
-    protected static function getInsertStmnt(): string
-    {
-        // TODO: Implement getInsertStmnt() method.
-        return '';
-    }
-
-    protected static function getUpdateStmnt(): string
-    {
-        // TODO: Implement getUpdateStmnt() method.
-        return '';
-    }
 
     public function saveEntry(PDO $db): void
     {
-        // TODO: Implement saveEntry() method.
+        $sqlString = empty($this->id) ? self::getInsertStmnt(): self::getUpdateStmnt();
+        $stmt = $db->prepare($sqlString);
+        $stmt->bindValue(":kunde_ID", $this->getKunde());
+        $stmt->bindValue(":bestellstatus", $this->getBestellstatus());
+        $this->saveData($stmt, $db);
     }
 
     public static function findByIdEntry(PDO $db, int $id): self|null
@@ -101,4 +97,25 @@ class Bestellung extends DatabaseEntry
             'created_at' => $this->created_at,
         ];
     }
+
+    public function getKunde(): Kunde|int
+    {
+        return $this->kunde;
+    }
+
+    public function setKunde(Kunde|int $kunde): void
+    {
+        $this->kunde = $kunde;
+    }
+
+    public function getBestellstatus(): OrderStatus|int
+    {
+        return $this->bestellstatus;
+    }
+
+    public function setBestellstatus(OrderStatus|int $bestellstatus): void
+    {
+        $this->bestellstatus = $bestellstatus;
+    }
+
 }

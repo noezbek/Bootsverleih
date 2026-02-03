@@ -2,23 +2,25 @@
 
 namespace App\Models;
 
+use App\Enums\PaymentMethod;
+use App\Enums\PaymentRhythm;
 use App\Filters\DbFilter;
 use PDO;
 
 class Vertrag extends DatabaseEntry
 {
     private int $bestellung;
-    private int $zahlungsrhythmus;
-    private int $zahlungsmethode;
-    private string $vertragsbeginn;
+    private PaymentRhythm|int $zahlungsrhythmus;
+    private PaymentMethod|int $zahlungsmethode;
+    private ?string $vertragsbeginn;
     private ?string $gekuendigtAm;
 
     public function __construct(
         int $bestellung,
-        int $zahlungsrhythmus,
-        int $zahlungsmethode,
-        string $vertragsbeginn,
-        ?string $gekuendigtAm,
+        PaymentRhythm|int $zahlungsrhythmus,
+        PaymentMethod|int $zahlungsmethode,
+        ?string $vertragsbeginn = null,
+        ?string $gekuendigtAm= null,
         ?int $id = null,
         bool $active = true,
         ?string $updated_at = null,
@@ -69,26 +71,52 @@ class Vertrag extends DatabaseEntry
         return $map;
     }
 
-    public function getBestellungId(): int
+    public function getBestellung(): int
     {
         return $this->bestellung;
     }
 
     protected static function getInsertStmnt(): string
     {
-        // TODO: Implement getInsertStmnt() method.
-        return '';
+        $table = self::getTable();
+
+        return "
+            INSERT INTO $table
+            (bestellung_ID, vertragsbeginn, zahlungsrhythmus, zahlungsmethode, gekuendigt_am, userID)
+            VALUES
+            (:bestellung_ID, NOW(), :zahlungsrhythmus, :zahlungsmethode, :pgekuendigt_am, :Benutzer)
+        ";
     }
 
     protected static function getUpdateStmnt(): string
     {
-        // TODO: Implement getUpdateStmnt() method.
-        return '';
+        $table = self::getTable();
+
+        return "
+            UPDATE $table SET
+                bestellung_ID = :bestellung_ID,
+                vertragsbeginn  = NOW(),
+                zahlungsrhythmus = :zahlungsrhythmus,
+                zahlungsmethode = :zahlungsmethode,
+                gekuendigt_am = :gekuendigt_am,
+                userID = :Benutzer,
+                active = :Active
+            WHERE ID = :ID
+        ";
     }
 
     public function saveEntry(PDO $db): void
     {
-        // TODO: Implement saveEntry() method.
+        $sql = $this->getID() ? self::getInsertStmnt() : self::getUpdateStmnt();
+
+        $stmt = $db->prepare($sql);
+
+        $stmt->bindValue(':bestellung_ID', $this->bestellung);
+        $stmt->bindValue(':zahlungsrhythmus', $this->zahlungsrhythmus);
+        $stmt->bindValue(':zahlungsmethode', $this->zahlungsmethode);
+        $stmt->bindValue(':gekuendigt_am', $this->gekuendigtAm ?? null);
+
+        $this->saveData($stmt, $db);
     }
 
     public static function findByIdEntry(PDO $db, int $id): self|null

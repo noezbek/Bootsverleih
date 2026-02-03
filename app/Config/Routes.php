@@ -12,6 +12,13 @@ $routes->post('/login', 'AuthController::login');
 $routes->post('/register', 'AuthController::register');
 $routes->post('/logout', 'AuthController::logout');
 
+$routes->get(
+    'reservierung/confirm/(:segment)',
+    'LiegeplatzeController::confirm/$1'
+);
+
+$routes->post('reservierung/confirm', 'LiegeplatzeController::confirmPost');
+
 
 $routes->group('', ['filter' => 'auth'], function($routes) {
 
@@ -36,6 +43,7 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
     $routes->post('/bootsverleih/delete', 'BootsverleihController::deleteBoot');
     $routes->get('/zahlungen/load', 'ZahlungenController::loadZahlungen');
     $routes->get('/liegeplaetze/load', 'LiegeplatzeController::loadLiegeplaetze');
+    $routes->post('/liegeplaetze/reservieren', 'LiegeplatzeController::saveReservierung');
 
 });
 

@@ -58,7 +58,7 @@ export async function apiGetMany(routes) {
 
 // FormData POST (mit CSRF Header)
 export async function apiPostFormData(path, formData) {
-    const res = await fetch(path, {
+    const res = await apiFetch(path, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': window.APP?.csrf || '',
@@ -68,11 +68,12 @@ export async function apiPostFormData(path, formData) {
 
     if (!res.ok) {
         const text = await res.text().catch(() => '');
-        throw new Error(`POST ${path} -> ${res.status} ${text}`);
+        console.error(`POST ${path} failed`, res.status, text);
+        throw new Error(`POST ${path} -> ${res.status}`);
     }
 
-    return res.headers.get('content-type')?.includes('application/json')
-        ? res.json()
-        : true;
+    // wenn Response JSON ist -> json() sonst true
+    const ct = res.headers.get('content-type') || '';
+    if (ct.includes('application/json')) return res.json();
+    return true;
 }
-

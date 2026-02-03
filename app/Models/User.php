@@ -101,7 +101,7 @@ class User extends DatabaseEntry
     public static function findForAuth(PDO $pdo, string $username): ?User
     {
         $stmt = $pdo->prepare(
-            'SELECT ID, username, password_hash, active
+            'SELECT ID, username, password_hash, active, kunde_ID, mitarbeiter_ID
          FROM users
          WHERE username = :username
          LIMIT 1'
@@ -117,8 +117,8 @@ class User extends DatabaseEntry
         return new User(
             $row['username'],
             $row['password_hash'],
-            null,
-            null,
+            $row['kunde_ID'] ?? null,
+            $row['mitarbeiter_ID'] ?? null,
             (int) $row['ID'],
             (bool) $row['active']
         );
@@ -135,8 +135,8 @@ class User extends DatabaseEntry
             $list[] = new User(
                 $row['username'],
                 $row['password_hash'],
-                $row['kunde'] !== null ? (int)$row['kunde'] : null,
-                $row['mitarbeiter'] !== null ? (int)$row['mitarbeiter'] : null,
+                $row['kunde_ID'] !== null ? (int)$row['kunde_ID'] : null,
+                $row['mitarbeiter_ID'] !== null ? (int)$row['mitarbeiter_ID'] : null,
                 (int)$row['ID']
             );
         }
@@ -159,7 +159,10 @@ class User extends DatabaseEntry
     public function toArray(): array
     {
         return [
-            'id' => $this->id
+            'id' => $this->id,
+            'username' => $this->username,
+            'kunde' => $this->kunde,
+            'mitarbeiter' => $this->mitarbeiter,
         ];
     }
 

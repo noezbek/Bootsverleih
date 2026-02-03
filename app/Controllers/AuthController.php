@@ -34,6 +34,8 @@ class AuthController extends BaseController
 
         session()->set([
             'user_id'   => $user->getID(),
+            'kunde_id'   => $user->getKunde(),
+            'mitarbeiter_id'=> $user->getMitarbeiter(),
             'username'  => $user->getUsername(),
             'logged_in' => true
         ]);
@@ -89,6 +91,8 @@ class AuthController extends BaseController
 
         session()->set([
             'user_id'   => $user->getID(),
+            'kunde_id'   => $user->getKunde(),
+            'mitarbeiter_id'=> $user->getMitarbeiter(),
             'username'  => $user->getUsername(),
             'logged_in' => true
         ]);
@@ -122,10 +126,11 @@ class AuthController extends BaseController
         }
 
         return $this->response->setJSON([
-            'id'          => $user->getID(),
-            'username'    => $user->getUsername(),
-            'kunde'       => $user->getKunde(),
-            'mitarbeiter' => $user->getMitarbeiter(),
+            'user_id'   => $user->getID(),
+            'kunde_id'   => $user->getKunde(),
+            'mitarbeiter_id'=> $user->getMitarbeiter(),
+            'username'  => $user->getUsername(),
+            'logged_in' => true
         ]);
     }
 }

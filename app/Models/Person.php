@@ -91,4 +91,6 @@ abstract class Person extends DatabaseEntry
 
     public function getStadt(): string { return $this->stadt; }
     public function setStadt(string $stadt): void { $this->stadt = $stadt; }
+
+    public function getFullName(): string { return $this->vorname . ' ' . $this->nachname; }
 }

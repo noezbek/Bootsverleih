@@ -1,4 +1,4 @@
-import {apiGetMany} from "../services/api.js";
+import {apiGetMany, apiPostFormData, toFormData} from "../services/api.js";
 import {formatEuro, escape} from "../services/helpers.js";
 import {BOAT_TYPE_ICONS} from "../services/BoatConstants.js";
 
@@ -123,7 +123,7 @@ function createBerthMarkers() {
     Object.values(berths).forEach(lp => {
         const marker = document.createElement('div');
         marker.className = 'berth-marker';
-        marker.dataset.berthId = lp.ID;
+        marker.dataset.berthId = lp.id
         marker.dataset.name = lp.bezeichnung;
 
         // Position
@@ -298,7 +298,8 @@ function wireDragDrop() {
 }
 
 function openReservationModal(berth, boat) {
-    const modal = document.getElementById('reservationModal');
+    const modal = document.getElementById(
+        'reservationModal');
 
     if (!modal) return;
 
@@ -381,7 +382,7 @@ function updateCostTotal() {
     document.getElementById('cost-total').textContent = formatEuro(total);
 }
 
-function handleReservation() {
+async function handleReservation() {
     const berthId = document.getElementById('reservation-berth-id')?.value;
     const boatId = document.getElementById('reservation-boat-id')?.value;
     const startDate = document.getElementById('reservation-start-date')?.value;
@@ -399,49 +400,55 @@ function handleReservation() {
     const total = berth.pricePerDay * days;
 
     // Add to reserved (in real app, would send to backend)
+    const reservations = berth?.reservierungen ?? [];
 
-    const reservations = berth[berth.id].reservierungen ?? [];
-
-    reservations.push({
+    const res = {
         boot: Number(boatId),
-        bestellung: null,
         liegeplatz: berth.id,
         startdatum: endDate,
         enddatum: endDate,
-        preisProTag: 0.0,
-    });
-
-    // Update marker
-    const marker = document.querySelector(`.berth-marker[data-berth-id="${berthId}"]`);
-    if (marker) {
-        const bookedCount = reservations.length;
-        const availableSpots = berth.capacity - bookedCount;
-        marker.dataset.available = availableSpots;
-
-        if (availableSpots === 0) {
-            marker.classList.remove('partial');
-            marker.classList.add('reserved');
-            const boatNames = reservations.map(r => boats[r.boot].name).join(', ');
-            marker.title = `${berth.name} - Voll belegt (${boatNames})`;
-        } else {
-            marker.classList.add('partial');
-            marker.title = `${berth.name} - ${availableSpots}/${berth.capacity} frei - ${formatEuro(berth.pricePerDay)}/Tag`;
-        }
+        preisProTag: berth.pricePerDay,
     }
 
-    alert(
-        `Reservierung erfolgreich!\n\n` +
-        `Liegeplatz: ${berth.name}\n` +
-        `Boot: ${boat.name}\n` +
-        `Von: ${startDate}\n` +
-        `Bis: ${endDate}\n` +
-        `Dauer: ${days} Tag${days > 1 ? 'e' : ''}\n` +
-        `Preis pro Tag: ${formatEuro(berth.pricePerDay)}\n` +
-        `Gesamtpreis: ${formatEuro(total)}`
-    );
+    const fd = toFormData(res, 'data');
+    const saved = await apiPostFormData('/liegeplaetze/reservieren', fd);
 
-    closeModal('reservationModal');
-    currentBerth = null;
+    if (saved) {
+        reservations.push(saved);
+
+        // Update marker
+        const marker = document.querySelector(`.berth-marker[data-berth-id="${berthId}"]`);
+        if (marker) {
+            const bookedCount = reservations.length;
+            const availableSpots = berth.capacity - bookedCount;
+            marker.dataset.available = availableSpots;
+
+            if (availableSpots === 0) {
+                marker.classList.remove('partial');
+                marker.classList.add('reserved');
+                const boatNames = reservations.map(r => boats[r.boot].name).join(', ');
+                marker.title = `${berth.name} - Voll belegt (${boatNames})`;
+            } else {
+                marker.classList.add('partial');
+                marker.title = `${berth.name} - ${availableSpots}/${berth.capacity} frei - ${formatEuro(berth.pricePerDay)}/Tag`;
+            }
+        }
+
+        alert(
+            `Reservierung erfolgreich!\n\n` +
+            `Liegeplatz: ${berth.name}\n` +
+            `Liegeplatz: ${berth.name}\n` +
+            `Boot: ${boat.name}\n` +
+            `Von: ${startDate}\n` +
+            `Bis: ${endDate}\n` +
+            `Dauer: ${days} Tag${days > 1 ? 'e' : ''}\n` +
+            `Preis pro Tag: ${formatEuro(berth.pricePerDay)}\n` +
+            `Gesamtpreis: ${formatEuro(total)}`
+        );
+
+        closeModal('reservationModal');
+        currentBerth = null;
+    }
 }
 
 function closeModal(id) {

@@ -2,23 +2,24 @@
 
 namespace App\Models;
 
+use App\Enums\PaymentStatus;
 use App\Filters\DbFilter;
 use PDO;
 
 class Zahlung extends DatabaseEntry
 {
-    private int $vertrag;
-    private int $zahlungsstatus;
+    private Vertrag|int $vertrag;
+    private PaymentStatus|int $zahlungsstatus;
     private float $betrag;
     private ?string $faelligAm;
     private ?string $bezahltAm;
 
     public function __construct(
         int $vertrag,
-        int $zahlungsstatus,
+        PaymentStatus|int $zahlungsstatus,
         float $betrag,
         ?string $faelligAm,
-        ?string $bezahltAm,
+        ?string $bezahltAm = null,
         ?int $id = null,
         bool $active = true,
         ?string $updated_at = null,
@@ -69,7 +70,7 @@ class Zahlung extends DatabaseEntry
         return $map;
     }
 
-    public function getVertragId(): int
+    public function getVertrag(): Vertrag|int
     {
         return $this->vertrag;
     }
