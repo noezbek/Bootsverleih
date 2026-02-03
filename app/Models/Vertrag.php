@@ -84,7 +84,7 @@ class Vertrag extends DatabaseEntry
             INSERT INTO $table
             (bestellung_ID, vertragsbeginn, zahlungsrhythmus, zahlungsmethode, gekuendigt_am, userID)
             VALUES
-            (:bestellung_ID, NOW(), :zahlungsrhythmus, :zahlungsmethode, :pgekuendigt_am, :Benutzer)
+            (:bestellung_ID, NOW(), :zahlungsrhythmus, :zahlungsmethode, :gekuendigt_am, :Benutzer)
         ";
     }
 
@@ -95,7 +95,6 @@ class Vertrag extends DatabaseEntry
         return "
             UPDATE $table SET
                 bestellung_ID = :bestellung_ID,
-                vertragsbeginn  = NOW(),
                 zahlungsrhythmus = :zahlungsrhythmus,
                 zahlungsmethode = :zahlungsmethode,
                 gekuendigt_am = :gekuendigt_am,
@@ -107,7 +106,7 @@ class Vertrag extends DatabaseEntry
 
     public function saveEntry(PDO $db): void
     {
-        $sql = $this->getID() ? self::getInsertStmnt() : self::getUpdateStmnt();
+        $sql = $this->getID() ? self::getUpdateStmnt() : self::getInsertStmnt();
 
         $stmt = $db->prepare($sql);
 

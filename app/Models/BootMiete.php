@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use App\Filters\DbFilter;
+use DateTime;
 use PDO;
 
 class BootMiete extends DatabaseEntry
 {
-    private int $boot;
-    private int $bestellung;
+    private Boot|int $boot;
+    private Bestellung|int $bestellung;
     private string $startdatum;
     private string $enddatum;
     private float $preisProTag;
@@ -69,26 +70,67 @@ class BootMiete extends DatabaseEntry
         return $map;
     }
 
-    public function getBestellungId(): int
+    public function getCalculatedDays() : int
+    {
+        $start = new DateTime($this->getStartdatum());
+        $end   = new DateTime($this->getEnddatum());
+        return $start->diff($end)->days;
+    }
+
+    public function getCalculatedSollPreis() : float
+    {
+        $days = $this->getCalculatedDays();
+        return $this->getPreisProTag() * $days;
+    }
+
+    public function getBestellung(): Bestellung|int
     {
         return $this->bestellung;
     }
 
-    protected static function getInsertStmnt(): string
+    public function getBoot(): Boot|int
     {
-        // TODO: Implement getInsertStmnt() method.
-        return '';
+        return $this->boot;
     }
 
-    protected static function getUpdateStmnt(): string
+    public function getStartdatum(): string
     {
-        // TODO: Implement getUpdateStmnt() method.
-        return '';
+        return $this->startdatum;
     }
+
+    public function getEnddatum(): string
+    {
+        return $this->enddatum;
+    }
+
+    public function getPreisProTag(): float
+    {
+        return $this->preisProTag;
+    }
+
+    protected static function getInsertStmnt() : string
+    {
+        $table = self::getTable();
+        return "INSERT INTO $table (bestellung_ID, boot_ID, startdatum, enddatum, preis_pro_tag, userID) VALUES (:bestellung_ID, :boot_ID, :startdatum, :enddatum, :preis_pro_tag, :Benutzer)";
+    }
+
+    protected static function getUpdateStmnt() : string
+    {
+        $table = self::getTable();
+        return "UPDATE $table SET bestellung_ID=:bestellung_ID, boot_ID=:boot_ID, startdatum =:startdatum, enddatum =:enddatum, preis_pro_tag =:preis_pro_tag, userID=:Benutzer, active=:Active WHERE ID = :ID";
+    }
+
 
     public function saveEntry(PDO $db): void
     {
-        // TODO: Implement saveEntry() method.
+        $sqlString = empty($this->id) ? self::getInsertStmnt(): self::getUpdateStmnt();
+        $stmt = $db->prepare($sqlString);
+        $stmt->bindValue(":bestellung_ID", $this->getBestellung());
+        $stmt->bindValue(":boot_ID", $this->getBoot());
+        $stmt->bindValue(":startdatum", $this->getStartdatum());
+        $stmt->bindValue(":enddatum", $this->getEnddatum());
+        $stmt->bindValue(":preis_pro_tag", $this->getPreisProTag());
+        $this->saveData($stmt, $db);
     }
 
     public static function findByIdEntry(PDO $db, int $id): self|null

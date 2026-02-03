@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Enums\PaymentStatus;
 use App\Filters\DbFilter;
+use Cassandra\Date;
+use DateTime;
 use PDO;
 
 class Zahlung extends DatabaseEntry
@@ -68,6 +70,13 @@ class Zahlung extends DatabaseEntry
         }
 
         return $map;
+    }
+
+    public static function calculateFaelligAm(): string
+    {
+        $faelligAm = new DateTime();        // heute
+        $faelligAm->modify('+30 days');
+        return $faelligAm->format('Y-m-d');
     }
 
     public function getVertrag(): Vertrag|int

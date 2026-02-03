@@ -19,6 +19,7 @@ class Boot extends DatabaseEntry
     private float $kaution;
     private Availability|int $verfuegbarkeit;
     private array $features;
+    private ?bool $isBooked;
 
     public function __construct(
         float $laenge,
@@ -124,6 +125,45 @@ class Boot extends DatabaseEntry
         return $boot;
     }
 
+
+
+    public function isBooked(
+        PDO $db,
+        string $startDate,
+        string $endDate
+    ): bool {
+        $stmt = $db->prepare(
+            "SELECT 1
+         FROM boot_mieten
+         WHERE boot_ID = :bootId
+           AND active = 1
+           AND (
+                startdatum < :endDate
+            AND enddatum   > :startDate
+           )
+         LIMIT 1"
+        );
+
+        $stmt->execute([
+            ':bootId'    => $this->id,
+            ':startDate'=> $startDate,
+            ':endDate'  => $endDate,
+        ]);
+
+        return (bool)$stmt->fetchColumn();
+    }
+
+    public function setBooked(bool $booked) : void
+    {
+        $this->isBooked = $booked;
+    }
+
+    public function getBooked() : bool
+    {
+        return $this->isBooked;
+    }
+
+
     private static function selectFeatureIDs(PDO $db, array $bootIDs): array
     {
         $bootIDs = array_values(array_unique(array_map('intval', $bootIDs)));
@@ -216,6 +256,7 @@ class Boot extends DatabaseEntry
             'active' => $this->active,
             'updated_at' => $this->updated_at,
             'created_at' => $this->created_at,
+            'isBooked' => $this->isBooked,
         ];
     }
 
