@@ -104,8 +104,9 @@ function wireFilters() {
     document.getElementById('filterType')?.addEventListener('change', applyFilterAndSort);
     document.getElementById('filterCapacity')?.addEventListener('change', applyFilterAndSort);
 
-    document.getElementById('booking-duration')?.addEventListener('change', calculateCost);
     document.getElementById('booking-start-date')?.addEventListener('change', calculateCost);
+    document.getElementById('booking-end-date')?.addEventListener('change', calculateCost);
+
 }
 
 function applyFilterAndSort() {
@@ -177,30 +178,54 @@ function openBookingModal(id) {
 
     setText('cost-daily', formatEuro(b.pricePerDay));
     setText('cost-deposit', formatEuro(b.deposit));
-    setText('cost-duration', '-');
+    setText('cost-duration', '–');   // Anzeige-Platzhalter
     setText('cost-total', '0,00 €');
 
-    // form reset (wie bei kundenverwaltung: safe)
-    document.getElementById('bookingForm')?.reset();
+    // Form reset (safe)
+    const form = document.getElementById('bookingForm');
+    form?.reset();
+
+    // Optional, aber sinnvoll: Start = heute, Ende = morgen
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    const start = document.getElementById('booking-start-date');
+    const end   = document.getElementById('booking-end-date');
+
+    if (start) start.value = today.toISOString().split('T')[0];
+    if (end)   end.value  = tomorrow.toISOString().split('T')[0];
+
+    calculateCost(); // setzt cost-duration & cost-total korrekt
 
     document.getElementById('bookingModal').style.display = 'block';
 }
+
 
 function calculateCost() {
     if (!selectedBootId) return;
     const b = boote[selectedBootId];
     if (!b) return;
 
-    const durationRaw = document.getElementById('booking-duration')?.value ?? '';
-    const duration = Number(durationRaw);
-    if (!duration) return;
+    const start = val('booking-start-date');
+    const end = val('booking-end-date');
+    if (!start || !end) return;
 
-    const rentalCost = Number(b.pricePerDay ?? 0) * duration;
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+
+    const diffMs = endDate - startDate;
+    if (diffMs <= 0) return;
+
+    const days = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+    const rentalCost = days * Number(b.pricePerDay ?? 0);
     const total = rentalCost + Number(b.deposit ?? 0);
 
-    setText('cost-duration', durationText(duration));
-    setText('cost-total', total.toFixed(2).replace('.', ',') + ' €');
+    setText('cost-duration', `${days} Tage`);
+    setText('cost-total', formatEuro(total));
 }
+
 
 function wireBookingForm() {
     document.getElementById('bookingForm')
@@ -211,8 +236,7 @@ function wireBookingForm() {
             if (!b) return;
 
             const startDate = val('booking-start-date') ?? '';
-            const durationTextUI = document.getElementById('booking-duration')
-                ?.options[document.getElementById('booking-duration').selectedIndex]?.text ?? '';
+            const endDate = val('booking-end-date') ?? '';
 
             const name = val('booking-name') ?? '';
             const total = document.getElementById('cost-total')?.textContent ?? '0,00 €';
@@ -222,7 +246,7 @@ function wireBookingForm() {
                 `Boot: ${b.name}\n` +
                 `Name: ${name}\n` +
                 `Startdatum: ${startDate}\n` +
-                `Dauer: ${durationTextUI}\n` +
+                `Enddatum: ${endDate}\n` +
                 `Gesamtpreis: ${total}\n\n` +
                 `Sie erhalten eine Bestätigung per E-Mail.`
             );
@@ -255,10 +279,13 @@ function applyDarkMode() {
 }
 
 function setMinDateToday() {
-    const el = document.getElementById('booking-start-date');
-    if (!el) return;
     const today = new Date().toISOString().split('T')[0];
-    el.setAttribute('min', today);
+
+    const start = document.getElementById('booking-start-date');
+    const end   = document.getElementById('booking-end-date');
+
+    if (start) start.setAttribute('min', today);
+    if (end)   end.setAttribute('min', today);
 }
 
 function typeLabel(type) {
@@ -270,14 +297,4 @@ function typeLabel(type) {
         sup: 'SUP',
     };
     return labels[type] ?? type ?? '';
-}
-
-function durationText(d) {
-    if (d === 0.5) return 'Halbtag (4 Stunden)';
-    if (d === 1) return '1 Tag';
-    if (d < 7) return `${d} Tage`;
-    if (d === 7) return '1 Woche';
-    if (d === 14) return '2 Wochen';
-    if (d === 30) return '1 Monat';
-    return String(d);
 }

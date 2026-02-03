@@ -80,17 +80,8 @@
             </div>
 
             <div class="form-group">
-                <label for="booking-duration">Mietdauer</label>
-                <select id="booking-duration" required>
-                    <option value="">Bitte wählen...</option>
-                    <option value="0.5">Halbtag (4 Stunden)</option>
-                    <option value="1">1 Tag</option>
-                    <option value="2">2 Tage</option>
-                    <option value="3">3 Tage</option>
-                    <option value="7">1 Woche</option>
-                    <option value="14">2 Wochen</option>
-                    <option value="30">1 Monat</option>
-                </select>
+                <label for="booking-end-date">Enddatum</label>
+                <input type="date" id="booking-end-date" name="end_date" required>
             </div>
 
             <div class="form-group">
