@@ -63,7 +63,17 @@
 
 </div>
 
-<div class="dashboard-grid single-item">
+<div class="dashboard-grid management-section">
+    <a href="<?= base_url('liegeplatzverwaltung') ?>" class="dashboard-item">
+        <h2>Liegeplatzverwaltung</h2>
+        <p>Liegeplätze, Reservierungen und Preise verwalten</p>
+    </a>
+
+    <a href="<?= base_url('bootsverwaltung') ?>" class="dashboard-item">
+        <h2>Bootsverwaltung</h2>
+        <p>Boote, Preise und Verfügbarkeit verwalten</p>
+    </a>
+
     <a href="<?= base_url('kundenverwaltung') ?>" class="dashboard-item">
         <h2>Kundenverwaltung</h2>
         <p>Kundenkonten und Stammdaten verwalten</p>
