@@ -19,7 +19,7 @@ class Boot extends DatabaseEntry
     private float $preis_pro_tag;
     private float $kaution;
     private Availability|int $verfuegbarkeit;
-    private array $features;
+    private ?array $features = [];
 
     public function __construct(
         float $laenge,
@@ -73,21 +73,44 @@ class Boot extends DatabaseEntry
 
     public function saveBootFeatureRelations(PDO $db) : void
     {
-        //ToDo: to implement
+        if (empty($this->id)) {
+            throw new \Exception('Boot-ID fehlt');
+        }
+
+        $delete = $db->prepare(
+            "DELETE FROM boot_hat_feature WHERE boot_ID = :boot_ID"
+        );
+        $delete->bindValue(':boot_ID', $this->id, PDO::PARAM_INT);
+        $delete->execute();
+
+        if (empty($this->features)) {
+            return; // Boot ohne Features ist erlaubt
+        }
+
+        $insert = $db->prepare(
+            "INSERT INTO boot_hat_feature (boot_ID, feature_ID)
+         VALUES (:boot_ID, :feature_ID)"
+        );
+
+        foreach ($this->features as $featureID) {
+            $insert->bindValue(':boot_ID', $this->id, PDO::PARAM_INT);
+            $insert->bindValue(':feature_ID', $featureID, PDO::PARAM_INT);
+            $insert->execute();
+        }
     }
 
     protected static function getInsertStmnt() : string
     {
         $table = self::getTable();
-        return "INSERT INTO $table (laenge, breite, tiefgang, beschreibung, kapazitaet, bootstyp, verfuegbarkeit, preis_pro_tag, userID)
-                 VALUES (:laenge, :breite, :tiefgang, :beschreibung, :kapazitaet, :bootstyp, :verfuegbarkeit, :preis_pro_tag, :Benutzer)";
+        return "INSERT INTO $table (laenge, breite, tiefgang, beschreibung, kapazitaet, bootstyp, verfuegbarkeit, preis_pro_tag, kaution, userID)
+                 VALUES (:laenge, :breite, :tiefgang, :beschreibung, :kapazitaet, :bootstyp, :verfuegbarkeit, :preis_pro_tag, :kaution, :Benutzer)";
     }
 
     protected static function getUpdateStmnt() : string
     {
         $table = self::getTable();
         return "UPDATE $table
-                 SET laenge=:laenge, breite=:breite, tiefgang=:tiefgang, beschreibung=:beschreibung, kapazitaet=:kapazitaet, bootstyp=:bootstyp, verfuegbarkeit=:verfuegbarkeit, preis_pro_tag=:preis_pro_tag, userID=:Benutzer, active=:Active
+                 SET laenge=:laenge, breite=:breite, tiefgang=:tiefgang, beschreibung=:beschreibung, kapazitaet=:kapazitaet, bootstyp=:bootstyp, verfuegbarkeit=:verfuegbarkeit, preis_pro_tag=:preis_pro_tag, kaution =:kaution, userID=:Benutzer, active=:Active
                  WHERE ID = :ID";
     }
 

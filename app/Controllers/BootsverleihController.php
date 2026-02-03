@@ -107,7 +107,7 @@ class BootsverleihController extends BaseController
 
         $id = ($data['id'] === '' ? null : (int) $data['id']);
 
-        $kunde = new Boot(
+        $boot = new Boot(
             $data['laenge'],
             $data['breite'],
             $data['tiefgang'],
@@ -120,9 +120,9 @@ class BootsverleihController extends BaseController
             $id,
             (bool) $data['active']
         );
-        $kunde->saveEntry($db);
+        $boot->saveEntry($db);
 
-        return $this->response->setJSON($kunde->toArray());
+        return $this->response->setJSON($boot->toArray());
     }
 
     public function saveBootMiete(): \CodeIgniter\HTTP\ResponseInterface

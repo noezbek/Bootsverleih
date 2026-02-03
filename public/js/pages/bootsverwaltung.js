@@ -17,7 +17,7 @@ export async function init() {
 
 async function initialLoad() {
     const {boats, featureList} = await apiGetMany({
-        boats: '/bootsverleih/load',
+        boats: '/bootsverleih/load_staff',
         featureList: '/features/load',
     });
 

@@ -41,6 +41,7 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
     $routes->get('/bestellungen/load', 'ZahlungenController::loadBestellungen');
     $routes->get('/vertraege/load', 'ZahlungenController::loadVertaege');
     $routes->get('/zahlungen/load', 'ZahlungenController::loadZahlungen');
+    $routes->get('/zahlungen/loadByKunde', 'ZahlungenController::loadZahlungenByKunde');
 
 });
 
@@ -56,6 +57,8 @@ $routes->group('', ['filter' => 'mitarbeiter'], function($routes) {
     $routes->get('/kundenverwaltung/load', 'KundenverwaltungController::loadKundenverwaltung');
     $routes->post('/kundenverwaltung/save', 'KundenverwaltungController::saveKundenverwaltung');
     $routes->post('/kundenverwaltung/delete', 'KundenverwaltungController::deleteKundenverwaltung');
+    $routes->post('/bootsverleih/save', 'BootsverleihController::saveBoot');
+    $routes->post('/bootsverleih/delete', 'BootsverleihController::deleteBoot');
 
 });
 
