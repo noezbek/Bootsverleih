@@ -123,7 +123,7 @@ abstract class DatabaseEntry
         $this->id = $id;
     }
 
-    public function getID(): int
+    public function getID(): int|null
     {
         return $this->id;
     }

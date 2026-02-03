@@ -30,3 +30,8 @@ export function isEmpty(value) {
         (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0)
     );
 }
+
+export function formatEuro(v) {
+    const n = Number(v ?? 0);
+    return n.toFixed(2).replace('.', ',') + ' €';
+}

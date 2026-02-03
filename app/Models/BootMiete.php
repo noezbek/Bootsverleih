@@ -2,24 +2,23 @@
 
 namespace App\Models;
 
-use App\Enums\PaymentStatus;
 use App\Filters\DbFilter;
 use PDO;
 
-class Zahlung extends DatabaseEntry
+class BootMiete extends DatabaseEntry
 {
-    private Vertrag|int $vertrag;
-    private PaymentStatus|int $zahlungsstatus;
-    private float $betrag;
-    private ?string $faelligAm;
-    private ?string $bezahltAm;
+    private int $boot;
+    private int $bestellung;
+    private string $startdatum;
+    private string $enddatum;
+    private float $preisProTag;
 
     public function __construct(
-        int $vertrag,
-        PaymentStatus|int $zahlungsstatus,
-        float $betrag,
-        ?string $faelligAm,
-        ?string $bezahltAm = null,
+        int $boot,
+        int $bestellung,
+        string $startdatum,
+        string $enddatum,
+        float $preisProTag,
         ?int $id = null,
         bool $active = true,
         ?string $updated_at = null,
@@ -27,16 +26,16 @@ class Zahlung extends DatabaseEntry
         ?int $userID = null
     ) {
         parent::__construct($id, $active, $updated_at, $created_at, $userID);
-        $this->vertrag = $vertrag;
-        $this->zahlungsstatus = $zahlungsstatus;
-        $this->betrag = $betrag;
-        $this->faelligAm = $faelligAm;
-        $this->bezahltAm = $bezahltAm;
+        $this->boot = $boot;
+        $this->bestellung = $bestellung;
+        $this->startdatum = $startdatum;
+        $this->enddatum = $enddatum;
+        $this->preisProTag = $preisProTag;
     }
 
     public static function getTable(): string
     {
-        return 'zahlungen';
+        return 'boot_mieten';
     }
 
     public static function findAllEntries(PDO $db, ?DbFilter $filter = null): array
@@ -52,11 +51,11 @@ class Zahlung extends DatabaseEntry
 
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $obj = new self(
-                (int)$row['vertrag_ID'],
-                (int)$row['zahlungsstatus'],
-                (float)$row['betrag'],
-                $row['faellig_am'],
-                $row['bezahlt_am'],
+                (int)$row['boot_ID'],
+                (int)$row['bestellung_ID'],
+                $row['startdatum'],
+                $row['enddatum'],
+                (float)$row['preis_pro_tag'],
                 (int)$row['ID'],
                 (bool)$row['active'],
                 $row['updated_at'],
@@ -70,9 +69,9 @@ class Zahlung extends DatabaseEntry
         return $map;
     }
 
-    public function getVertrag(): Vertrag|int
+    public function getBestellungId(): int
     {
-        return $this->vertrag;
+        return $this->bestellung;
     }
 
     protected static function getInsertStmnt(): string
@@ -102,11 +101,11 @@ class Zahlung extends DatabaseEntry
     {
         return [
             'id' => $this->id,
-            'vertrag' => $this->vertrag,
-            'zahlungsstatus' => $this->zahlungsstatus,
-            'betrag' => $this->betrag,
-            'faelligAm' => $this->faelligAm,
-            'bezahltAm' => $this->bezahltAm,
+            'bestellung' => $this->bestellung,
+            'boot' => $this->boot,
+            'startdatum' => $this->startdatum,
+            'enddatum' => $this->enddatum,
+            'preisProTag' => $this->preisProTag,
             'active' => $this->active,
             'updated_at' => $this->updated_at,
             'created_at' => $this->created_at,

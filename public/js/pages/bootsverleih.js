@@ -1,12 +1,11 @@
-import { apiGet } from "../api.js";
+import {apiGet, apiGetMany} from "../services/api.js";
+import {setText, setValue, val, escape, formatEuro} from "../services/helpers.js";
 
-let boote = {};       // { id: boot }
-let currentIds = [];  // gefilterte/sortierte IDs
+let boote = {};
+let features = {};
+let currentIds = [];
 let selectedBootId = null;
 
-// ==============================
-// INIT (nur 1x beim Laden)
-// ==============================
 export async function init() {
     wireModalClose();
     wireFilters();
@@ -18,22 +17,20 @@ export async function init() {
     await initialLoad();
 }
 
-// ==============================
-// INITIAL LOAD (EINMALIG)
-// ==============================
 async function initialLoad() {
-    const data = await apiGet('/bootsverleih/load');
 
-    // erwartet: { boote: { id: {...} } }
-    boote = data?.boote ?? {};
+    const {booteData, featuresData} = await apiGetMany({
+        booteData: '/bootsverleih/load',
+        featuresData: '/features/load',
+    })
+
+    boote = booteData ?? {};
+    features = featuresData ?? {};
     currentIds = Object.keys(boote).map(Number);
 
     applyFilterAndSort();
 }
 
-// ==============================
-// RENDER
-// ==============================
 function renderGrid() {
     const grid = document.getElementById('boatsGrid');
     if (!grid) return;
@@ -102,9 +99,6 @@ function buildCard(id, b) {
     return card;
 }
 
-// ==============================
-// FILTER + SORT
-// ==============================
 function wireFilters() {
     document.getElementById('sortBy')?.addEventListener('change', applyFilterAndSort);
     document.getElementById('filterType')?.addEventListener('change', applyFilterAndSort);
@@ -158,9 +152,6 @@ function compareBoots(sortBy, a, b) {
     }
 }
 
-// ==============================
-// GRID ACTIONS
-// ==============================
 function wireGridActions() {
     document.getElementById('boatsGrid')
         ?.addEventListener('click', e => {
@@ -175,9 +166,6 @@ function wireGridActions() {
         });
 }
 
-// ==============================
-// MODAL + BOOKING
-// ==============================
 function openBookingModal(id) {
     const b = boote[id];
     if (!b) return;
@@ -260,9 +248,6 @@ function closeModal(id) {
     selectedBootId = null;
 }
 
-// ==============================
-// HELPERS
-// ==============================
 function applyDarkMode() {
     if (localStorage.getItem('darkMode') === 'true') {
         document.body.classList.add('dark-mode');
@@ -296,30 +281,3 @@ function durationText(d) {
     if (d === 30) return '1 Monat';
     return String(d);
 }
-
-function formatEuro(v) {
-    const n = Number(v ?? 0);
-    return n.toFixed(2).replace('.', ',') + ' €';
-}
-
-const escape = v => String(v ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;');
-
-const setText = (id, v) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.textContent = v ?? '';
-};
-
-const setValue = (id, v) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.value = (v === null || v === undefined) ? '' : String(v);
-};
-
-const val = id => {
-    const v = document.getElementById(id)?.value;
-    return v === '' ? null : v;
-};

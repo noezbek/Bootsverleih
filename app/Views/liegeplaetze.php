@@ -8,7 +8,7 @@
     <script>
         window.APP = {
             baseUrl: "<?= rtrim(base_url(), '/') ?>",
-            csrf: document.querySelector('meta[name="csrf-token"]').content
+            csrf: "<?= csrf_hash() ?>"
         };
     </script>
     <title>Liegeplätze - Yachthafen Plau</title>

@@ -1,59 +1,7 @@
-// ==============================
-// DUMMY DATA
-// ==============================
-const dummyBoats = [
-    { id: 1, name: 'Windspiel', type: 'Segelboot', icon: '⛵', length: '8.5m', capacity: 4 },
-    { id: 2, name: 'Meerblick', type: 'Motorboot', icon: '🚤', length: '6.2m', capacity: 6 },
-    { id: 3, name: 'Wellenreiter', type: 'Kajak', icon: '🛶', length: '3.5m', capacity: 2 },
-    { id: 4, name: 'Sonnenschein', type: 'Segelboot', icon: '⛵', length: '10.0m', capacity: 6 },
-];
+import {apiGetMany, apiPostFormData, toFormData} from "../services/api.js";
+import {formatEuro, escape} from "../services/helpers.js";
+import {BOAT_TYPE_ICONS} from "../services/BoatConstants.js";
 
-// Berth positions - horizontal lines
-const berthPositions = [
-    // UPPER PIER - 16 finger docks in a horizontal line
-    { id: 'A1',  name: 'A-1',  x: 20.3, y: 30, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'A2',  name: 'A-2',  x: 23.5, y: 30, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'A3',  name: 'A-3',  x: 26.8, y: 30, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'A4',  name: 'A-4',  x: 34.7, y: 30, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'A5',  name: 'A-5',  x: 38.7, y: 30, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'A6',  name: 'A-6',  x: 42.6, y: 30, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'A7',  name: 'A-7',  x: 46.3, y: 30, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'A8',  name: 'A-8',  x: 49.9, y: 30, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'A9',  name: 'A-9',  x: 53.7, y: 30, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'A10', name: 'A-10', x: 57.4, y: 30, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'A11', name: 'A-11', x: 59.7, y: 30, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'A12', name: 'A-12', x: 64.1, y: 30, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'A13', name: 'A-13', x: 67.2, y: 30, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'A14', name: 'A-14', x: 70.5, y: 30, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-
-    // LOWER PIER - 12 finger docks in a horizontal line
-    { id: 'B1',  name: 'B-1',  x: 20.0, y: 59, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'B2',  name: 'B-2',  x: 21.8, y: 59, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'B3',  name: 'B-3',  x: 23.6, y: 59, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'B4',  name: 'B-4',  x: 27.0, y: 59, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'B5',  name: 'B-5',  x: 30.3, y: 59, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'B6',  name: 'B-6',  x: 33.2, y: 59, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'B7',  name: 'B-7',  x: 36.0, y: 59, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'B8',  name: 'B-8',  x: 38.8, y: 59, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'B9',  name: 'B-9',  x: 41.8, y: 59, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'B10', name: 'B-10', x: 45.1, y: 59, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-    { id: 'B11', name: 'B-11', x: 48.4, y: 59, w: 1.5, h: 7, pricePerDay: 50, capacity: 2 },
-];
-
-// Reserved berths (for demo - would come from backend)
-// Each berth can have multiple boats based on capacity
-const reservedBerths = {
-    'A3': { boats: [{ boatId: 1, boatName: 'Windspiel', until: '2026-03-15' }] },
-    'A7': { boats: [
-        { boatId: 2, boatName: 'Meerblick', until: '2026-02-28' },
-        { boatId: 4, boatName: 'Sonnenschein', until: '2026-04-10' }
-    ]},
-    'B5': { boats: [{ boatId: 3, boatName: 'Wellenreiter', until: '2026-03-20' }] },
-};
-
-// ==============================
-// STATE
-// ==============================
 let panX = 0;
 let panY = 0;
 let isPanning = false;
@@ -67,10 +15,23 @@ let imageWidth = 0;
 let imageHeight = 0;
 let scale = 1;
 
-// ==============================
-// INIT
-// ==============================
+let berths = {};
+let features = {};
+let boats = {};
+
+async function initialLoad() {
+    const {boote, featuresData, liegeplaetze} = await apiGetMany({
+        boote: '/bootsverleih/load',
+        featuresData: '/features/load',
+        liegeplaetze: '/liegeplaetze/load',
+    })
+    berths = liegeplaetze;
+    features = featuresData;
+    boats = boote;
+}
+
 export async function init() {
+    await initialLoad();
     applyDarkMode();
     renderBoatsList();
 
@@ -118,9 +79,6 @@ export async function init() {
     wireModal();
 }
 
-// ==============================
-// CALCULATE SCALE TO COVER VIEWPORT
-// ==============================
 function calculateCoverScale() {
     if (!imageWidth || !imageHeight || !viewportWidth || !viewportHeight) return;
 
@@ -130,25 +88,22 @@ function calculateCoverScale() {
     scale = Math.max(scaleX, scaleY);
 }
 
-// ==============================
-// RENDER BOATS LIST
-// ==============================
 function renderBoatsList() {
     const list = document.getElementById('boatsList');
     if (!list) return;
 
     list.innerHTML = '';
 
-    dummyBoats.forEach(boat => {
+    Object.values(boats).forEach(boat => {
         const item = document.createElement('div');
         item.className = 'boat-item';
         item.draggable = true;
         item.dataset.boatId = boat.id;
 
         item.innerHTML = `
-            <div class="boat-item-icon">${boat.icon}</div>
+            <div class="boat-item-icon">${BOAT_TYPE_ICONS[boat.type]}</div>
             <div class="boat-item-name">${escape(boat.name)}</div>
-            <div class="boat-item-type">${escape(boat.type)}</div>
+            <div class="boat-item-type">${window.APP.enums.bootTypen?.[boat.type] ?? '-'}</div>
             <div class="boat-item-info">
                 <span>${escape(boat.length)}</span>
                 <span>${boat.capacity} Pers.</span>
@@ -159,57 +114,46 @@ function renderBoatsList() {
     });
 }
 
-// ==============================
-// CREATE BERTH MARKERS
-// ==============================
 function createBerthMarkers() {
     const overlay = document.getElementById('berthsOverlay');
     if (!overlay) return;
 
     overlay.innerHTML = '';
 
-    berthPositions.forEach(berth => {
+    Object.values(berths).forEach(lp => {
         const marker = document.createElement('div');
         marker.className = 'berth-marker';
-        marker.dataset.berthId = berth.id;
-        marker.dataset.name = berth.name;
+        marker.dataset.berthId = lp.id
+        marker.dataset.name = lp.bezeichnung;
 
-        // Position and size based on percentage of image
-        marker.style.left = `${berth.x}%`;
-        marker.style.top = `${berth.y}%`;
-        marker.style.width = `${berth.w}%`;
-        marker.style.height = `${berth.h}%`;
+        // Position
+        marker.style.left = `${lp.pos.x}%`;
+        marker.style.top  = `${lp.pos.y}%`;
+        marker.style.width  = `${lp.pos.w}%`;
+        marker.style.height = `${lp.pos.h}%`;
 
-        // Check reservation status
-        const reservation = reservedBerths[berth.id];
-        const bookedCount = reservation ? reservation.boats.length : 0;
-        const availableSpots = berth.capacity - bookedCount;
+        const reservierungen = lp.reservierungen ?? [];
+        const bookedCount = reservierungen.length;
+        const available = lp.capacity - bookedCount;
 
-        if (availableSpots === 0) {
-            // Fully booked
+        marker.dataset.capacity = lp.capacity;
+        marker.dataset.available = available;
+
+        if (available <= 0) {
             marker.classList.add('reserved');
-            const boatNames = reservation.boats.map(b => b.boatName).join(', ');
-            marker.title = `${berth.name} - Voll belegt (${boatNames})`;
+            marker.title = `${lp.bezeichnung} – voll belegt`;
         } else if (bookedCount > 0) {
-            // Partially booked
             marker.classList.add('partial');
-            marker.title = `${berth.name} - ${availableSpots}/${berth.capacity} frei - ${formatEuro(berth.pricePerDay)}/Tag`;
+            marker.title = `${lp.bezeichnung} – ${available}/${lp.capacity} frei`;
         } else {
-            // Fully available
-            marker.title = `${berth.name} - ${berth.capacity} Plätze - ${formatEuro(berth.pricePerDay)}/Tag`;
+            marker.title = `${lp.bezeichnung} – ${lp.capacity} Plätze frei`;
         }
-
-        // Show capacity indicator
-        marker.dataset.capacity = berth.capacity;
-        marker.dataset.available = availableSpots;
 
         overlay.appendChild(marker);
     });
 }
 
-// ==============================
-// PAN CONSTRAINTS
-// ==============================
+
 function constrainPan() {
     const scaledWidth = imageWidth * scale;
     const scaledHeight = imageHeight * scale;
@@ -230,9 +174,6 @@ function updateTransform() {
     content.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
 }
 
-// ==============================
-// PAN (MOUSE/TOUCH) - NO ZOOM
-// ==============================
 function wirePan() {
     const viewport = document.getElementById('mapViewport');
     if (!viewport) return;
@@ -285,9 +226,6 @@ function wirePan() {
     });
 }
 
-// ==============================
-// DRAG & DROP
-// ==============================
 function wireDragDrop() {
     const boatsList = document.getElementById('boatsList');
     const overlay = document.getElementById('berthsOverlay');
@@ -299,7 +237,7 @@ function wireDragDrop() {
         const item = e.target.closest('.boat-item');
         if (!item) return;
 
-        draggedBoat = dummyBoats.find(b => b.id === Number(item.dataset.boatId));
+        draggedBoat = boats[item.dataset.boatId];
         item.classList.add('dragging');
 
         e.dataTransfer.effectAllowed = 'move';
@@ -343,14 +281,14 @@ function wireDragDrop() {
         marker.classList.remove('drag-over');
 
         // Check if fully booked
-        const availableSpots = Number(marker.dataset.available);
-        if (availableSpots === 0) {
-            alert('Dieser Liegeplatz ist voll belegt.');
+        const available = Number(marker.dataset.available);
+        if (available <= 0) {
+            alert('Liegeplatz ist voll.');
             return;
         }
 
         const berthId = marker.dataset.berthId;
-        const berth = berthPositions.find(b => b.id === berthId);
+        const berth = berths[berthId];
 
         if (draggedBoat && berth) {
             currentBerth = berth;
@@ -359,18 +297,16 @@ function wireDragDrop() {
     });
 }
 
-// ==============================
-// MODAL
-// ==============================
 function openReservationModal(berth, boat) {
-    const modal = document.getElementById('reservationModal');
+    const modal = document.getElementById(
+        'reservationModal');
+
     if (!modal) return;
 
-    currentBerth = berth;
+    const reservations = berth?.reservierungen ?? [];
 
     // Calculate available spots
-    const reservation = reservedBerths[berth.id];
-    const bookedCount = reservation ? reservation.boats.length : 0;
+    const bookedCount = reservations.length;
     const availableSpots = berth.capacity - bookedCount;
 
     // Set info
@@ -446,14 +382,14 @@ function updateCostTotal() {
     document.getElementById('cost-total').textContent = formatEuro(total);
 }
 
-function handleReservation() {
+async function handleReservation() {
     const berthId = document.getElementById('reservation-berth-id')?.value;
     const boatId = document.getElementById('reservation-boat-id')?.value;
     const startDate = document.getElementById('reservation-start-date')?.value;
     const endDate = document.getElementById('reservation-end-date')?.value;
 
-    const boat = dummyBoats.find(b => b.id === Number(boatId));
-    const berth = berthPositions.find(b => b.id === berthId);
+    const boat = boats[boatId]
+    const berth = berths[berthId];
 
     if (!boat || !berth) return;
 
@@ -464,46 +400,55 @@ function handleReservation() {
     const total = berth.pricePerDay * days;
 
     // Add to reserved (in real app, would send to backend)
-    if (!reservedBerths[berthId]) {
-        reservedBerths[berthId] = { boats: [] };
+    const reservations = berth?.reservierungen ?? [];
+
+    const res = {
+        boot: Number(boatId),
+        liegeplatz: berth.id,
+        startdatum: endDate,
+        enddatum: endDate,
+        preisProTag: berth.pricePerDay,
     }
-    reservedBerths[berthId].boats.push({
-        boatId: Number(boatId),
-        boatName: boat.name,
-        until: endDate
-    });
 
-    // Update marker
-    const marker = document.querySelector(`.berth-marker[data-berth-id="${berthId}"]`);
-    if (marker) {
-        const bookedCount = reservedBerths[berthId].boats.length;
-        const availableSpots = berth.capacity - bookedCount;
-        marker.dataset.available = availableSpots;
+    const fd = toFormData(res, 'data');
+    const saved = await apiPostFormData('/liegeplaetze/reservieren', fd);
 
-        if (availableSpots === 0) {
-            marker.classList.remove('partial');
-            marker.classList.add('reserved');
-            const boatNames = reservedBerths[berthId].boats.map(b => b.boatName).join(', ');
-            marker.title = `${berth.name} - Voll belegt (${boatNames})`;
-        } else {
-            marker.classList.add('partial');
-            marker.title = `${berth.name} - ${availableSpots}/${berth.capacity} frei - ${formatEuro(berth.pricePerDay)}/Tag`;
+    if (saved) {
+        reservations.push(saved);
+
+        // Update marker
+        const marker = document.querySelector(`.berth-marker[data-berth-id="${berthId}"]`);
+        if (marker) {
+            const bookedCount = reservations.length;
+            const availableSpots = berth.capacity - bookedCount;
+            marker.dataset.available = availableSpots;
+
+            if (availableSpots === 0) {
+                marker.classList.remove('partial');
+                marker.classList.add('reserved');
+                const boatNames = reservations.map(r => boats[r.boot].name).join(', ');
+                marker.title = `${berth.name} - Voll belegt (${boatNames})`;
+            } else {
+                marker.classList.add('partial');
+                marker.title = `${berth.name} - ${availableSpots}/${berth.capacity} frei - ${formatEuro(berth.pricePerDay)}/Tag`;
+            }
         }
+
+        alert(
+            `Reservierung erfolgreich!\n\n` +
+            `Liegeplatz: ${berth.name}\n` +
+            `Liegeplatz: ${berth.name}\n` +
+            `Boot: ${boat.name}\n` +
+            `Von: ${startDate}\n` +
+            `Bis: ${endDate}\n` +
+            `Dauer: ${days} Tag${days > 1 ? 'e' : ''}\n` +
+            `Preis pro Tag: ${formatEuro(berth.pricePerDay)}\n` +
+            `Gesamtpreis: ${formatEuro(total)}`
+        );
+
+        closeModal('reservationModal');
+        currentBerth = null;
     }
-
-    alert(
-        `Reservierung erfolgreich!\n\n` +
-        `Liegeplatz: ${berth.name}\n` +
-        `Boot: ${boat.name}\n` +
-        `Von: ${startDate}\n` +
-        `Bis: ${endDate}\n` +
-        `Dauer: ${days} Tag${days > 1 ? 'e' : ''}\n` +
-        `Preis pro Tag: ${formatEuro(berth.pricePerDay)}\n` +
-        `Gesamtpreis: ${formatEuro(total)}`
-    );
-
-    closeModal('reservationModal');
-    currentBerth = null;
 }
 
 function closeModal(id) {
@@ -512,20 +457,8 @@ function closeModal(id) {
     currentBerth = null;
 }
 
-// ==============================
-// HELPERS
-// ==============================
 function applyDarkMode() {
     if (localStorage.getItem('darkMode') === 'true') {
         document.body.classList.add('dark-mode');
     }
 }
-
-function formatEuro(v) {
-    return Number(v || 0).toFixed(2).replace('.', ',') + ' €';
-}
-
-const escape = v => String(v ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;');

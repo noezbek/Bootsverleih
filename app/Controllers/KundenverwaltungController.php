@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Filters\DbFilter;
 use App\Models\DBConnection;
 use App\Models\Kunde;
 
@@ -18,23 +17,18 @@ class KundenverwaltungController extends BaseController
     {
         $db = DBConnection::getConnection();
 
-        $filter = new DbFilter();
-        $filter->where('active', '=', 1);
-
         // Alle Kunden aus der DB holen
-        $kundenInstances = Kunde::findAllEntries($db, $filter);
+        $kundenInstances = Kunde::findAllEntries($db);
         $kunden = [];
 
         foreach ($kundenInstances as $id => $kunde) {
             $kunden[$id] = $kunde->toArray();
         }
 
-        return $this->response->setJSON([
-            'kunden' => $kunden
-        ]);
+        return $this->response->setJSON($kunden);
     }
 
-    public function saveKundenverwaltung(): array
+    public function saveKundenverwaltung(): \CodeIgniter\HTTP\ResponseInterface
     {
         $db = DBConnection::getConnection();
 
@@ -58,7 +52,7 @@ class KundenverwaltungController extends BaseController
         );
         $kunde->saveEntry($db);
 
-        return $kunde->toArray();
+        return $this->response->setJSON($kunde->toArray());
     }
 
     public function deleteKundenverwaltung(): \CodeIgniter\HTTP\RedirectResponse

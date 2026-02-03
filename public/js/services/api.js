@@ -43,6 +43,18 @@ export async function apiGet(path) {
     return res.json();
 }
 
+export async function apiGetMany(routes) {
+    const entries = Object.entries(routes);
+    const results = await Promise.all(
+        entries.map(([_, path]) => apiGet(path))
+    );
+
+    return entries.reduce((acc, [key], i) => {
+        acc[key] = results[i];
+        return acc;
+    }, {});
+}
+
 
 // FormData POST (mit CSRF Header)
 export async function apiPostFormData(path, formData) {

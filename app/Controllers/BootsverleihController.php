@@ -15,24 +15,31 @@ class BootsverleihController extends BaseController
     public function loadBoote(): \CodeIgniter\HTTP\ResponseInterface
     {
         $db = DBConnection::getConnection();
-        // Alle Kunden aus der DB holen
+
         $bootInstances = Boot::findAllEntries($db);
-        $featureInstances = Feature::findAllEntries($db);
 
         $boote = [];
-        $features = [];
 
         foreach ($bootInstances as $id => $boot) {
             $boote[$id] = $boot->toArray();
         }
+
+        return $this->response->setJSON($boote);
+    }
+
+    public function loadFeatures(): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $db = DBConnection::getConnection();
+
+        $featureInstances = Feature::findAllEntries($db);
+
+        $features = [];
+
         foreach ($featureInstances as $id => $feature) {
             $features[$id] = $feature->toArray();
         }
 
-        return $this->response->setJSON([
-            'boote' => $boote,
-            'features' => $features,
-        ]);
+        return $this->response->setJSON($features);
     }
 
     public function saveBoot(): array
@@ -70,6 +77,4 @@ class BootsverleihController extends BaseController
 
         return redirect()->back()->with('saved', 1);
     }
-
-
 }

@@ -35,7 +35,7 @@
 
     <label>
         PLZ
-        <input type="text" name="zip" placeholder="12345">
+        <input type="number" name="zip" placeholder="12345">
     </label>
 
     <label>

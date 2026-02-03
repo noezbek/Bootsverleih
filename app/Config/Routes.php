@@ -12,6 +12,13 @@ $routes->post('/login', 'AuthController::login');
 $routes->post('/register', 'AuthController::register');
 $routes->post('/logout', 'AuthController::logout');
 
+$routes->get(
+    'reservierung/confirm/(:segment)',
+    'LiegeplatzeController::confirm/$1'
+);
+
+$routes->post('reservierung/confirm', 'LiegeplatzeController::confirmPost');
+
 
 $routes->group('', ['filter' => 'auth'], function($routes) {
 
@@ -26,16 +33,21 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
     $routes->get('/accountEinstellungen', 'Home::accountSettings');
 
     // DATA
-    $routes->get('/meta/load', 'MetaController::loadEnums');
+    $routes->get('/userdata/load', 'AuthController::loadUser');
+    $routes->get('/enums/load', 'MetaController::loadEnums');
     $routes->get('/kundenverwaltung/load', 'KundenverwaltungController::loadKundenverwaltung');
     $routes->post('/kundenverwaltung/save', 'KundenverwaltungController::saveKundenverwaltung');
     $routes->post('/kundenverwaltung/delete', 'KundenverwaltungController::deleteKundenverwaltung');
+    $routes->get('/features/load', 'BootsverleihController::loadFeatures');
     $routes->get('/bootsverleih/load', 'BootsverleihController::loadBoote');
     $routes->post('/bootsverleih/save', 'BootsverleihController::saveBoot');
     $routes->post('/bootsverleih/delete', 'BootsverleihController::deleteBoot');
-    $routes->get('/zahlungen/load', 'ZahlungenController::loadZahlungen');
-    $routes->post('/zahlungen/save', 'ZahlungenController::saveZahlung');
-    $routes->post('/zahlungen/delete', 'ZahlungenController::deleteZahlung');
+    $routes->get('/zahlungen/loadFull', 'ZahlungenController::loadZahlungsVerwaltung');
+    $routes->get('/liegeplaetze/load', 'LiegeplatzeController::loadLiegeplaetze');
+    $routes->post('/liegeplaetze/reservieren', 'LiegeplatzeController::saveReservierung');
+    $routes->get('/bestellungen/load', 'ZahlungenController::loadBestellungen');
+    $routes->get('/vertraege/load', 'ZahlungenController::loadVertaege');
+    $routes->get('/zahlungen/load', 'ZahlungenController::loadZahlungem');
 
     // Account Einstellungen
     $routes->get('/accountEinstellungen/load', 'AccountEinstellungenController::loadAccountData');
