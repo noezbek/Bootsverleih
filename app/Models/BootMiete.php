@@ -80,7 +80,7 @@ class BootMiete extends DatabaseEntry
     public function getCalculatedSollPreis() : float
     {
         $days = $this->getCalculatedDays();
-        return $this>$this->getPreisProTag() * $days;
+        return $this->getPreisProTag() * $days;
     }
 
     public function getBestellung(): Bestellung|int

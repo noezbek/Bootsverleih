@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\PaymentStatus;
 use App\Filters\DbFilter;
+use Cassandra\Date;
 use DateTime;
 use PDO;
 
@@ -75,7 +76,7 @@ class Zahlung extends DatabaseEntry
     {
         $faelligAm = new DateTime();        // heute
         $faelligAm->modify('+30 days');
-        return $faelligAm;
+        return $faelligAm->format('Y-m-d');
     }
 
     public function getVertrag(): Vertrag|int

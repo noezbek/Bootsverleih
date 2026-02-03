@@ -123,7 +123,7 @@ class BootsverleihController extends BaseController
 
             $bestellID = $bestellung->getID();
 
-            $miete = new BootMiete($boot->getID(), $bestellID, $data['startDate'], $data['endDate'], $data['preisProTag']);
+            $miete = new BootMiete($boot->getID(), $bestellID, $data['startDate'], $data['endDate'], (float)$data['preisProTag']);
             $miete->saveEntry($db);
 
             //ToDo: normalerweise wird das über mailbestätigung gemacht aber mail geht nicht deswegen direkt dummy zahlen
@@ -132,6 +132,8 @@ class BootsverleihController extends BaseController
 
             $zahlung = new Zahlung($vertrag->getID(), PaymentStatus::BEZAHLT, $miete->getCalculatedSollPreis(), Zahlung::calculateFaelligAm());
             $zahlung->saveEntry($db);
+
+
 
             $db->commit();
 
@@ -147,8 +149,6 @@ class BootsverleihController extends BaseController
             $db->rollBack();
             throw $e; // oder eigene Fehlermeldung
         }
-
-
     }
 
     public function deleteBoot(): \CodeIgniter\HTTP\RedirectResponse
