@@ -15,7 +15,8 @@ class ReservationEmail
         string $confirmUrl,
         string $expiresAt
     ): bool {
-        $email = Services::email();
+        $email = \Config\Services::email(null, false);
+
 
         $kundenMail = $kunde->getEmail();
 
