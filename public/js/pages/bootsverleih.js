@@ -3,6 +3,7 @@ import {setText, setValue, val, escape, formatEuro} from "../services/helpers.js
 
 let boote = {};
 let featuresState = {};
+let bootMieten = {};
 let currentIds = [];
 let selectedBootId = null;
 
@@ -19,13 +20,15 @@ export async function init() {
 
 async function initialLoad() {
 
-    const {booteData, featuresData} = await apiGetMany({
+    const {booteData, featuresData, boatRents} = await apiGetMany({
+        boatRents: '/bootsverleih/loadMieten',
         booteData: '/bootsverleih/load',
         featuresData: '/features/load',
     })
 
     boote = booteData ?? {};
     featuresState = featuresData ?? {};
+    bootMieten = boatRents ?? {};
     currentIds = Object.keys(boote).map(Number);
 
     applyFilterAndSort();
@@ -48,13 +51,17 @@ function renderGrid() {
     }
 }
 
+function isBookedInPeriod(boatID) {
+
+}
+
 function buildCard(id, b) {
     const card = document.createElement('div');
     card.className = 'boat-card';
     card.dataset.boatId = String(id);
 
-    const availabilityText = b.availability === 'available' ? 'Verfügbar' : 'Begrenzt verfügbar';
-    const availabilityClass = b.availability === 'available' ? 'available' : 'limited';
+    const availabilityText = b.isBooked  ? 'Vermietet' : 'Verfügbar';
+    const availabilityClass = b.isBooked ? 'limited' : 'available';
 
     card.innerHTML = `
         <div class="boat-image">${escape(b.icon ?? '⛵')}</div>

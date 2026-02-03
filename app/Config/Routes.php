@@ -35,7 +35,9 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
     $routes->get('/userdata/load', 'AuthController::loadUser');
     $routes->get('/enums/load', 'MetaController::loadEnums');
     $routes->get('/features/load', 'BootsverleihController::loadFeatures');
-    $routes->get('/bootsverleih/load', 'BootsverleihController::loadBoote');
+    $routes->get('/bootsverleih/load', 'BootsverleihController::loadKundenBoote');
+    $routes->get('/bootsverleih/loadMieten', 'BootsverleihController::loadBootmietenByBootID');
+    $routes->get('/bootsverleih/load_staff', 'BootsverleihController::loadMitarbeiterBoote');
     $routes->post('/bootsverleih/mieten', 'BootsverleihController::saveBootMiete');
     $routes->get('/liegeplaetze/load', 'LiegeplatzeController::loadLiegeplaetze');
     $routes->post('/liegeplaetze/reservieren', 'LiegeplatzeController::saveReservierung');

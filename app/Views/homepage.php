@@ -32,10 +32,6 @@
 
 <div class="dashboard-grid">
 
-    <?php if (($role ?? null) === 1): ?>
-        <h2>HALLOOO</h2>
-    <?php endif; ?>
-
     <a href="<?= base_url('liegeplaetze') ?>" class="dashboard-item">
         <h2>Liegeplätze</h2>
         <p>Verwaltung und Reservierung von Bootsliegeplätzen</p>

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\Availability;
 use App\Enums\BoatTyoe;
 use App\Filters\DbFilter;
+use DateTime;
 use PDO;
 
 class Boot extends DatabaseEntry
@@ -19,7 +20,6 @@ class Boot extends DatabaseEntry
     private float $kaution;
     private Availability|int $verfuegbarkeit;
     private array $features;
-    private ?bool $isBooked;
 
     public function __construct(
         float $laenge,
@@ -126,23 +126,20 @@ class Boot extends DatabaseEntry
     }
 
 
-
-    public function isBooked(
+    public function isBookedInPeriod(
         PDO $db,
         string $startDate,
         string $endDate
     ): bool {
-        $stmt = $db->prepare(
-            "SELECT 1
-         FROM boot_mieten
-         WHERE boot_ID = :bootId
-           AND active = 1
-           AND (
-                startdatum < :endDate
-            AND enddatum   > :startDate
-           )
-         LIMIT 1"
-        );
+        $stmt = $db->prepare("
+        SELECT 1
+        FROM boot_mieten
+        WHERE boot_ID = :bootId
+          AND active = 1
+          AND startdatum < :endDate
+          AND enddatum   > :startDate
+        LIMIT 1
+    ");
 
         $stmt->execute([
             ':bootId'    => $this->id,
@@ -151,16 +148,6 @@ class Boot extends DatabaseEntry
         ]);
 
         return (bool)$stmt->fetchColumn();
-    }
-
-    public function setBooked(bool $booked) : void
-    {
-        $this->isBooked = $booked;
-    }
-
-    public function getBooked() : bool
-    {
-        return $this->isBooked;
     }
 
 
@@ -255,8 +242,7 @@ class Boot extends DatabaseEntry
             'features' => $this->features,
             'active' => $this->active,
             'updated_at' => $this->updated_at,
-            'created_at' => $this->created_at,
-            'isBooked' => $this->isBooked,
+            'created_at' => $this->created_at
         ];
     }
 

@@ -7,6 +7,7 @@ use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentRhythm;
 use App\Enums\PaymentStatus;
+use App\Filters\DbFilter;
 use App\Models\Bestellung;
 use App\Models\Boot;
 use App\Models\BootMiete;
@@ -22,21 +23,60 @@ class BootsverleihController extends BaseController
     {
         echo "<h1>BootsverleihController funktioniert!</h1>";
     }
-    public function loadBoote(): \CodeIgniter\HTTP\ResponseInterface
+
+    public function loadBootmietenByBootID(): \CodeIgniter\HTTP\ResponseInterface
     {
         $db = DBConnection::getConnection();
+
+        $filter = new DbFilter();
+        $filter->where('active', '=', 1);
+
+        $mietenInstances = BootMiete::findAllEntries($db, $filter);
+
+        $mieten = [];
+
+        foreach ($mietenInstances as $id => $miete) {
+
+            $bootID = $miete->getBoot();
+
+            $mieten[$bootID][] = $miete->toArray();
+        }
+
+        return $this->response->setJSON($mieten);
+    }
+
+    public function loadKundenBoote(): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $db = DBConnection::getConnection();
+
+        $filter = new DbFilter();
+        $filter->where('active', '=', 1);
+        $filter->where('verfuegbarkeit', '=', Availability::VERFUEGBAR->value);
 
         $bootInstances = Boot::findAllEntries($db);
 
         $boote = [];
 
-        $today = (new \DateTime())->format('Y-m-d');
-
         foreach ($bootInstances as $id => $boot) {
 
-            $boot->setBooked(
-                $boot->isBooked($db, $today, $today)
-            );
+            $boote[$id] = $boot->toArray();
+        }
+
+        return $this->response->setJSON($boote);
+    }
+
+    public function loadMitarbeiterBoote(): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $db = DBConnection::getConnection();
+
+        $filter = new DbFilter();
+        $filter->where('active', '=', 1);
+
+        $bootInstances = Boot::findAllEntries($db);
+
+        $boote = [];
+
+        foreach ($bootInstances as $id => $boot) {
 
             $boote[$id] = $boot->toArray();
         }
@@ -107,7 +147,7 @@ class BootsverleihController extends BaseController
                 throw new Exception('Boot ist aktuell nicht verfügbar');
             }
 
-            $isBooked = $boot->isBooked($db, $data['startDate'], $data['endDate']);
+            $isBooked = $boot->isBookedInPeriod($db, $data['startDate'], $data['endDate']);
 
             if ($isBooked) {
                 throw new Exception('Boot ist aktuell besetzt und kann nicht gebucht werden');
