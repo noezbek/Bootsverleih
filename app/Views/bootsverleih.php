@@ -84,20 +84,20 @@
                 <input type="date" id="booking-end-date" name="end_date" required>
             </div>
 
-            <div class="form-group">
-                <label for="booking-name">Ihr Name</label>
-                <input type="text" id="booking-name" required>
-            </div>
-
-            <div class="form-group">
-                <label for="booking-email">E-Mail</label>
-                <input type="email" id="booking-email" required>
-            </div>
-
-            <div class="form-group">
-                <label for="booking-phone">Telefon</label>
-                <input type="tel" id="booking-phone" required>
-            </div>
+<!--            <div class="form-group">-->
+<!--                <label for="booking-name">Ihr Name</label>-->
+<!--                <input type="text" id="booking-name" required>-->
+<!--            </div>-->
+<!---->
+<!--            <div class="form-group">-->
+<!--                <label for="booking-email">E-Mail</label>-->
+<!--                <input type="email" id="booking-email" required>-->
+<!--            </div>-->
+<!---->
+<!--            <div class="form-group">-->
+<!--                <label for="booking-phone">Telefon</label>-->
+<!--                <input type="tel" id="booking-phone" required>-->
+<!--            </div>-->
 
             <div class="cost-summary">
                 <div class="cost-line">

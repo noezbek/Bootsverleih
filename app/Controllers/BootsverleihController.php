@@ -2,9 +2,20 @@
 
 namespace App\Controllers;
 
+use App\Enums\Availability;
+use App\Enums\OrderStatus;
+use App\Enums\PaymentMethod;
+use App\Enums\PaymentRhythm;
+use App\Enums\PaymentStatus;
+use App\Models\Bestellung;
 use App\Models\Boot;
+use App\Models\BootMiete;
 use App\Models\DBConnection;
 use App\Models\Feature;
+use App\Models\Vertrag;
+use App\Models\Zahlung;
+use DateTime;
+use Exception;
 
 class BootsverleihController extends BaseController
 {
@@ -20,7 +31,14 @@ class BootsverleihController extends BaseController
 
         $boote = [];
 
+        $today = (new \DateTime())->format('Y-m-d');
+
         foreach ($bootInstances as $id => $boot) {
+
+            $boot->setBooked(
+                $boot->isBooked($db, $today, $today)
+            );
+
             $boote[$id] = $boot->toArray();
         }
 
@@ -42,7 +60,7 @@ class BootsverleihController extends BaseController
         return $this->response->setJSON($features);
     }
 
-    public function saveBoot(): array
+    public function saveBoot(): \CodeIgniter\HTTP\ResponseInterface
     {
         $db = DBConnection::getConnection();
 
@@ -65,7 +83,72 @@ class BootsverleihController extends BaseController
         );
         $kunde->saveEntry($db);
 
-        return $kunde->toArray();
+        return $this->response->setJSON($kunde->toArray());
+    }
+
+    public function saveBootMiete(): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $kunde_ID = $_SESSION['kunde_id'];
+
+        if (!$kunde_ID) {
+            throw new Exception('Keine KundenID');
+        }
+
+        $db = DBConnection::getConnection();
+        $data = json_decode($_POST['data'], 1);
+
+        try {
+            $db->beginTransaction();
+
+            $boot = Boot::findByIdEntry($db, $data['bootID']);
+
+            $verfuegbar = $boot->getVerfuegbarkeit();
+
+            if (Availability::VERFUEGBAR->value !== $verfuegbar) {
+                throw new Exception('Boot ist aktuell nicht verfügbar');
+            }
+
+            $isBooked = $boot->isBooked($db, $data['startDate'], $data['endDate']);
+
+            if ($isBooked) {
+                throw new Exception('Boot ist aktuell besetzt und kann nicht gebucht werden');
+            }
+
+            $bestellung = new Bestellung($kunde_ID,
+//            OrderStatus::IN_BEARBEITUNG->value, //ToDo: eigtl in bearbeitung aber mail senden geht nciht
+                OrderStatus::BESTAETIGT->value,
+            );
+
+            $bestellung->saveEntry($db);
+
+            $bestellID = $bestellung->getID();
+
+            $miete = new BootMiete($boot->getID(), $bestellID, $data['startDate'], $data['endDate'], $data['preisProTag']);
+            $miete->saveEntry($db);
+
+            //ToDo: normalerweise wird das über mailbestätigung gemacht aber mail geht nicht deswegen direkt dummy zahlen
+            $vertrag = new Vertrag($bestellID, PaymentRhythm::EINMALIG->value, PaymentMethod::UEBERWEISUNG->value);
+            $vertrag->saveEntry($db);
+
+            $zahlung = new Zahlung($vertrag->getID(), PaymentStatus::BEZAHLT, $miete->getCalculatedSollPreis(), Zahlung::calculateFaelligAm());
+            $zahlung->saveEntry($db);
+
+            $db->commit();
+
+            $payload  = [
+                'miete' => $miete->toArray(),
+                'vertrag' => $vertrag->toArray(),
+                'zahlung' => $zahlung->toArray(),
+                'bestellung' => $bestellung->toArray(),
+            ];
+
+            return $this->response->setJSON($payload);
+        } catch (\Throwable $e) {
+            $db->rollBack();
+            throw $e; // oder eigene Fehlermeldung
+        }
+
+
     }
 
     public function deleteBoot(): \CodeIgniter\HTTP\RedirectResponse

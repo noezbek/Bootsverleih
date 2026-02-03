@@ -1,4 +1,4 @@
-import {apiGet, apiGetMany} from "../services/api.js";
+import {apiGetMany, apiPostFormData, toFormData} from "../services/api.js";
 import {setText, setValue, val, escape, formatEuro} from "../services/helpers.js";
 
 let boote = {};
@@ -227,9 +227,9 @@ function calculateCost() {
 }
 
 
-function wireBookingForm() {
+async function wireBookingForm() {
     document.getElementById('bookingForm')
-        ?.addEventListener('submit', e => {
+        ?.addEventListener('submit', async e => {
             e.preventDefault();
 
             const b = boote[selectedBootId];
@@ -241,17 +241,30 @@ function wireBookingForm() {
             const name = val('booking-name') ?? '';
             const total = document.getElementById('cost-total')?.textContent ?? '0,00 €';
 
-            alert(
-                `Buchung erfolgreich!\n\n` +
-                `Boot: ${b.name}\n` +
-                `Name: ${name}\n` +
-                `Startdatum: ${startDate}\n` +
-                `Enddatum: ${endDate}\n` +
-                `Gesamtpreis: ${total}\n\n` +
-                `Sie erhalten eine Bestätigung per E-Mail.`
-            );
+            const data = {
+                bootID: selectedBootId,
+                startDate,
+                endDate,
+                preisProTag: b.pricePerDay
+            }
 
-            closeModal('bookingModal');
+            const res = await apiPostFormData('/bootsverleih/mieten', toFormData(data));
+
+            console.log('res', res);
+
+            if (res) {
+                alert(
+                    `Buchung erfolgreich!\n\n` +
+                    `Boot: ${b.name}\n` +
+                    `Name: ${name}\n` +
+                    `Startdatum: ${startDate}\n` +
+                    `Enddatum: ${endDate}\n` +
+                    `Gesamtpreis: ${total}\n\n` +
+                    `Sie erhalten eine Bestätigung per E-Mail.`
+                );
+
+                closeModal('bookingModal');
+            }
         });
 }
 

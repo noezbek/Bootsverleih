@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\PaymentStatus;
 use App\Filters\DbFilter;
+use DateTime;
 use PDO;
 
 class Zahlung extends DatabaseEntry
@@ -68,6 +69,13 @@ class Zahlung extends DatabaseEntry
         }
 
         return $map;
+    }
+
+    public static function calculateFaelligAm(): string
+    {
+        $faelligAm = new DateTime();        // heute
+        $faelligAm->modify('+30 days');
+        return $faelligAm;
     }
 
     public function getVertrag(): Vertrag|int

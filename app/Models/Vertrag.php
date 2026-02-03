@@ -95,7 +95,6 @@ class Vertrag extends DatabaseEntry
         return "
             UPDATE $table SET
                 bestellung_ID = :bestellung_ID,
-                vertragsbeginn  = NOW(),
                 zahlungsrhythmus = :zahlungsrhythmus,
                 zahlungsmethode = :zahlungsmethode,
                 gekuendigt_am = :gekuendigt_am,
