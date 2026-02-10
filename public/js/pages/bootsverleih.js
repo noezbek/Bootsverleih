@@ -34,6 +34,13 @@ async function initialLoad() {
     applyFilterAndSort();
 }
 
+function update(newMiete) {
+    bootMieten[newMiete.boot] = newMiete;
+    currentIds = Object.keys(boote).map(Number);
+
+    applyFilterAndSort();
+}
+
 function renderGrid() {
     const grid = document.getElementById('boatsGrid');
     if (!grid) return;
@@ -272,6 +279,9 @@ async function wireBookingForm() {
                 }
 
                 const res = await apiPostFormData('/bootsverleih/mieten', toFormData(data));
+
+
+                update(res.miete)
 
                 if (res) {
                     alert(

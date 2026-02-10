@@ -87,7 +87,7 @@ class AuthController extends BaseController
         $kunde->saveEntry($pdo);
         $kundeID = $kunde->getID();
 
-        $user = new User($username, $passwordHash, $kundeID, UserType::KUNDE->value);
+        $user = new User($username, $passwordHash, UserType::KUNDE->value, $kundeID);
 
         $user->saveEntry($pdo);
 

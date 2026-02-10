@@ -54,7 +54,8 @@ class User extends DatabaseEntry
                 ':u' => $this->username,
                 ':p' => $this->passwordHash,
                 ':k' => $this->kunde,
-                ':m' => $this->mitarbeiter
+                ':m' => $this->mitarbeiter,
+                ':usertype'  => $this->usertype,
             ]);
             $this->id = (int)$db->lastInsertId();
         } else {
