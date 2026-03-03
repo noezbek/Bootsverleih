@@ -68,7 +68,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <h2 id="modal-boat-name">Boot buchen</h2>
-            <span class="close" id="modalClose">&times;</span>
+            <span class="close" data-close="bookingModal">&times;</span>
         </div>
 
         <form id="bookingForm">
@@ -120,7 +120,7 @@
 
             <div class="modal-actions">
                 <button type="submit" class="btn btn-primary">Jetzt buchen</button>
-                <button type="button" class="btn btn-secondary" id="modalCancel">Abbrechen</button>
+                <button type="button" class="btn btn-secondary" data-close="bookingModal">Abbrechen</button>
             </div>
         </form>
     </div>

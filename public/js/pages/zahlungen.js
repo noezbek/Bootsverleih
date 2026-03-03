@@ -30,7 +30,8 @@ async function initialLoad() {
         contracts = vertraege;
         orders = bestellungen;
         const mapped = mapApiPayments(Object.values(zahlungen));
-        payments = mapped.payments;
+        console.log('mapped', mapped);
+        payments = mapped.cards;
         historyRows = mapped.history;
     } catch (e) {
         payments = [];
@@ -67,11 +68,14 @@ function mapApiPayments(apiData) {
             if (!relevant) return null;
 
             const vertrag = contracts[vertragId];
+
             if (!vertrag) return null;
 
+            const title = getTitleByVertrag(vertragId);
+            console.log(title);
             return {
-                id: `V-${vertragId}`,
-                title: getTitleByVertrag(vertragId),
+                id: vertragId,
+                title: title,
                 type: getIntervalLabel(vertrag.zahlungsrhythmus),
                 status: relevant.bezahltAm ? 'active' : 'pending',
                 nextText: relevant.faelligAm
@@ -85,7 +89,7 @@ function mapApiPayments(apiData) {
         })
         .filter(Boolean);
 
-    return { payments: cards, history };
+    return { cards, history };
 }
 
 
@@ -106,15 +110,16 @@ function getTitleByVertrag(vertragId) {
     if (!vertrag) return '-';
 
     const bestellung = orders[vertrag.bestellung];
+
     if (!bestellung) return '-';
 
-    // 1️⃣ Bootmiete hat Vorrang
+    //  Bootmiete hat Vorrang
     if (bestellung.gemieteteBoote?.length) {
         const bootId = bestellung.gemieteteBoote[0].boot;
         return boats[bootId]?.name ?? 'Boot';
     }
 
-    // 2️⃣ sonst Liegeplatz
+    //  sonst Liegeplatz
     if (bestellung.reservierteLiegeplaetze?.length) {
         const lpId = bestellung.reservierteLiegeplaetze[0].liegeplatz;
         return berths[lpId]?.name ?? 'Liegeplatz';

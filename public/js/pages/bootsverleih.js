@@ -35,7 +35,10 @@ async function initialLoad() {
 }
 
 function update(newMiete) {
-    bootMieten[newMiete.boot] = newMiete;
+    if (!bootMieten[newMiete.boot]) {
+        bootMieten[newMiete.boot] = []
+    }
+    bootMieten[newMiete.boot].push(newMiete);
     currentIds = Object.keys(boote).map(Number);
 
     applyFilterAndSort();
@@ -59,6 +62,15 @@ function renderGrid() {
 }
 
 function getMietbar(boatID, startDate, endDate) {
+
+    const verfuegbarkeit = window.APP.enums.verfuegbarkeiten;
+
+    const boat = boote[boatID];
+
+    //Wenn keine Verfügbarkeit
+    const l = verfuegbarkeit[boat.availability];
+    if (boat.availability !== 1) return l;
+
     const reservations = bootMieten[boatID];
 
     if (isEmpty(reservations)) return 'Verfügbar';
@@ -297,7 +309,7 @@ async function wireBookingForm() {
                     closeModal('bookingModal');
                 }
             } else {
-                alert('Boot ist bereits gebucht');
+                alert('Boot ist aktuell nicht verfügbar');
             }
         });
 }
