@@ -15,6 +15,7 @@ function buildUrl(path) {
 export function toFormData(obj, key = 'data') {
     const fd = new FormData();
     fd.append(key, JSON.stringify(obj ?? {}));
+    fd.append('csrf_test_name', window.APP?.csrf || '');
     return fd;
 }
 

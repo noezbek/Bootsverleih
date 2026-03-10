@@ -426,7 +426,7 @@ async function handleReservation() {
             if (availableSpots === 0) {
                 marker.classList.remove('partial');
                 marker.classList.add('reserved');
-                const boatNames = reservations.map(r => boats[r.boot].name).join(', ');
+                const boatNames = reservations.map(r => boats[r.boot]?.name).join(', ');
                 marker.title = `${berth.name} - Voll belegt (${boatNames})`;
             } else {
                 marker.classList.add('partial');
